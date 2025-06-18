@@ -91,8 +91,20 @@
         import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-omegle-clone';
+        // WARNING: It is NOT recommended to hardcode your Firebase config in client-side code.
+        // This is done here for demonstration/testing purposes only. In a production environment,
+        // use environment variables or a secure server-side method to load these keys.
+        const firebaseConfig = {
+          apiKey: "AIzaSyBcKpDm14W4GZqQncV1LOtS3Hn5t1kK-hw",
+          authDomain: "omegle-c7bdb.firebaseapp.com",
+          projectId: "omegle-c7bdb",
+          storageBucket: "omegle-c7bdb.appspot.com", // Corrected storage bucket domain
+          messagingSenderId: "470349324814",
+          appId: "1:470349324814:web:8271072b8d4cd0de01125f",
+          measurementId: "G-P65WBJMXX3"
+        };
+        
+        const appId = 'omegle-c7bdb'; // Using projectId as the app identifier
         
         let app, db, auth;
         let userId;
@@ -132,9 +144,9 @@
 
         // --- Initialization ---
         async function init() {
-            if (Object.keys(firebaseConfig).length === 0) {
-                 statusEl.textContent = 'Firebase config not found. App cannot run.';
-                 console.error("Firebase config is missing.");
+            if (!firebaseConfig.apiKey) {
+                 statusEl.textContent = 'Firebase config is invalid. App cannot run.';
+                 console.error("Firebase config is missing or invalid.");
                  return;
             }
             app = initializeApp(firebaseConfig);
