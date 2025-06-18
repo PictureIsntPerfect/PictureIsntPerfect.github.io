@@ -3,385 +3,385 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Chat Support</title>
-    <!-- Tailwind CSS for styling -->
+    <title>Random Video Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tone.js for audio -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <style>
-        /* Custom styles for the chat application */
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom scrollbar for a cleaner look */
-        #chat-messages::-webkit-scrollbar {
-            width: 6px;
-        }
-        #chat-messages::-webkit-scrollbar-track {
-            background: #f1f5f9; /* slate-100 */
-        }
-        #chat-messages::-webkit-scrollbar-thumb {
-            background: #94a3b8; /* slate-400 */
-            border-radius: 3px;
-        }
-        #chat-messages::-webkit-scrollbar-thumb:hover {
-            background: #64748b; /* slate-500 */
+        video {
+            transform: scaleX(-1); /* Mirror effect for webcam */
         }
     </style>
 </head>
-<body class="bg-slate-100 flex flex-col h-screen antialiased text-slate-800">
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
 
-    <!-- Header -->
-    <header class="bg-white shadow-md w-full p-4 flex justify-between items-center z-10">
-        <div class="flex items-center space-x-3">
-            <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-            <h1 class="text-xl font-bold text-slate-700">Live Chat Support</h1>
-            <span id="user-role-display" class="text-sm font-medium bg-slate-200 text-slate-600 px-2 py-1 rounded-full"></span>
-        </div>
-        <button id="admin-login-btn" class="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75 transition duration-200">
-            Admin Login
-        </button>
-        <div id="admin-info" class="hidden items-center space-x-3">
-            <span class="font-semibold">Admin Mode</span>
-            <div class="flex items-center space-x-2">
-                <label for="admin-color-picker" class="text-sm font-medium text-slate-600">Color:</label>
-                <input type="color" id="admin-color-picker" class="w-8 h-8 p-1 bg-white border border-slate-300 rounded-md cursor-pointer" title="Change my message color">
-            </div>
-            <button id="play-song-btn" class="px-3 py-2 bg-green-500 text-white font-semibold rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75 transition duration-200 text-sm">
-                Play Song
-            </button>
-            <button id="clear-chat-btn" class="px-3 py-2 bg-amber-500 text-white font-semibold rounded-lg shadow-md hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-opacity-75 transition duration-200 text-sm">
-                Clear Chat
-            </button>
-            <button id="logout-btn" class="px-3 py-2 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-75 transition duration-200 text-sm">
-                Logout
-            </button>
-        </div>
-    </header>
+    <div class="container mx-auto p-4 max-w-4xl">
+        <h1 class="text-3xl font-bold text-center mb-6 text-indigo-400">Random Video Chat</h1>
 
-    <!-- Main Chat Area -->
-    <main class="flex-1 flex flex-col p-4 md:p-6 lg:p-8 overflow-y-hidden">
-        <div class="bg-white rounded-xl shadow-xl flex flex-col flex-1 max-w-4xl w-full mx-auto">
-            <!-- Chat Messages -->
-            <div id="chat-messages" class="flex-1 p-6 overflow-y-auto">
-                <!-- Messages and notifications will be injected here by JavaScript -->
+        <div id="status" class="text-center mb-4 p-3 rounded-lg bg-gray-800 text-gray-300">Welcome! Click "Start" to find a chat partner.</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div id="local-video-container" class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                <h2 class="text-lg font-semibold p-3 bg-gray-700">You</h2>
+                <video id="localVideo" autoplay playsinline muted class="w-full h-auto"></video>
             </div>
-            <!-- Message Input -->
-            <div class="bg-slate-50 border-t border-slate-200 p-4">
-                <form id="message-form" class="flex items-center space-x-4">
-                    <input type="text" id="message-input" placeholder="Type your message..." autocomplete="off" class="flex-1 w-full px-4 py-2 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200" required>
-                    <button type="submit" class="px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75 transition duration-200 flex items-center">
-                        Send
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
-                    </button>
-                </form>
+            <div id="remote-video-container" class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+                <h2 class="text-lg font-semibold p-3 bg-gray-700">Partner</h2>
+                 <div id="remote-video-placeholder" class="flex items-center justify-center h-full min-h-[200px] bg-gray-800">
+                    <p class="text-gray-500">Waiting for partner...</p>
+                </div>
+                <video id="remoteVideo" autoplay playsinline class="w-full h-auto hidden"></video>
             </div>
         </div>
-    </main>
-    
-    <!-- Admin Login Modal -->
-    <div id="login-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <!-- Modal content... -->
+
+        <div class="flex justify-center space-x-4">
+            <button id="startButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-lg">Start</button>
+            <button id="hangupButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-lg" disabled>Hang Up</button>
+        </div>
+         <div class="text-center mt-4 text-sm text-gray-500">
+            Your ID: <span id="userId" class="font-mono"></span>
+        </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-          apiKey: "AIzaSyC553UPBeuwAUdINVJ5AqZMUIZ1DwwY73E",
-          authDomain: "liveadmintalk.firebaseapp.com",
-          projectId: "liveadmintalk",
-          storageBucket: "liveadmintalk.firebasestorage.app",
-          messagingSenderId: "278045849471",
-          appId: "1:278045849471:web:efb2ed547b6fd57f7b4c4a",
-          measurementId: "G-C13C2QVX3C"
-        };
-
-        // Import Firebase services
+        // Firebase and WebRTC implementation
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, doc, setDoc, getDoc, orderBy, getDocs, writeBatch, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        
-        // --- DOM Elements ---
-        const adminLoginBtn = document.getElementById('admin-login-btn');
-        const loginModal = document.getElementById('login-modal');
-        const messageForm = document.getElementById('message-form');
-        const messageInput = document.getElementById('message-input');
-        const chatMessages = document.getElementById('chat-messages');
-        const userRoleDisplay = document.getElementById('user-role-display');
-        const adminInfo = document.getElementById('admin-info');
-        const logoutBtn = document.getElementById('logout-btn');
-        const clearChatBtn = document.getElementById('clear-chat-btn');
-        const adminColorPicker = document.getElementById('admin-color-picker');
-        const playSongBtn = document.getElementById('play-song-btn');
+        import { getFirestore, collection, doc, addDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // --- App State ---
-        let isAdmin = false;
-        let authUser = null;
-        let messagesUnsubscribe = null;
-        let configUnsubscribe = null;
-        let eventsUnsubscribe = null;
-        let currentMessages = [];
-        let adminColor = '#4f46e5'; // Default: Tailwind's indigo-600
-        let lastEventId = null;
-        const CHAT_ID = "main-chat-room";
+        // --- Firebase Configuration ---
+        // User's Firebase configuration has been added here.
+        const firebaseConfig = {
+          apiKey: "AIzaSyBcKpDm14W4GZqQncV1LOtS3Hn5t1kK-hw",
+          authDomain: "omegle-c7bdb.firebaseapp.com",
+          projectId: "omegle-c7bdb",
+          storageBucket: "omegle-c7bdb.appspot.com",
+          messagingSenderId: "470349324814",
+          appId: "1:470349324814:web:8271072b8d4cd0de01125f",
+          measurementId: "G-P65WBJMXX3"
+        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-omegle-clone';
 
-        // --- Firebase Initialization ---
+        // --- Initialize Firebase ---
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const auth = getAuth(app);
-        
-        // --- References ---
-        const messagesColRef = collection(db, "chats", CHAT_ID, "messages");
-        const configRef = doc(db, "chats", CHAT_ID, "config", "settings");
-        const eventsColRef = collection(db, "chats", CHAT_ID, "events");
 
-        // --- Audio Setup ---
-        let audioStarted = false;
-        const synth = new Tone.Synth().toDestination();
-        document.body.addEventListener('click', () => {
-            if (!audioStarted && Tone.context.state !== 'running') {
-                Tone.start();
-                audioStarted = true;
-                console.log('Audio context started.');
-            }
-        }, { once: true });
+        // --- UI Elements ---
+        const startButton = document.getElementById('startButton');
+        const hangupButton = document.getElementById('hangupButton');
+        const localVideo = document.getElementById('localVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const statusDiv = document.getElementById('status');
+        const userIdSpan = document.getElementById('userId');
+        const remoteVideoPlaceholder = document.getElementById('remote-video-placeholder');
+
+
+        // --- WebRTC Configuration ---
+        const servers = {
+            iceServers: [
+                { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] },
+            ],
+            iceCandidatePoolSize: 10,
+        };
+
+        let pc = new RTCPeerConnection(servers);
+        let localStream = null;
+        let remoteStream = null;
+        let currentRoomId = null;
+        let unsubscribeRoom = null;
+        let userId = null;
 
         // --- Authentication ---
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                authUser = user;
-                checkAdminPersistence();
-                listenToMessages();
-                listenToConfigChanges();
-                listenToEvents();
-            } else {
-                signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
-            }
-        });
-
-        function checkAdminPersistence() {
-            if(sessionStorage.getItem('isAdmin') === 'true' && authUser) {
-                setAdminView();
-            } else {
-                setUserView();
-            }
-        }
-        
-        // --- View Management ---
-        function setAdminView() {
-            isAdmin = true;
-            adminLoginBtn.classList.add('hidden');
-            adminInfo.classList.remove('hidden');
-            adminInfo.classList.add('flex');
-            userRoleDisplay.textContent = "Admin";
-            userRoleDisplay.classList.remove('bg-slate-200');
-            userRoleDisplay.classList.add('bg-indigo-100', 'text-indigo-700');
-            sessionStorage.setItem('isAdmin', 'true');
-        }
-
-        function setUserView() {
-            isAdmin = false;
-            adminLoginBtn.classList.remove('hidden');
-            adminInfo.classList.add('hidden');
-            userRoleDisplay.textContent = "Spike (You)";
-            userRoleDisplay.classList.remove('bg-indigo-100', 'text-indigo-700');
-            userRoleDisplay.classList.add('bg-slate-200');
-            sessionStorage.removeItem('isAdmin');
-        }
-
-        // --- Modal Logic & Admin Login ---
-        // (This section is unchanged from previous version)
-        loginModal.innerHTML = document.querySelector('#login-modal-content')?.innerHTML || `
-            <div class="bg-white rounded-lg shadow-2xl p-8 w-full max-w-sm m-4">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-slate-800">Admin Login</h2>
-                    <button id="close-modal-btn" class="text-slate-500 hover:text-slate-800 transition">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-                <form id="login-form">
-                    <div class="mb-4">
-                        <label for="username" class="block text-sm font-medium text-slate-700 mb-1">Username</label>
-                        <input type="text" id="username" class="w-full px-4 py-2 border border-slate-300 rounded-lg" required>
-                    </div>
-                    <div class="mb-6">
-                        <label for="password" class="block text-sm font-medium text-slate-700 mb-1">Password</label>
-                        <input type="password" id="password" class="w-full px-4 py-2 border border-slate-300 rounded-lg" required>
-                    </div>
-                    <p id="login-error" class="text-red-500 text-sm mb-4 hidden"></p>
-                    <button type="submit" class="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-lg">Login</button>
-                </form>
-            </div>
-        `;
-
-        adminLoginBtn.addEventListener('click', () => loginModal.classList.remove('hidden'));
-        loginModal.addEventListener('click', (event) => {
-            if (event.target === loginModal || event.target.closest('#close-modal-btn')) {
-                loginModal.classList.add('hidden');
-            }
-        });
-        loginModal.querySelector('#login-form')?.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (e.target.username.value === 'KHEMIST' && e.target.password.value === 'ThisIsMySite1212') {
-                setAdminView();
-                loginModal.classList.add('hidden');
-            } else {
-                loginModal.querySelector('#login-error').textContent = 'Invalid credentials.';
-                loginModal.querySelector('#login-error').classList.remove('hidden');
-            }
-        });
-
-
-        // --- Admin Actions ---
-        logoutBtn.addEventListener('click', () => setUserView());
-        
-        adminColorPicker.addEventListener('input', async (e) => {
-            const newColor = e.target.value;
+        async function authSetup() {
             try {
-                // Update color in Firestore so all clients can see it
-                await setDoc(configRef, { adminColor: newColor }, { merge: true });
-            } catch (error) {
-                console.error("Error updating color:", error);
+                // When using a custom Firebase config, we must sign in anonymously.
+                // The custom token is tied to a different Firebase project.
+                await signInAnonymously(auth);
+            } catch(e) {
+                console.error("Authentication failed", e);
+                statusDiv.textContent = "Authentication failed. Please refresh.";
             }
-        });
 
-        clearChatBtn.addEventListener('click', async () => {
-             // Create a chat cleared event so users get a notification
-            await addDoc(eventsColRef, { type: 'chat_cleared', timestamp: serverTimestamp(), by: 'admin' });
-
-            // Delete all message documents
-            const querySnapshot = await getDocs(messagesColRef);
-            const batch = writeBatch(db);
-            querySnapshot.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-        });
-
-        playSongBtn.addEventListener('click', async () => {
-            await addDoc(eventsColRef, { type: 'play_song', timestamp: serverTimestamp() });
-        });
-
-        // --- Firestore Listeners ---
-        function listenToConfigChanges() {
-            if (configUnsubscribe) configUnsubscribe();
-            configUnsubscribe = onSnapshot(configRef, (doc) => {
-                if (doc.exists()) {
-                    const newColor = doc.data().adminColor;
-                    if (newColor) {
-                        adminColor = newColor;
-                        adminColorPicker.value = newColor;
-                        renderMessages(currentMessages); // Re-render messages with new color
-                    }
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    userId = user.uid;
+                    userIdSpan.textContent = userId;
+                    console.log("Signed in with UID:", userId);
+                } else {
+                    userId = null;
+                    userIdSpan.textContent = '';
+                    console.log("User is signed out.");
                 }
             });
         }
-        
-        function listenToMessages() {
-            if (messagesUnsubscribe) messagesUnsubscribe();
-            const q = query(messagesColRef, orderBy("createdAt"));
-            messagesUnsubscribe = onSnapshot(q, (snapshot) => {
-                currentMessages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderMessages(currentMessages);
-            }, (error) => console.error("Message listener error:", error));
+        authSetup();
+
+
+        // --- Core Functions ---
+
+        /**
+         * Starts the user's camera and microphone
+         */
+        async function startMedia() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                localVideo.srcObject = localStream;
+
+                localStream.getTracks().forEach(track => {
+                    pc.addTrack(track, localStream);
+                });
+            } catch (error) {
+                console.error("Error accessing media devices.", error);
+                statusDiv.textContent = "Could not access camera/microphone. Please allow permissions.";
+                return false;
+            }
+            return true;
         }
 
-        function listenToEvents() {
-            if (eventsUnsubscribe) eventsUnsubscribe();
-            // Listen only to events that are new
-            const q = query(eventsColRef, orderBy('timestamp', 'desc'), (ref) => ref.limit(1));
-            eventsUnsubscribe = onSnapshot(q, (snapshot) => {
-                snapshot.forEach(doc => {
-                    // Process only the very latest event, and only if we haven't seen it
-                    if (doc.id !== lastEventId) {
-                        lastEventId = doc.id;
-                        const event = doc.data();
-                        if (event.type === 'play_song') {
-                            playMelody();
-                        } else if (event.type === 'chat_cleared') {
-                             displayNotification("Admin has cleared the chat.");
-                        }
-                    }
+        /**
+         * Main function to start the matching process
+         */
+        async function start() {
+            if (!userId) {
+                statusDiv.textContent = "Authenticating... Please wait.";
+                setTimeout(start, 500); // Retry after a short delay
+                return;
+            }
+            
+            startButton.disabled = true;
+
+            const mediaSuccess = await startMedia();
+            if (!mediaSuccess) {
+                startButton.disabled = false;
+                return;
+            }
+            
+            hangupButton.disabled = false;
+            statusDiv.textContent = "Searching for a partner...";
+
+            const waitingPoolRef = collection(db, `artifacts/${appId}/public/data/waiting_pool`);
+            const q = query(waitingPoolRef, where("status", "==", "waiting"));
+            const waitingDocs = await getDocs(q);
+            
+            const otherWaitingDocs = waitingDocs.docs.filter(doc => doc.data().userId !== userId);
+
+
+            if (otherWaitingDocs.length === 0) {
+                // No one else is waiting, create a new waiting entry
+                const waitingDocRef = await addDoc(waitingPoolRef, {
+                    userId: userId,
+                    status: "waiting",
+                    createdAt: new Date(),
                 });
+                console.log("Added to waiting pool, doc ID:", waitingDocRef.id);
+                listenForPartner(waitingDocRef.id);
+            } else {
+                // Someone is waiting, let's connect
+                const waitingDoc = otherWaitingDocs[0]; // Connect with the first one
+                const partnerId = waitingDoc.data().userId;
+                console.log("Found a partner:", partnerId);
+
+                // Create a room and invite the partner. This user is the 'caller'.
+                await createAndJoinRoom(waitingDoc.id, partnerId);
+            }
+        }
+
+
+        /**
+         * Listen for a partner to join our waiting document
+         */
+        function listenForPartner(waitingDocId) {
+             const waitingDocRef = doc(db, `artifacts/${appId}/public/data/waiting_pool`, waitingDocId);
+
+            unsubscribeRoom = onSnapshot(waitingDocRef, async (docSnap) => {
+                const data = docSnap.data();
+                if (data && data.status === "connected" && data.roomId) {
+                    console.log("Partner connected! Joining room as 'callee':", data.roomId);
+                    statusDiv.textContent = "Partner found! Connecting...";
+                    currentRoomId = data.roomId;
+                    if(unsubscribeRoom) unsubscribeRoom(); 
+                    
+                    // This user is the 'callee'
+                    await joinRoom(data.roomId);
+                    // The waiting doc is no longer needed
+                    await deleteDoc(waitingDocRef);
+                }
             });
         }
-        
-        // --- Rendering & UI ---
-        function renderMessages(messages) {
-            chatMessages.innerHTML = ''; // Clear everything
-            if (messages.length > 0) {
-                messages.forEach(msg => {
-                    const messageEl = createMessageElement(msg);
-                    chatMessages.appendChild(messageEl);
-                });
-            } else {
-                 displayNotification("No messages yet. Start the conversation!");
-            }
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        function displayNotification(text) {
-             const notificationEl = document.createElement('div');
-             notificationEl.className = 'text-center text-slate-500 my-4 text-sm italic';
-             notificationEl.textContent = text;
-             chatMessages.appendChild(notificationEl);
-        }
 
-        function createMessageElement(msg) {
-            const wrapper = document.createElement('div');
-            const bubble = document.createElement('div');
-            const roleLabel = document.createElement('div');
-            
-            const isMyMessage = (isAdmin && msg.isAdmin) || (!isAdmin && !msg.isAdmin);
-            
-            wrapper.className = `flex flex-col mb-4 ${isMyMessage ? 'items-end' : 'items-start'}`;
-            
-            roleLabel.className = `text-xs font-bold mb-1 ${msg.isAdmin ? 'text-indigo-500' : 'text-slate-500'}`;
-            roleLabel.textContent = msg.isAdmin ? 'Admin' : 'Spike';
+        /**
+         * Create a new room, invite the partner, and start the WebRTC offer process.
+         * The user executing this is the "caller".
+         */
+        async function createAndJoinRoom(waitingDocId, partnerId) {
+            const roomRef = doc(collection(db, `artifacts/${appId}/public/data/rooms`));
+            currentRoomId = roomRef.id;
 
-            bubble.className = 'rounded-lg px-4 py-2 max-w-xs lg:max-w-md break-words';
-            bubble.textContent = msg.text;
-            
-            if (msg.isAdmin) {
-                bubble.style.backgroundColor = adminColor; // Use dynamic, synced admin color
-                bubble.style.color = 'white';
-            } else {
-                bubble.classList.add(isMyMessage ? 'bg-indigo-600' : 'bg-slate-200', isMyMessage ? 'text-white' : 'text-slate-800');
-            }
+            console.log("Creating room as 'caller':", currentRoomId);
 
-            wrapper.appendChild(roleLabel);
-            wrapper.appendChild(bubble);
+            // Setup WebRTC listeners for the caller
+            setupPeerConnectionListeners(roomRef, 'caller');
 
-            return wrapper;
-        }
+            const offerDescription = await pc.createOffer();
+            await pc.setLocalDescription(offerDescription);
 
-        messageForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!authUser || !messageInput.value.trim()) return;
-            await addDoc(messagesColRef, {
-                text: messageInput.value.trim(),
-                createdAt: serverTimestamp(),
-                uid: authUser.uid,
-                isAdmin: isAdmin
+            const offer = {
+                sdp: offerDescription.sdp,
+                type: offerDescription.type,
+            };
+
+            await setDoc(roomRef, { offer, callerId: userId, calleeId: partnerId });
+
+            // Update the waiting pool document to notify the other user
+            const waitingDocRef = doc(db, `artifacts/${appId}/public/data/waiting_pool`, waitingDocId);
+            await updateDoc(waitingDocRef, {
+                status: "connected",
+                roomId: currentRoomId,
+                partnerId: userId
             });
-            messageInput.value = '';
-        });
 
-        // --- Audio Function ---
-        function playMelody() {
-             if (Tone.context.state !== 'running') {
-                Tone.start();
-             }
-             const now = Tone.now();
-             synth.triggerAttackRelease("C4", "8n", now);
-             synth.triggerAttackRelease("E4", "8n", now + 0.2);
-             synth.triggerAttackRelease("G4", "8n", now + 0.4);
-             synth.triggerAttackRelease("C5", "4n", now + 0.6);
+             // Listen for the answer from the 'callee'
+            unsubscribeRoom = onSnapshot(roomRef, (snapshot) => {
+                const data = snapshot.data();
+                if (!pc.currentRemoteDescription && data?.answer) {
+                    console.log('Got remote description (answer):', data.answer);
+                    const answerDescription = new RTCSessionDescription(data.answer);
+                    pc.setRemoteDescription(answerDescription);
+                }
+            });
         }
 
-    </script>
-</body>
+
+        /**
+         * Join an existing room created by a caller.
+         * The user executing this is the "callee".
+         */
+        async function joinRoom(roomId) {
+            const roomRef = doc(db, `artifacts/${appId}/public/data/rooms`, roomId);
+            const roomSnapshot = await getDoc(roomRef);
+
+            if (roomSnapshot.exists()) {
+                 console.log('Joining room as callee:', roomId);
+                 // Setup WebRTC listeners for the callee
+                 setupPeerConnectionListeners(roomRef, 'callee');
+
+                const roomData = roomSnapshot.data();
+                await pc.setRemoteDescription(new RTCSessionDescription(roomData.offer));
+
+                const answerDescription = await pc.createAnswer();
+                await pc.setLocalDescription(answerDescription);
+
+                const answer = {
+                    type: answerDescription.type,
+                    sdp: answerDescription.sdp,
+                };
+
+                await updateDoc(roomRef, { answer });
+            } else {
+                console.error("Room does not exist!");
+                statusDiv.textContent = "Error: Connection room not found.";
+                hangUp();
+            }
+        }
+
+        /**
+         * Set up all the necessary listeners on the RTCPeerConnection object,
+         * differentiating between the 'caller' and 'callee' roles.
+         */
+        function setupPeerConnectionListeners(roomRef, role) {
+             const callerCandidatesCollection = collection(roomRef, 'callerCandidates');
+             const calleeCandidatesCollection = collection(roomRef, 'calleeCandidates');
+
+            pc.ontrack = (event) => {
+                console.log('Got remote track:', event.streams[0]);
+                statusDiv.textContent = "Connected!";
+                remoteStream = event.streams[0];
+                remoteVideo.srcObject = remoteStream;
+                remoteVideo.classList.remove('hidden');
+                remoteVideoPlaceholder.classList.add('hidden');
+            };
+
+            if (role === 'caller') {
+                // The caller sends candidates to 'callerCandidates' and listens to 'calleeCandidates'
+                pc.onicecandidate = (event) => {
+                    if (event.candidate) addDoc(callerCandidatesCollection, event.candidate.toJSON());
+                };
+                onSnapshot(calleeCandidatesCollection, (snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+                    });
+                });
+            } else { // role === 'callee'
+                // The callee sends candidates to 'calleeCandidates' and listens to 'callerCandidates'
+                pc.onicecandidate = (event) => {
+                    if (event.candidate) addDoc(calleeCandidatesCollection, event.candidate.toJSON());
+                };
+                onSnapshot(callerCandidatesCollection, (snapshot) => {
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
+                    });
+                });
+            }
+        }
+
+        /**
+         * Hang up the call, clean up streams and Firebase documents.
+         */
+        async function hangUp() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            if (remoteStream) {
+                remoteStream.getTracks().forEach(track => track.stop());
+            }
+
+            if (pc) {
+                pc.close();
+            }
+
+            // Clean up UI
+            localVideo.srcObject = null;
+            remoteVideo.srcObject = null;
+            remoteVideo.classList.add('hidden');
+            remoteVideoPlaceholder.classList.remove('hidden');
+            statusDiv.textContent = "Call ended. Click 'Start' to find a new partner.";
+            startButton.disabled = false;
+            hangupButton.disabled = true;
+
+            // Clean up Firebase room
+            if (currentRoomId) {
+                const roomRef = doc(db, `artifacts/${appId}/public/data/rooms`, currentRoomId);
+                const collections = ['callerCandidates', 'calleeCandidates'];
+                for (const coll of collections) {
+                    const candidatesSnapshot = await getDocs(collection(roomRef, coll));
+                    candidatesSnapshot.forEach(async (candidateDoc) => await deleteDoc(candidateDoc.ref));
+                }
+                await deleteDoc(roomRef);
+            }
+            
+            // Also delete from waiting pool if the user hangs up while waiting
+            const waitingPoolRef = collection(db, `artifacts/${appId}/public/data/waiting_pool`);
+            const q = query(waitingPoolRef, where("userId", "==", userId));
+            const waitingDocs = await getDocs(q);
+            waitingDocs.forEach(async (doc) => await deleteDoc(doc.ref));
+
+            // Reset state for a new call
+            pc = new RTCPeerConnection(servers);
+            currentRoomId = null;
+            if (unsubscribeRoom) {
+                unsubscribeRoom();
+                unsubscribeRoom = null;
+            }
+        }
+
+        // --- Event Listeners ---
+        startButton.onclick = start;
+        hangupButton.onclick = hangUp;
+        
+        window.onbeforeunload = hangUp;
+
+    </script></body>
 </html>
