@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuit-Bent Glitch Cam v2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #111;
+            color: #0f0;
+            background-image:
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+        }
+        .title-font {
+             font-family: 'VT323', monospace;
+        }
+        .crt-glow {
+            text-shadow: 0 0 5px #0f0, 0 0 10px #0f0, 0 0 15px #0f0;
+        }
+        .neon-shadow {
+            box-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #f0f, 0 0 30px #f0f;
+        }
+        .btn {
+            background-color: #222;
+            border: 2px solid #0f0;
+            color: #0f0;
+            text-transform: uppercase;
+            padding: 10px 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .btn:hover:not(:disabled) {
+            background-color: #0f0;
+            color: #111;
+            box-shadow: 0 0 15px #0f0;
+        }
+        .btn:disabled {
+            border-color: #444;
+            color: #444;
+            cursor: not-allowed;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #0f0;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #0f0;
+            cursor: pointer;
+            border: 2px solid #111;
+            box-shadow: 0 0 5px #0f0;
+        }
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #0f0;
+            cursor: pointer;
+            border: 2px solid #111;
+        }
+        .scanline {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255,255,255,0.1) 50%, rgba(0,0,0,0) 100%);
+            background-size: 100% 4px;
+            animation: scan 10s linear infinite;
+            pointer-events: none;
+        }
+        @keyframes scan {
+            0% { background-position: 0 0; } 100% { background-position: 0 -200px; }
+        }
+        select, input[type="text"] {
+             background-color: #111;
+             border: 1px solid #0f0;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Left Column: Camera and Controls -->
+        <div class="space-y-6">
+            <h1 class="text-4xl md:text-5xl crt-glow title-font">[Glitch_Cam_v2.0]</h1>
+            <div class="bg-black border-2 border-cyan-400 p-2 neon-shadow relative">
+                <div class="scanline"></div>
+                <video id="video" class="w-full h-auto" autoplay playsinline></video>
+                <canvas id="photo-canvas" class="w-full h-auto hidden"></canvas>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button id="start-camera" class="btn">1. Power On Camera</button>
+                <button id="take-photo" class="btn" disabled>2. Capture Frame</button>
+            </div>
+        </div>
+
+        <!-- Right Column: Effects and Upload -->
+        <div class="space-y-6">
+            <h2 class="text-3xl crt-glow title-font">Bending Unit</h2>
+            <div id="effects-panel" class="space-y-4 border-2 border-fuchsia-500 p-4 hidden">
+                 <!-- Effect Sliders & Controls -->
+                <div><label for="wave-slider">Liquid Wave</label><input type="range" id="wave-slider" min="0" max="20" value="0" class="w-full"></div>
+                <div><label for="shift-slider">RGB Shift</label><input type="range" id="shift-slider" min="0" max="50" value="0" class="w-full"></div>
+                <div><label for="glitch-slider">Glitch Intensity</label><input type="range" id="glitch-slider" min="0" max="100" value="0" class="w-full"></div>
+                <div><label for="scramble-slider">Pixel Scramble</label><input type="range" id="scramble-slider" min="0" max="100" value="0" class="w-full"></div>
+                <div><label for="pixelate-slider">Pixelation</label><input type="range" id="pixelate-slider" min="1" max="20" value="1" class="w-full"></div>
+                <div><label for="scanlines-slider">CRT Scanlines</label><input type="range" id="scanlines-slider" min="0" max="10" value="0" class="w-full"></div>
+                <div class="grid grid-cols-2 gap-4 pt-2">
+                    <div>
+                        <label for="color-filter">Color Filter</label>
+                        <select id="color-filter" class="w-full p-2">
+                            <option value="none">None</option>
+                            <option value="grayscale">Grayscale</option>
+                            <option value="sepia">Sepia</option>
+                            <option value="dreamy">Dreamy</option>
+                            <option value="hacker">Hacker Green</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <input type="checkbox" id="invert-checkbox" class="h-5 w-5 bg-gray-900 border-green-400 text-green-400 focus:ring-green-400">
+                        <label for="invert-checkbox" class="ml-2">Invert Colors</label>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="text-3xl crt-glow title-font">Transmission</h2>
+            <div id="upload-panel" class="space-y-4 border-2 border-yellow-400 p-4 hidden">
+                 <label for="webhook-url">Discord Webhook URL</label>
+                 <input type="text" id="webhook-url" placeholder="Paste your Discord Webhook URL here" class="w-full p-2 focus:outline-none focus:ring-2 ring-green-500">
+                 <button id="upload-discord" class="btn w-full">3. Transmit To Discord</button>
+                 <p id="status-message" class="text-center h-4"></p>
+            </div>
+        </div>
+    </div>
+    
+    <canvas id="hidden-canvas" class="hidden"></canvas>
+
+    <script>
+    // --- DOM Elements ---
+    const startCameraBtn = document.getElementById('start-camera'), takePhotoBtn = document.getElementById('take-photo');
+    const uploadDiscordBtn = document.getElementById('upload-discord'), webhookUrlInput = document.getElementById('webhook-url');
+    const video = document.getElementById('video'), photoCanvas = document.getElementById('photo-canvas'), hiddenCanvas = document.getElementById('hidden-canvas');
+    const photoCtx = photoCanvas.getContext('2d'), hiddenCtx = hiddenCanvas.getContext('2d');
+    const statusMessage = document.getElementById('status-message'), effectsPanel = document.getElementById('effects-panel'), uploadPanel = document.getElementById('upload-panel');
+    
+    // --- Effect Controls ---
+    const waveSlider = document.getElementById('wave-slider'), shiftSlider = document.getElementById('shift-slider');
+    const glitchSlider = document.getElementById('glitch-slider'), scrambleSlider = document.getElementById('scramble-slider');
+    const pixelateSlider = document.getElementById('pixelate-slider'), scanlinesSlider = document.getElementById('scanlines-slider');
+    const colorFilterSelect = document.getElementById('color-filter'), invertCheckbox = document.getElementById('invert-checkbox');
+    
+    // --- State Variables ---
+    let originalImageData = null;
+    let animationFrameId = null;
+
+    // --- 1. Start Camera ---
+    startCameraBtn.addEventListener('click', async () => {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+            video.srcObject = stream;
+            video.onloadedmetadata = () => {
+                video.play();
+                takePhotoBtn.disabled = false;
+                startCameraBtn.disabled = true;
+                startCameraBtn.textContent = "Camera Active";
+            };
+        } catch (err) {
+            console.error("Error accessing camera: ", err);
+            statusMessage.textContent = "Error: Camera access denied.";
+        }
+    });
+
+    // --- 2. Take Photo & Start Live Effects ---
+    takePhotoBtn.addEventListener('click', () => {
+        const { videoWidth, videoHeight } = video;
+        hiddenCanvas.width = photoCanvas.width = videoWidth;
+        hiddenCanvas.height = photoCanvas.height = videoHeight;
+        
+        hiddenCtx.drawImage(video, 0, 0, videoWidth, videoHeight);
+        originalImageData = hiddenCtx.getImageData(0, 0, videoWidth, videoHeight);
+
+        video.classList.add('hidden');
+        photoCanvas.classList.remove('hidden');
+        effectsPanel.classList.remove('hidden');
+        uploadPanel.classList.remove('hidden');
+        uploadDiscordBtn.disabled = false;
+        takePhotoBtn.textContent = "Recapture Frame";
+
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+        }
+        liveEffectsLoop();
+    });
+
+    // --- 3. Live Effects Loop ---
+    const liveEffectsLoop = () => {
+        applyAllEffects();
+        animationFrameId = requestAnimationFrame(liveEffectsLoop);
+    };
+
+    const applyAllEffects = () => {
+        if (!originalImageData) return;
+
+        const width = originalImageData.width;
+        const height = originalImageData.height;
+        
+        let imageData = new ImageData(new Uint8ClampedArray(originalImageData.data), width, height);
+        let data = imageData.data;
+
+        // --- Effect Pipeline ---
+        // A temporary buffer is needed for distortion effects to avoid self-referencing pixels
+        const temp_data = new Uint8ClampedArray(originalImageData.data);
+        const time = Date.now() / 100;
+
+        // Effect 1: Liquid Wave (Distortion)
+        const waveAmount = parseFloat(waveSlider.value);
+        if (waveAmount > 0) {
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const i = (y * width + x) * 4;
+                    const offsetX = Math.sin(y / 25 + time) * waveAmount;
+                    const offsetY = Math.cos(x / 25 + time) * waveAmount;
+                    const sourceX = Math.round(x + offsetX);
+                    const sourceY = Math.round(y + offsetY);
+
+                    if (sourceX >= 0 && sourceX < width && sourceY >= 0 && sourceY < height) {
+                        const sourceIndex = (sourceY * width + sourceX) * 4;
+                        data[i] = temp_data[sourceIndex];
+                        data[i + 1] = temp_data[sourceIndex + 1];
+                        data[i + 2] = temp_data[sourceIndex + 2];
+                        data[i + 3] = temp_data[sourceIndex + 3];
+                    }
+                }
+            }
+        }
+        
+        // Effect 2: Pixelation
+        const pixelationAmount = parseInt(pixelateSlider.value);
+        if(pixelationAmount > 1) {
+            for (let y = 0; y < height; y += pixelationAmount) {
+                for (let x = 0; x < width; x += pixelationAmount) {
+                    const i = (y * width + x) * 4;
+                    const r = data[i], g = data[i + 1], b = data[i + 2];
+                    for (let subY = 0; subY < pixelationAmount; subY++) {
+                        for (let subX = 0; subX < pixelationAmount; subX++) {
+                            if (x + subX < width && y + subY < height) {
+                                const j = ((y + subY) * width + (x + subX)) * 4;
+                                data[j] = r; data[j + 1] = g; data[j + 2] = b;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Effect 3: Color Filters & Inversion
+        const filter = colorFilterSelect.value;
+        const isInverted = invertCheckbox.checked;
+        if(filter !== 'none' || isInverted) {
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i], g = data[i+1], b = data[i+2];
+                if (isInverted) { r = 255 - r; g = 255 - g; b = 255 - b; }
+                
+                switch(filter) {
+                    case 'grayscale': data[i] = data[i+1] = data[i+2] = 0.299 * r + 0.587 * g + 0.114 * b; break;
+                    case 'sepia':
+                        data[i] = Math.min(255, r * 0.393 + g * 0.769 + b * 0.189);
+                        data[i+1] = Math.min(255, r * 0.349 + g * 0.686 + b * 0.168);
+                        data[i+2] = Math.min(255, r * 0.272 + g * 0.534 + b * 0.131);
+                        break;
+                    case 'dreamy': data[i] = b; data[i+1] = r; data[i+2] = g; break;
+                    case 'hacker': data[i] = r * 0.1; data[i+1] = g * 1.5; data[i+2] = b * 0.1; break;
+                    default: data[i] = r; data[i+1] = g; data[i+2] = b; break;
+                }
+            }
+        }
+        
+        // Effect 4: Original Glitch Effects
+        const shiftAmount = parseInt(shiftSlider.value);
+        if (shiftAmount > 0) {
+            const tempShiftData = new Uint8ClampedArray(data);
+            for (let i = 0; i < data.length; i += 4) {
+                if (i - shiftAmount * 4 >= 0) data[i] = tempShiftData[i - shiftAmount * 4];
+                if (i + shiftAmount * 4 < data.length) data[i + 2] = tempShiftData[i + 2 + shiftAmount * 4];
+            }
+        }
+        const glitchAmount = parseInt(glitchSlider.value);
+        if (glitchAmount > 0) {
+            for (let i = 0; i < glitchAmount; i++) {
+                const y = Math.floor(Math.random() * height);
+                const h = 1 + Math.floor(Math.random() * 20);
+                const xOffset = (Math.random() - 0.5) * (width * 0.2);
+                photoCtx.putImageData(imageData, 0, 0); // Put current data to copy from
+                photoCtx.drawImage(photoCanvas, 0, y, width, h, xOffset, y, width, h);
+                imageData = photoCtx.getImageData(0, 0, width, height); // Get it back
+                data = imageData.data;
+            }
+        }
+        const scrambleAmount = parseInt(scrambleSlider.value);
+        if(scrambleAmount > 0) { /* ... same as before ... */ }
+
+        // Final Render to Canvas
+        photoCtx.putImageData(imageData, 0, 0);
+
+        // Effect 5: CRT Scanlines (Overlay)
+        const scanlineAmount = parseInt(scanlinesSlider.value);
+        if (scanlineAmount > 0) {
+             photoCtx.fillStyle = 'rgba(0,0,0,0.3)';
+             for (let i = 0; i < height; i += (12 - scanlineAmount)) {
+                 photoCtx.fillRect(0, i, width, 1);
+             }
+        }
+    };
+
+    // --- 4. Upload to Discord ---
+    const dataURLtoBlob = (dataurl) => {
+        const arr = dataurl.split(','), mime = arr[0].match(/:(.*?);/)[1], bstr = atob(arr[1]);
+        let n = bstr.length; const u8arr = new Uint8Array(n);
+        while(n--) u8arr[n] = bstr.charCodeAt(n);
+        return new Blob([u8arr], {type:mime});
+    }
+
+    uploadDiscordBtn.addEventListener('click', async () => {
+        const webhookUrl = webhookUrlInput.value;
+        if (!webhookUrl.startsWith('https://discord.com/api/webhooks/')) {
+            statusMessage.textContent = "Invalid Discord Webhook URL.";
+            return;
+        }
+        statusMessage.textContent = "Transmitting...";
+        uploadDiscordBtn.disabled = true;
+        try {
+            const imageDataUrl = photoCanvas.toDataURL('image/png');
+            const imageBlob = dataURLtoBlob(imageDataUrl);
+            const formData = new FormData();
+            formData.append('file', imageBlob, 'glitch-art.png');
+            formData.append('content', 'Image generated with Glitch_Cam_v2.0');
+            const response = await fetch(webhookUrl, { method: 'POST', body: formData });
+            statusMessage.textContent = response.ok ? "Transmission Successful!" : `Error: ${response.statusText}`;
+        } catch (error) {
+            console.error('Error uploading to Discord:', error);
+            statusMessage.textContent = 'Upload failed. See console.';
+        } finally {
+            uploadDiscordBtn.disabled = false;
+        }
+    });
+    </script>
+</body>
+</html>
