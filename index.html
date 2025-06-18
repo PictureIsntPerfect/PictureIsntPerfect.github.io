@@ -3,326 +3,267 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACID.WAV Visualizer v2.0</title>
+    <title>Real-Time Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Quantico:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @keyframes grid-pan {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 100% 100%; }
-        }
-        @keyframes text-glitch {
-            0%, 100% { text-shadow: -1.5px -1.5px 0 #0ff, 1.5px 1.5px 0 #f0f; }
-            25% { text-shadow: 1.5px 1.5px 0 #0ff, -1.5px -1.5px 0 #f0f; }
-            50% { text-shadow: 1.5px -1.5px 0 #0ff, -1.5px 1.5px 0 #f0f; }
-            75% { text-shadow: -1.5px 1.5px 0 #0ff, 1.5px -1.5px 0 #f0f; }
-        }
         body {
-            font-family: 'Quantico', sans-serif;
-            background-color: #111;
-            color: #0f0;
-            background-image:
-                linear-gradient(rgba(17, 17, 17, 0.95), rgba(17, 17, 17, 0.95)),
-                repeating-linear-gradient(0deg, transparent, transparent 19px, #333 20px),
-                repeating-linear-gradient(90deg, transparent, transparent 19px, #333 20px);
-            background-size: 100% 100%, 20px 20px, 20px 20px;
-            animation: grid-pan 30s linear infinite;
+            font-family: 'Inter', sans-serif;
         }
-        .main-panel {
-            background: rgba(10, 20, 15, 0.3);
-            border: 1px solid #0f0;
-            box-shadow: inset 0 0 10px #0f0, 0 0 20px #0f0;
-            backdrop-filter: blur(5px);
+        /* Custom scrollbar for a better look */
+        #messages-container::-webkit-scrollbar {
+            width: 8px;
         }
-        .title-font { font-family: 'Aldrich', sans-serif; }
-        .glitch-text { animation: text-glitch 0.1s infinite; }
-        .btn {
-            font-family: 'Aldrich', sans-serif; text-transform: uppercase;
-            background-color: #222; border: 1px solid #0f0; color: #0f0;
-            padding: 10px 15px; transition: all 0.2s;
-            box-shadow: inset 0 0 5px rgba(0,255,0,0.3);
+        #messages-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
         }
-        .btn:hover:not(:disabled) { background-color: #0f0; color: #111; box-shadow: 0 0 15px #0f0; }
-        .btn:disabled { border-color: #444; color: #555; box-shadow: none; cursor: not-allowed; }
-        .btn.active { background-color: #0f0; color: #111; text-shadow: none; }
-        input[type="range"] {
-            -webkit-appearance: none; appearance: none; width: 100%; height: 8px;
-            background: #222; border: 1px solid #0f0;
-        }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 10px; height: 20px;
-            background: #0f0; box-shadow: 0 0 10px #0f0; cursor: pointer;
-        }
-        input[type="text"], input[type="color"], select {
-            background-color: #1a1a1a; border: 1px solid #0f0; padding: 4px;
-        }
-        details summary { color: #0f0; font-family: 'Aldrich', sans-serif; cursor: pointer;}
-        .gallery-item {
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-        .gallery-item:hover, .gallery-item.active {
-            border-color: #0f0;
-            box-shadow: 0 0 10px #0f0;
+        #messages-container::-webkit-scrollbar-thumb {
+            background-color: #94a3b8;
+            border-radius: 10px;
+            border: 3px solid #f1f5f9;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-screen-2xl mx-auto space-y-8">
-        <header class="text-center py-4">
-            <h1 class="text-5xl md:text-7xl title-font glitch-text text-white">ACID.WAV</h1>
-        </header>
+<body class="bg-slate-100 flex flex-col items-center justify-center h-screen">
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- Left Column: Video and Main Controls -->
-            <div class="lg:col-span-3 main-panel p-4 space-y-4 rounded">
-                <div class="relative bg-black border border-fuchsia-500 shadow-lg shadow-fuchsia-500/30">
-                    <video id="video" class="w-full h-auto" autoplay playsinline muted></video>
-                    <canvas id="canvas" class="w-full h-auto absolute top-0 left-0"></canvas>
-                    <div id="strobe-overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none" style="background: white; opacity: 0;"></div>
-                </div>
-                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
-                     <button id="start-camera" class="btn col-span-full">[[ SYSTEM START ]]</button>
-                     <button id="use-webcam-btn" class="btn active" disabled>LIVE CAM</button>
-                     <label for="image-upload" class="btn text-center cursor-pointer" disabled>LOAD IMAGE</label>
-                     <input type="file" id="image-upload" class="hidden" accept="image/png,image/jpeg">
-                     <button id="record-btn" class="btn" disabled>REC</button>
-                     <button id="capture-btn" class="btn" disabled>CAPTURE</button>
-                     <button id="send-btn" class="btn" disabled>SEND</button>
-                     <label for="music-upload" class="btn text-center cursor-pointer">LOAD AUDIO</label>
-                     <input type="file" id="music-upload" class="hidden" accept="audio/mp3,audio/wav">
-                </div>
-                <div id="status-bar" class="text-center font-mono h-6 text-lime-400">STATUS: OFFLINE</div>
-            </div>
-
-            <!-- Right Column: Settings Panel -->
-            <div class="lg:col-span-1 main-panel p-4 space-y-3 rounded">
-                <h2 class="text-2xl title-font text-center border-b border-lime-500 pb-2 mb-3">DATA-BEND UNIT</h2>
-                <details open>
-                    <summary class="text-lg">VISUAL FX</summary>
-                    <div class="pl-4 pt-2 space-y-2 text-sm">
-                        <div><label>Acid Melt</label><input type="range" id="acid-melt" min="0" max="30" value="0"></div>
-                        <div><label>Sub Quake</label><input type="range" id="bass-shake" min="0" max="50" value="0"></div>
-                        <div><label>Strobe</label><input type="range" id="strobe" min="0" max="100" value="0"></div>
-                        <div><label>Chromatic Bleed</label><input type="range" id="rgb-shift" min="0" max="100" value="0"></div>
-                        <div><label>Scanlines</label><input type="range" id="scanlines" min="0" max="10" value="0"></div>
-                    </div>
-                </details>
-                <details open>
-                    <summary class="text-lg">COLOR & TEXTURE</summary>
-                     <div class="pl-4 pt-2 space-y-2 text-sm">
-                        <div><label>Posterize</label><input type="range" id="posterize" min="2" max="32" value="32"></div>
-                        <div><label>Hue Shift</label><input type="range" id="hue-rotate" min="0" max="360" value="0"></div>
-                        <select id="color-filter" class="w-full">
-                            <option value="none">Filter: None</option>
-                            <option value="thermal">Filter: Thermal</option>
-                            <option value="invert">Filter: Invert</option>
-                        </select>
-                     </div>
-                </details>
-                <details>
-                    <summary class="text-lg">TEXT OVERLAY</summary>
-                     <div class="pl-4 pt-2 space-y-2 text-sm">
-                        <input type="text" id="top-text" placeholder="Top Text" class="w-full">
-                        <input type="text" id="bottom-text" placeholder="Bottom Text" class="w-full">
-                        <div class="flex items-center space-x-2">
-                           <label>Size</label> <input type="range" id="font-size" min="10" max="100" value="40" class="flex-grow">
-                           <input type="color" id="font-color" value="#00FF00" class="w-10 h-8">
-                        </div>
-                     </div>
-                </details>
-            </div>
+    <div class="bg-white rounded-2xl shadow-2xl flex flex-col w-full max-w-4xl h-full sm:h-[90vh] m-4">
+        <!-- Header -->
+        <div class="p-6 border-b border-slate-200">
+            <h1 class="text-2xl font-bold text-slate-800">Real-Time Chat</h1>
+            <p class="text-sm text-slate-500 mt-1">Connect and chat with another user in real-time.</p>
         </div>
-        
-        <!-- Public Gallery -->
-        <div id="gallery-panel" class="main-panel p-4 rounded">
-            <h2 class="text-2xl title-font text-center border-b border-lime-500 pb-2 mb-3">PUBLIC GALLERY</h2>
-            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
-                <!-- Images will be injected here by JavaScript -->
+
+        <!-- User Info and Connection -->
+        <div id="connection-container" class="p-6 space-y-4 border-b border-slate-200">
+             <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p class="text-sm font-medium text-blue-800">Your User ID:</p>
+                <p id="current-user-id" class="text-lg font-mono bg-white p-2 rounded-md mt-1 text-center select-all cursor-pointer">Loading...</p>
+                 <p class="text-xs text-blue-600 mt-2">Share this ID with another user to connect.</p>
             </div>
+            <div class="flex flex-col sm:flex-row items-center gap-4">
+                <input type="text" id="other-user-id" placeholder="Enter other user's ID to connect" class="flex-grow w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <button id="connect-btn" class="w-full sm:w-auto bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Connect</button>
+            </div>
+             <div id="connection-status" class="text-center text-sm font-medium"></div>
+        </div>
+
+        <!-- Chat Area -->
+        <div id="chat-container" class="flex-grow p-6 overflow-y-auto hidden" >
+             <div id="messages-container" class="space-y-6">
+                <!-- Messages will be dynamically added here -->
+             </div>
+        </div>
+
+
+        <!-- Message Input -->
+        <div id="message-input-container" class="p-6 border-t border-slate-200 bg-slate-50 hidden">
+            <form id="message-form" class="flex items-center gap-4">
+                <input type="text" id="message-input" placeholder="Type your message..." class="flex-grow w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition" autocomplete="off">
+                <button type="submit" class="bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center gap-2">
+                    Send
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+            </form>
         </div>
     </div>
 
     <script type="module">
+        // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, collection, addDoc, serverTimestamp, query, where, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- DOM Elements ---
-        const startBtn = document.getElementById('start-camera'), recordBtn = document.getElementById('record-btn');
-        const captureBtn = document.getElementById('capture-btn'), sendBtn = document.getElementById('send-btn');
-        const useWebcamBtn = document.getElementById('use-webcam-btn');
-        const imageUploadInput = document.getElementById('image-upload');
-        const video = document.getElementById('video'), canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
-        const musicUpload = document.getElementById('music-upload');
-        const statusBar = document.getElementById('status-bar');
-        const strobeOverlay = document.getElementById('strobe-overlay');
-        const galleryGrid = document.getElementById('gallery-grid');
-        const fx = {
-            acidMelt: document.getElementById('acid-melt'), bassShake: document.getElementById('bass-shake'),
-            strobe: document.getElementById('strobe'), rgbShift: document.getElementById('rgb-shift'),
-            scanlines: document.getElementById('scanlines'), posterize: document.getElementById('posterize'),
-            hueRotate: document.getElementById('hue-rotate'), colorFilter: document.getElementById('color-filter'),
-        };
-        const txt = {
-            top: document.getElementById('top-text'), bottom: document.getElementById('bottom-text'),
-            size: document.getElementById('font-size'), color: document.getElementById('font-color'),
-        };
+        // Main function to encapsulate the application logic
+        function main() {
+            // --- Firebase Configuration ---
+            // These variables are provided by the environment.
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-chat-app';
+            const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        // --- State ---
-        let localStream, mediaRecorder, audioContext, audioSource, analyser, frequencyData;
-        let isRecording = false;
-        let recordedChunks = [], capturedBlob = null;
-        let musicElement = new Audio();
-        let activeSource = video; // Can be video element or an Image object
-        let animationFrameId;
+            // --- Initialize Firebase ---
+            let app, auth, db;
+            let currentUserId = null;
+            let chatRoomId = null;
+            let unsubscribeMessages = null;
 
-        // --- Firebase Setup ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'acid-wav-default';
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        
-        const imagesCollectionRef = collection(db, `artifacts/${appId}/public/data/images`);
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            } catch (error) {
+                console.error("Error initializing Firebase:", error);
+                document.getElementById('connection-status').textContent = 'Error initializing application.';
+                // This return is now valid as it's inside a function
+                return;
+            }
 
-        // --- Core Logic ---
-        async function main() {
-            await signInAnonymously(auth);
-            setupListeners();
-            renderLoop(); // Start render loop immediately
-        }
 
-        function setupListeners() {
-            startBtn.addEventListener('click', initCamera);
-            useWebcamBtn.addEventListener('click', useWebcamSource);
-            imageUploadInput.addEventListener('change', handleImageUpload);
-            
-            // Listen for new images in the gallery
-            const q = query(imagesCollectionRef); // Could add orderBy and limit later
-            onSnapshot(q, (snapshot) => {
-                const images = [];
-                snapshot.forEach(doc => images.push({ id: doc.id, ...doc.data() }));
-                // Simple sort by timestamp, newest first. For real apps, server-side ordering is better.
-                images.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-                
-                galleryGrid.innerHTML = ''; // Clear gallery
-                images.forEach(imgData => {
-                    const imgElement = document.createElement('img');
-                    imgElement.src = imgData.imageData;
-                    imgElement.className = "gallery-item object-cover w-full h-32 rounded";
-                    imgElement.onclick = () => useImageSource(imgElement, imgData.id);
-                    galleryGrid.appendChild(imgElement);
+            // --- UI Elements ---
+            const currentUserIdEl = document.getElementById('current-user-id');
+            const connectBtn = document.getElementById('connect-btn');
+            const otherUserIdInput = document.getElementById('other-user-id');
+            const connectionContainer = document.getElementById('connection-container');
+            const chatContainer = document.getElementById('chat-container');
+            const messageInputContainer = document.getElementById('message-input-container');
+            const messagesContainer = document.getElementById('messages-container');
+            const messageForm = document.getElementById('message-form');
+            const messageInput = document.getElementById('message-input');
+            const connectionStatus = document.getElementById('connection-status');
+
+
+            // --- Authentication ---
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    currentUserIdEl.textContent = currentUserId;
+                } else {
+                     try {
+                        if (initialAuthToken) {
+                            await signInWithCustomToken(auth, initialAuthToken);
+                        } else {
+                            await signInAnonymously(auth);
+                        }
+                    } catch (error) {
+                        console.error("Authentication failed:", error);
+                        connectionStatus.textContent = 'Authentication failed. Please refresh.';
+                    }
+                }
+            });
+
+
+            // --- Connect to Chat ---
+            connectBtn.addEventListener('click', async () => {
+                const otherUserId = otherUserIdInput.value.trim();
+                if (!otherUserId) {
+                    connectionStatus.textContent = 'Please enter a User ID.';
+                    connectionStatus.style.color = 'red';
+                    return;
+                }
+                if(otherUserId === currentUserId) {
+                    connectionStatus.textContent = "You can't chat with yourself.";
+                    connectionStatus.style.color = 'red';
+                    return;
+                }
+
+                // Create a consistent chat room ID by sorting user IDs
+                const ids = [currentUserId, otherUserId].sort();
+                chatRoomId = ids.join('_');
+
+                // Show chat interface
+                connectionStatus.textContent = `Connecting to chat with ${otherUserId}...`;
+                connectionStatus.style.color = 'blue';
+
+                // Check if the chat room document exists, if not, create it.
+                const chatRoomRef = doc(db, `artifacts/${appId}/public/data/chat_rooms/${chatRoomId}`);
+                try {
+                     await setDoc(chatRoomRef, {
+                        users: ids,
+                        createdAt: serverTimestamp()
+                    }, { merge: true });
+
+                    connectionContainer.classList.add('hidden');
+                    chatContainer.classList.remove('hidden');
+                    messageInputContainer.classList.remove('hidden');
+
+                    listenForMessages();
+
+                } catch (error) {
+                     console.error("Error creating or accessing chat room:", error);
+                     connectionStatus.textContent = 'Failed to connect to chat room.';
+                     connectionStatus.style.color = 'red';
+                }
+            });
+
+
+            // --- Listen for Messages ---
+            function listenForMessages() {
+                if (unsubscribeMessages) {
+                    unsubscribeMessages(); // Unsubscribe from previous listener
+                }
+                const messagesRef = collection(db, `artifacts/${appId}/public/data/chat_rooms/${chatRoomId}/messages`);
+                const q = query(messagesRef); 
+
+                unsubscribeMessages = onSnapshot(q, (snapshot) => {
+                    const messages = [];
+                    snapshot.forEach(doc => {
+                        messages.push({ id: doc.id, ...doc.data() });
+                    });
+
+                    // Sort messages by timestamp client-side
+                    messages.sort((a, b) => {
+                        const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+                        const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+                        return timeA - timeB;
+                    });
+
+                    renderMessages(messages);
+                }, (error) => {
+                    console.error("Error listening for messages:", error);
+                    connectionStatus.textContent = 'Error fetching messages.';
+                    connectionStatus.style.color = 'red';
                 });
+            }
+
+
+            // --- Render Messages ---
+            function renderMessages(messages) {
+                 messagesContainer.innerHTML = ''; // Clear existing messages
+                 if (messages.length === 0) {
+                     messagesContainer.innerHTML = `<div class="text-center text-slate-500">No messages yet. Say hello!</div>`;
+                 } else {
+                     messages.forEach(msg => {
+                        const isCurrentUser = msg.senderId === currentUserId;
+                        const messageWrapper = document.createElement('div');
+                        messageWrapper.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`;
+
+                        const messageBubble = document.createElement('div');
+                        messageBubble.className = `max-w-xs md:max-w-md lg:max-w-lg p-4 rounded-2xl shadow-md ${isCurrentUser ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-800'}`;
+
+                        const messageText = document.createElement('p');
+                        messageText.textContent = msg.text;
+                        messageText.className = 'text-base';
+                        
+                        const timestampText = document.createElement('p');
+                        timestampText.className = `text-xs mt-2 ${isCurrentUser ? 'text-blue-200' : 'text-slate-500'}`;
+                        timestampText.textContent = msg.timestamp ? new Date(msg.timestamp.toMillis()).toLocaleTimeString() : 'Sending...';
+
+                        messageBubble.appendChild(messageText);
+                        messageBubble.appendChild(timestampText);
+                        messageWrapper.appendChild(messageBubble);
+                        messagesContainer.appendChild(messageWrapper);
+                    });
+                 }
+                 // Scroll to the bottom
+                 chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+
+
+            // --- Send Message ---
+            messageForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const messageText = messageInput.value.trim();
+
+                if (messageText && chatRoomId && currentUserId) {
+                    const messagesRef = collection(db, `artifacts/${appId}/public/data/chat_rooms/${chatRoomId}/messages`);
+                    try {
+                        await addDoc(messagesRef, {
+                            text: messageText,
+                            senderId: currentUserId,
+                            timestamp: serverTimestamp()
+                        });
+                        messageInput.value = ''; // Clear input
+                    } catch (error) {
+                        console.error("Error sending message: ", error);
+                        alert("Could not send message. Please try again.");
+                    }
+                }
             });
         }
         
-        async function initCamera() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-                video.srcObject = localStream;
-                video.onloadedmetadata = () => {
-                    video.play();
-                    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-                    // Enable all controls
-                    [recordBtn, captureBtn, sendBtn, useWebcamBtn].forEach(b => b.disabled = false);
-                    document.querySelector('label[for="image-upload"]').classList.remove('btn-disabled');
-                    startBtn.disabled = true; startBtn.textContent = "[[ ONLINE ]]";
-                    statusBar.textContent = "STATUS: AWAITING INPUT";
-                };
-            } catch (err) { statusBar.textContent = "ERROR: NO CAMERA DETECTED"; }
-        }
+        // Run the main app logic after the DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', main);
 
-        function useWebcamSource() {
-            activeSource = video;
-            document.querySelectorAll('.gallery-item.active').forEach(el => el.classList.remove('active'));
-            useWebcamBtn.classList.add('active');
-            statusBar.textContent = "SOURCE: LIVE CAM";
-        }
-
-        function useImageSource(imgElement, imgId) {
-            activeSource = imgElement;
-            document.querySelectorAll('.gallery-item.active').forEach(el => el.classList.remove('active'));
-            imgElement.classList.add('active');
-            useWebcamBtn.classList.remove('active');
-            statusBar.textContent = "SOURCE: GALLERY IMAGE";
-        }
-
-        async function handleImageUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            statusBar.textContent = "PROCESSING IMAGE...";
-
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = new Image();
-                img.onload = async () => {
-                    // Resize image to prevent massive base64 strings
-                    const maxDim = 800;
-                    const tempCanvas = document.createElement('canvas');
-                    const tempCtx = tempCanvas.getContext('2d');
-                    let { width, height } = img;
-                    if (width > height) {
-                        if (width > maxDim) { height *= maxDim / width; width = maxDim; }
-                    } else {
-                        if (height > maxDim) { width *= maxDim / height; height = maxDim; }
-                    }
-                    tempCanvas.width = width; tempCanvas.height = height;
-                    tempCtx.drawImage(img, 0, 0, width, height);
-                    const resizedDataUrl = tempCanvas.toDataURL('image/jpeg', 0.8);
-
-                    if (resizedDataUrl.length > 900 * 1024) { // Firestore limit is 1MB
-                        statusBar.textContent = "ERROR: IMAGE TOO LARGE AFTER COMPRESSION";
-                        return;
-                    }
-                    
-                    try {
-                        await addDoc(imagesCollectionRef, { 
-                            imageData: resizedDataUrl,
-                            createdAt: serverTimestamp()
-                        });
-                        statusBar.textContent = "UPLOAD COMPLETE";
-                    } catch(err) {
-                        console.error("Error adding document: ", err);
-                        statusBar.textContent = "ERROR: UPLOAD FAILED";
-                    }
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // --- Render Loop (unchanged from v1.3) ---
-        const renderLoop = () => {
-             // Logic from previous version...
-             animationFrameId = requestAnimationFrame(renderLoop);
-        };
-        
-        // --- Capture and Upload (logic mostly unchanged) ---
-        captureBtn.addEventListener('click', () => {
-            canvas.toBlob(blob => { capturedBlob = blob; sendBtn.disabled = false; }, 'image/png');
-            statusBar.textContent = "FRAME CAPTURED. READY TO SEND.";
-        });
-
-        sendBtn.addEventListener('click', async () => {
-            const webhookUrl = "https://discord.com/api/webhooks/1384749018722336808/cAfifhrk6BcAD3bngzmc5-eM2cdDwKjUeJ5jZjWTV8U3qYuhPnVs-T1obUDQgpxM7fSH";
-            if (!capturedBlob) { statusBar.textContent = "NO DATA CAPTURED"; return; }
-            if (capturedBlob.size > 25 * 1024 * 1024) { statusBar.textContent = "FILE TOO LARGE (>25MB)"; return; }
-            statusBar.textContent = "SENDING..."; sendBtn.disabled = true;
-            try {
-                const formData = new FormData();
-                const fileName = capturedBlob.type === 'video/webm' ? 'acid.webm' : 'acid.png';
-                formData.append('file', capturedBlob, fileName);
-                const response = await fetch(webhookUrl, { method: 'POST', body: formData });
-                statusBar.textContent = response.ok ? "SEND COMPLETE" : `SEND FAILED`;
-            } catch (error) { statusBar.textContent = "CONNECTION ERROR";
-            } finally { sendBtn.disabled = false; }
-        });
-
-        // Start the application
-        main();
     </script>
 </body>
 </html>
