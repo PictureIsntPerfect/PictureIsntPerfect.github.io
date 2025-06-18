@@ -59,7 +59,6 @@
         }
         video {
             transform: scaleX(-1);
-            transition: filter 0.3s ease-in-out;
         }
         #broadcast-message-container {
             transition: opacity 0.5s, transform 0.5s;
@@ -79,6 +78,10 @@
         <p id="broadcast-message-text"></p>
         <button id="close-broadcast" class="absolute top-2 right-4 text-2xl font-bold">&times;</button>
     </div>
+
+    <!-- Hidden elements for video processing -->
+    <video id="rawVideo" class="hidden" autoplay muted></video>
+    <canvas id="videoCanvas" class="hidden"></canvas>
 
 
     <!-- Main Application Wrapper -->
@@ -226,6 +229,8 @@
         // --- DOM Elements ---
         const localVideo = document.getElementById('localVideo');
         const remoteVideo = document.getElementById('remoteVideo');
+        const rawVideo = document.getElementById('rawVideo');
+        const videoCanvas = document.getElementById('videoCanvas');
         const startBtn = document.getElementById('startBtn');
         const nextBtn = document.getElementById('nextBtn');
         const stopBtn = document.getElementById('stopBtn');
@@ -254,13 +259,16 @@
         const closeCameraBtn = document.getElementById('closeCameraBtn');
 
         // --- State Management ---
-        let localStream;
+        let localStream; // This will now be the canvas stream
         let peerConnection;
         let currentChatId = null;
         let isFindingPartner = false;
         let isAdmin = false;
         let unsubscribeUser, unsubscribeChat, unsubscribeBroadcast;
         let currentVideoDeviceId = null;
+        let currentFilter = 'none';
+        let canvasCtx = videoCanvas.getContext('2d');
+        let animationFrameId;
 
         const servers = {
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
@@ -290,12 +298,86 @@
             });
         }
 
-        // --- Camera & Device Functions
+        // --- Video and Filter Processing ---
+        function drawVideoOnCanvas() {
+            if (rawVideo.paused || rawVideo.ended) {
+                cancelAnimationFrame(animationFrameId);
+                return;
+            }
+            
+            canvasCtx.filter = currentFilter;
+            canvasCtx.drawImage(rawVideo, 0, 0, videoCanvas.width, videoCanvas.height);
+            
+            animationFrameId = requestAnimationFrame(drawVideoOnCanvas);
+        }
+
+        async function startLocalVideo(deviceId = null) {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            if(animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            currentVideoDeviceId = deviceId;
+            const constraints = {
+                video: { deviceId: deviceId ? { exact: deviceId } : undefined, width: { ideal: 640 }, height: { ideal: 480 } },
+                audio: true,
+            };
+
+            try {
+                // Get the raw stream from the camera device
+                const rawStream = await navigator.mediaDevices.getUserMedia(constraints);
+                rawVideo.srcObject = rawStream;
+                await rawVideo.play();
+
+                // Match canvas dimensions to the video
+                const videoTrackSettings = rawStream.getVideoTracks()[0].getSettings();
+                videoCanvas.width = videoTrackSettings.width;
+                videoCanvas.height = videoTrackSettings.height;
+
+                // Start drawing the filtered video to the canvas
+                drawVideoOnCanvas();
+
+                // Get the audio tracks from the raw stream
+                const audioTracks = rawStream.getAudioTracks();
+                
+                // Get the filtered video stream from the canvas
+                const canvasStream = videoCanvas.captureStream();
+                const canvasVideoTrack = canvasStream.getVideoTracks()[0];
+
+                // Combine the canvas video track with the original audio tracks
+                localStream = new MediaStream([canvasVideoTrack, ...audioTracks]);
+
+                // Display the combined stream in the local video element
+                localVideo.srcObject = localStream;
+
+                startBtn.disabled = false;
+                statusEl.textContent = "Ready to connect.";
+
+                // If in an active chat, replace the tracks
+                if (peerConnection) {
+                    const videoSender = peerConnection.getSenders().find(s => s.track.kind === 'video');
+                    if (videoSender) {
+                        videoSender.replaceTrack(canvasVideoTrack);
+                    }
+                     const audioSender = peerConnection.getSenders().find(s => s.track.kind === 'audio');
+                    if (audioSender) {
+                        audioSender.replaceTrack(audioTracks[0]);
+                    }
+                }
+
+            } catch (error) {
+                console.error("Error accessing media devices.", error);
+                statusEl.textContent = "Could not access camera. Please allow permissions.";
+                startBtn.disabled = true;
+            }
+        }
+
         async function getConnectedDevices(type, listElement) {
             try {
                 const devices = await navigator.mediaDevices.enumerateDevices();
                 const videoDevices = devices.filter(device => device.kind === type);
-                listElement.innerHTML = ''; // Clear previous list
+                listElement.innerHTML = '';
                 
                 videoDevices.forEach((device, index) => {
                     const button = document.createElement('button');
@@ -313,37 +395,6 @@
             }
         }
 
-        async function startLocalVideo(deviceId = null) {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
-            currentVideoDeviceId = deviceId;
-            const constraints = {
-                video: { deviceId: deviceId ? { exact: deviceId } : undefined },
-                audio: true,
-            };
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia(constraints);
-                localVideo.srcObject = localStream;
-                startBtn.disabled = false;
-                statusEl.textContent = "Ready to connect.";
-
-                // If in an active chat, replace the track
-                if (peerConnection) {
-                    const videoTrack = localStream.getVideoTracks()[0];
-                    const sender = peerConnection.getSenders().find(s => s.track.kind === 'video');
-                    if(sender) {
-                        sender.replaceTrack(videoTrack);
-                    }
-                }
-
-            } catch (error) {
-                console.error("Error accessing media devices.", error);
-                statusEl.textContent = "Could not access camera. Please allow permissions.";
-                startBtn.disabled = true;
-            }
-        }
-        
         // --- Core Chat Functions ---
         async function startChat() {
             if (!userId || isFindingPartner) return;
@@ -531,7 +582,7 @@
         }
         
         function displayBroadcastMessage(message) {
-            if(isAdmin) return; // Don't show broadcast to admin
+            if(isAdmin) return;
             broadcastText.textContent = message;
             broadcastContainer.classList.remove('opacity-0', '-translate-y-full');
             broadcastContainer.classList.add('opacity-100', 'translate-y-0');
@@ -562,12 +613,7 @@
             });
         }
 
-        // --- Filter Logic ---
-        function applyFilter(filterValue) {
-            localVideo.style.filter = filterValue;
-            remoteVideo.style.filter = filterValue;
-        }
-
+        // --- UI Logic (Filters, Themes, etc.) ---
         filtersBtn.addEventListener('click', () => {
             filterOptions.classList.remove('hidden');
         });
@@ -578,15 +624,12 @@
 
         filterOptions.addEventListener('click', (e) => {
             if (e.target.classList.contains('filter-btn')) {
-                const filter = e.target.dataset.filter;
-                applyFilter(filter);
-
+                currentFilter = e.target.dataset.filter;
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
             }
         });
         
-        // --- Theme Switcher ---
         function applyTheme(themeName) {
             document.documentElement.className = themeName;
         }
@@ -603,13 +646,11 @@
             if(e.target.classList.contains('theme-btn')) {
                 const theme = e.target.dataset.theme;
                 applyTheme(theme);
-
                 document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
             }
         });
-
-        // --- Camera Selection Logic ---
+        
         cameraBtn.addEventListener('click', async () => {
             await getConnectedDevices('videoinput', cameraList);
             cameraOptions.classList.remove('hidden');
@@ -622,11 +663,12 @@
         cameraList.addEventListener('click', (e) => {
              if (e.target.classList.contains('camera-btn')) {
                 const deviceId = e.target.dataset.deviceId;
+                document.querySelectorAll('.camera-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
                 startLocalVideo(deviceId);
                 cameraOptions.classList.add('hidden');
             }
         });
-
 
         // --- Event Listeners ---
         startBtn.addEventListener('click', startChat);
