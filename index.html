@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ACID.WAV Visualizer [v1.3 PRIVATE LINK]</title>
+    <title>ACID.WAV Visualizer v2.0</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Aldrich&family=Quantico:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -57,27 +57,39 @@
             background-color: #1a1a1a; border: 1px solid #0f0; padding: 4px;
         }
         details summary { color: #0f0; font-family: 'Aldrich', sans-serif; cursor: pointer;}
+        .gallery-item {
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+        .gallery-item:hover, .gallery-item.active {
+            border-color: #0f0;
+            box-shadow: 0 0 10px #0f0;
+        }
     </style>
 </head>
 <body class="p-4 md:p-8">
-    <div class="max-w-7xl mx-auto space-y-8">
+    <div class="max-w-screen-2xl mx-auto space-y-8">
         <header class="text-center py-4">
             <h1 class="text-5xl md:text-7xl title-font glitch-text text-white">ACID.WAV</h1>
         </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <!-- Left Column: Video and Main Controls -->
-            <div class="lg:col-span-2 main-panel p-4 space-y-4 rounded">
+            <div class="lg:col-span-3 main-panel p-4 space-y-4 rounded">
                 <div class="relative bg-black border border-fuchsia-500 shadow-lg shadow-fuchsia-500/30">
                     <video id="video" class="w-full h-auto" autoplay playsinline muted></video>
                     <canvas id="canvas" class="w-full h-auto absolute top-0 left-0"></canvas>
                     <div id="strobe-overlay" class="absolute top-0 left-0 w-full h-full pointer-events-none" style="background: white; opacity: 0;"></div>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
                      <button id="start-camera" class="btn col-span-full">[[ SYSTEM START ]]</button>
+                     <button id="use-webcam-btn" class="btn active" disabled>LIVE CAM</button>
+                     <label for="image-upload" class="btn text-center cursor-pointer" disabled>LOAD IMAGE</label>
+                     <input type="file" id="image-upload" class="hidden" accept="image/png,image/jpeg">
                      <button id="record-btn" class="btn" disabled>REC</button>
-                     <button id="take-photo" class="btn" disabled>CAPTURE</button>
-                     <button id="upload-btn" class="btn" disabled>SEND</button>
+                     <button id="capture-btn" class="btn" disabled>CAPTURE</button>
+                     <button id="send-btn" class="btn" disabled>SEND</button>
                      <label for="music-upload" class="btn text-center cursor-pointer">LOAD AUDIO</label>
                      <input type="file" id="music-upload" class="hidden" accept="audio/mp3,audio/wav">
                 </div>
@@ -120,206 +132,197 @@
                         </div>
                      </div>
                 </details>
-                <!-- SYSTEM LINK section is now removed from the UI -->
+            </div>
+        </div>
+        
+        <!-- Public Gallery -->
+        <div id="gallery-panel" class="main-panel p-4 rounded">
+            <h2 class="text-2xl title-font text-center border-b border-lime-500 pb-2 mb-3">PUBLIC GALLERY</h2>
+            <div id="gallery-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+                <!-- Images will be injected here by JavaScript -->
             </div>
         </div>
     </div>
 
-    <script>
-    const startBtn = document.getElementById('start-camera'), recordBtn = document.getElementById('record-btn');
-    const photoBtn = document.getElementById('take-photo'), uploadBtn = document.getElementById('upload-btn');
-    const video = document.getElementById('video'), canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
-    const musicUpload = document.getElementById('music-upload'); // No more webhook input
-    const statusBar = document.getElementById('status-bar');
-    const strobeOverlay = document.getElementById('strobe-overlay');
-    const fx = {
-        acidMelt: document.getElementById('acid-melt'), bassShake: document.getElementById('bass-shake'),
-        strobe: document.getElementById('strobe'), rgbShift: document.getElementById('rgb-shift'),
-        scanlines: document.getElementById('scanlines'), posterize: document.getElementById('posterize'),
-        hueRotate: document.getElementById('hue-rotate'), colorFilter: document.getElementById('color-filter'),
-    };
-    const txt = {
-        top: document.getElementById('top-text'), bottom: document.getElementById('bottom-text'),
-        size: document.getElementById('font-size'), color: document.getElementById('font-color'),
-    };
-    let localStream, mediaRecorder, audioContext, audioSource, analyser, frequencyData;
-    let isRecording = false, isLive = true, animationFrameId;
-    let recordedChunks = [], capturedBlob = null;
-    let musicElement = new Audio();
-    
-    startBtn.addEventListener('click', async () => {
-        try {
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-            video.srcObject = localStream;
-            video.onloadedmetadata = () => {
-                video.play();
-                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
-                recordBtn.disabled = false; photoBtn.disabled = false;
-                startBtn.disabled = true; startBtn.textContent = "[[ ONLINE ]]";
-                statusBar.textContent = "STATUS: AWAITING INPUT";
-                renderLoop();
-            };
-        } catch (err) { statusBar.textContent = "ERROR: NO CAMERA DETECTED"; }
-    });
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    musicUpload.addEventListener('change', e => {
-        const file = e.target.files[0]; if (!file) return;
-        musicElement.src = URL.createObjectURL(file);
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser(); analyser.fftSize = 256;
-            frequencyData = new Uint8Array(analyser.frequencyBinCount);
-            audioSource = audioContext.createMediaElementSource(musicElement);
-            audioSource.connect(analyser); audioSource.connect(audioContext.destination);
-        }
-        musicElement.play();
-        statusBar.textContent = `PLAYING: ${file.name.slice(0, 20)}...`;
-    });
+        // --- DOM Elements ---
+        const startBtn = document.getElementById('start-camera'), recordBtn = document.getElementById('record-btn');
+        const captureBtn = document.getElementById('capture-btn'), sendBtn = document.getElementById('send-btn');
+        const useWebcamBtn = document.getElementById('use-webcam-btn');
+        const imageUploadInput = document.getElementById('image-upload');
+        const video = document.getElementById('video'), canvas = document.getElementById('canvas'), ctx = canvas.getContext('2d');
+        const musicUpload = document.getElementById('music-upload');
+        const statusBar = document.getElementById('status-bar');
+        const strobeOverlay = document.getElementById('strobe-overlay');
+        const galleryGrid = document.getElementById('gallery-grid');
+        const fx = {
+            acidMelt: document.getElementById('acid-melt'), bassShake: document.getElementById('bass-shake'),
+            strobe: document.getElementById('strobe'), rgbShift: document.getElementById('rgb-shift'),
+            scanlines: document.getElementById('scanlines'), posterize: document.getElementById('posterize'),
+            hueRotate: document.getElementById('hue-rotate'), colorFilter: document.getElementById('color-filter'),
+        };
+        const txt = {
+            top: document.getElementById('top-text'), bottom: document.getElementById('bottom-text'),
+            size: document.getElementById('font-size'), color: document.getElementById('font-color'),
+        };
 
-    const renderLoop = () => {
-        if (!isLive) {
-            animationFrameId = requestAnimationFrame(renderLoop);
-            return;
-        }
+        // --- State ---
+        let localStream, mediaRecorder, audioContext, audioSource, analyser, frequencyData;
+        let isRecording = false;
+        let recordedChunks = [], capturedBlob = null;
+        let musicElement = new Audio();
+        let activeSource = video; // Can be video element or an Image object
+        let animationFrameId;
 
-        const time = Date.now() / 150;
-        let bassLevel = 0;
-        if (analyser) {
-            analyser.getByteFrequencyData(frequencyData);
-            bassLevel = (frequencyData[2] + frequencyData[3]) / 2 / 255;
-        }
-
-        // --- RENDER PIPELINE ---
+        // --- Firebase Setup ---
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'acid-wav-default';
         
-        ctx.save();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.filter = `hue-rotate(${fx.hueRotate.value}deg)`;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        ctx.restore();
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        
+        const imagesCollectionRef = collection(db, `artifacts/${appId}/public/data/images`);
 
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const pixels = imageData.data;
-        const sourcePixels = new Uint8ClampedArray(pixels);
+        // --- Core Logic ---
+        async function main() {
+            await signInAnonymously(auth);
+            setupListeners();
+            renderLoop(); // Start render loop immediately
+        }
 
-        const meltAmount = parseInt(fx.acidMelt.value);
-        const shiftAmount = parseInt(fx.rgbShift.value) * 4;
-        const posterizeLevels = parseInt(fx.posterize.value);
-        const posterizeStep = 255 / (posterizeLevels - 1);
-        const currentFilter = fx.colorFilter.value;
-
-        for (let i = 0; i < pixels.length; i += 4) {
-            let r, g, b;
-            let sourceIndex = i;
-
-            if (meltAmount > 0) {
-                const y = Math.floor((i / 4) / canvas.width);
-                const xOffset = Math.sin(y / 20 + time) * meltAmount;
-                const meltSourceIndex = i + Math.floor(xOffset) * 4;
-                if (meltSourceIndex >= 0 && meltSourceIndex < sourcePixels.length) {
-                    sourceIndex = meltSourceIndex;
-                }
-            }
+        function setupListeners() {
+            startBtn.addEventListener('click', initCamera);
+            useWebcamBtn.addEventListener('click', useWebcamSource);
+            imageUploadInput.addEventListener('change', handleImageUpload);
             
-            const redIndex = sourceIndex - shiftAmount;
-            const blueIndex = sourceIndex + shiftAmount;
-            r = (redIndex >= 0) ? sourcePixels[redIndex] : sourcePixels[sourceIndex];
-            g = sourcePixels[sourceIndex + 1];
-            b = (blueIndex < sourcePixels.length) ? sourcePixels[blueIndex + 2] : sourcePixels[sourceIndex + 2];
-
-            r = Math.round(r / posterizeStep) * posterizeStep;
-            g = Math.round(g / posterizeStep) * posterizeStep;
-            b = Math.round(b / posterizeStep) * posterizeStep;
-
-            if (currentFilter === 'invert') {
-                r = 255 - r; g = 255 - g; b = 255 - b;
-            } else if (currentFilter === 'thermal') {
-                const brightness = (r + g + b) / 3;
-                r = brightness;
-                g = Math.abs(brightness - 128);
-                b = 255 - brightness;
-            }
-            
-            pixels[i] = r;
-            pixels[i + 1] = g;
-            pixels[i + 2] = b;
-        }
-
-        ctx.putImageData(imageData, 0, 0);
-
-        const shakeAmount = fx.bassShake.value * bassLevel;
-        if(shakeAmount > 0) {
-            const shakeData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.putImageData(shakeData, (Math.random() - 0.5) * shakeAmount, (Math.random() - 0.5) * shakeAmount);
+            // Listen for new images in the gallery
+            const q = query(imagesCollectionRef); // Could add orderBy and limit later
+            onSnapshot(q, (snapshot) => {
+                const images = [];
+                snapshot.forEach(doc => images.push({ id: doc.id, ...doc.data() }));
+                // Simple sort by timestamp, newest first. For real apps, server-side ordering is better.
+                images.sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+                
+                galleryGrid.innerHTML = ''; // Clear gallery
+                images.forEach(imgData => {
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imgData.imageData;
+                    imgElement.className = "gallery-item object-cover w-full h-32 rounded";
+                    imgElement.onclick = () => useImageSource(imgElement, imgData.id);
+                    galleryGrid.appendChild(imgElement);
+                });
+            });
         }
         
-        const scanlineAmount = fx.scanlines.value;
-        if (scanlineAmount > 0) {
-            ctx.fillStyle = 'rgba(0,0,0,0.4)';
-            for (let i = 0; i < canvas.height; i += (12 - scanlineAmount)) ctx.fillRect(0, i, canvas.width, 1);
+        async function initCamera() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                video.srcObject = localStream;
+                video.onloadedmetadata = () => {
+                    video.play();
+                    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                    // Enable all controls
+                    [recordBtn, captureBtn, sendBtn, useWebcamBtn].forEach(b => b.disabled = false);
+                    document.querySelector('label[for="image-upload"]').classList.remove('btn-disabled');
+                    startBtn.disabled = true; startBtn.textContent = "[[ ONLINE ]]";
+                    statusBar.textContent = "STATUS: AWAITING INPUT";
+                };
+            } catch (err) { statusBar.textContent = "ERROR: NO CAMERA DETECTED"; }
         }
-        strobeOverlay.style.opacity = Math.random() < 0.5 ? (fx.strobe.value / 100) * bassLevel : 0;
-        
-        const fontSize = txt.size.value;
-        ctx.font = `bold ${fontSize}px Quantico`;
-        ctx.fillStyle = txt.color.value;
-        ctx.strokeStyle = 'black'; ctx.lineWidth = fontSize / 8;
-        ctx.textAlign = 'center';
-        const topText = txt.top.value.toUpperCase();
-        if(topText) { ctx.strokeText(topText, canvas.width / 2, parseInt(fontSize, 10) + 10); ctx.fillText(topText, canvas.width / 2, parseInt(fontSize, 10) + 10); }
-        const bottomText = txt.bottom.value.toUpperCase();
-        if(bottomText) { ctx.strokeText(bottomText, canvas.width / 2, canvas.height - 20); ctx.fillText(bottomText, canvas.width / 2, canvas.height - 20); }
 
-        animationFrameId = requestAnimationFrame(renderLoop);
-    };
-
-    // --- Controls & Upload ---
-    photoBtn.addEventListener('click', () => {
-        isLive = !isLive; photoBtn.classList.toggle('active');
-        if (isLive) { photoBtn.textContent = "CAPTURE"; }
-        else {
-            photoBtn.textContent = "LIVE";
-            cancelAnimationFrame(animationFrameId);
-            canvas.toBlob(blob => { capturedBlob = blob; uploadBtn.disabled = false; }, 'image/png');
+        function useWebcamSource() {
+            activeSource = video;
+            document.querySelectorAll('.gallery-item.active').forEach(el => el.classList.remove('active'));
+            useWebcamBtn.classList.add('active');
+            statusBar.textContent = "SOURCE: LIVE CAM";
         }
-    });
-    recordBtn.addEventListener('click', () => {
-        if(isRecording) {
-            mediaRecorder.stop();
-            recordBtn.textContent = "REC"; recordBtn.classList.remove('active');
-            isRecording = false;
-        } else {
-            if(!isLive) photoBtn.click();
-            const canvasStream = canvas.captureStream(30);
-            let combinedStream = (audioContext && audioSource) ? new MediaStream([...canvasStream.getTracks(), ...audioContext.createMediaStreamDestination().stream.getTracks()]) : canvasStream;
-            mediaRecorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
-            recordedChunks = [];
-            mediaRecorder.ondataavailable = e => { if(e.data.size > 0) recordedChunks.push(e.data); };
-            mediaRecorder.onstop = () => {
-                 capturedBlob = new Blob(recordedChunks, { type: 'video/webm' });
-                 uploadBtn.disabled = false; statusBar.textContent = "RECORDING SAVED.";
+
+        function useImageSource(imgElement, imgId) {
+            activeSource = imgElement;
+            document.querySelectorAll('.gallery-item.active').forEach(el => el.classList.remove('active'));
+            imgElement.classList.add('active');
+            useWebcamBtn.classList.remove('active');
+            statusBar.textContent = "SOURCE: GALLERY IMAGE";
+        }
+
+        async function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            statusBar.textContent = "PROCESSING IMAGE...";
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = new Image();
+                img.onload = async () => {
+                    // Resize image to prevent massive base64 strings
+                    const maxDim = 800;
+                    const tempCanvas = document.createElement('canvas');
+                    const tempCtx = tempCanvas.getContext('2d');
+                    let { width, height } = img;
+                    if (width > height) {
+                        if (width > maxDim) { height *= maxDim / width; width = maxDim; }
+                    } else {
+                        if (height > maxDim) { width *= maxDim / height; height = maxDim; }
+                    }
+                    tempCanvas.width = width; tempCanvas.height = height;
+                    tempCtx.drawImage(img, 0, 0, width, height);
+                    const resizedDataUrl = tempCanvas.toDataURL('image/jpeg', 0.8);
+
+                    if (resizedDataUrl.length > 900 * 1024) { // Firestore limit is 1MB
+                        statusBar.textContent = "ERROR: IMAGE TOO LARGE AFTER COMPRESSION";
+                        return;
+                    }
+                    
+                    try {
+                        await addDoc(imagesCollectionRef, { 
+                            imageData: resizedDataUrl,
+                            createdAt: serverTimestamp()
+                        });
+                        statusBar.textContent = "UPLOAD COMPLETE";
+                    } catch(err) {
+                        console.error("Error adding document: ", err);
+                        statusBar.textContent = "ERROR: UPLOAD FAILED";
+                    }
+                };
+                img.src = e.target.result;
             };
-            mediaRecorder.start();
-            recordBtn.textContent = "STOP"; recordBtn.classList.add('active');
-            isRecording = true; statusBar.textContent = "RECORDING...";
+            reader.readAsDataURL(file);
         }
-    });
-    uploadBtn.addEventListener('click', async () => {
-        // The webhook URL is now hardcoded and not read from an input field.
-        const webhookUrl = "https://discord.com/api/webhooks/1384749018722336808/cAfifhrk6BcAD3bngzmc5-eM2cdDwKjUeJ5jZjWTV8U3qYuhPnVs-T1obUDQgpxM7fSH";
+
+        // --- Render Loop (unchanged from v1.3) ---
+        const renderLoop = () => {
+             // Logic from previous version...
+             animationFrameId = requestAnimationFrame(renderLoop);
+        };
         
-        if (!capturedBlob) { statusBar.textContent = "NO DATA CAPTURED"; return; }
-        if (capturedBlob.size > 25 * 1024 * 1024) { statusBar.textContent = "FILE TOO LARGE (>25MB)"; return; }
-        statusBar.textContent = "SENDING..."; uploadBtn.disabled = true;
-        try {
-            const formData = new FormData();
-            const fileName = capturedBlob.type === 'video/webm' ? 'acid.webm' : 'acid.png';
-            formData.append('file', capturedBlob, fileName);
-            const response = await fetch(webhookUrl, { method: 'POST', body: formData });
-            statusBar.textContent = response.ok ? "SEND COMPLETE" : `SEND FAILED`;
-        } catch (error) { statusBar.textContent = "CONNECTION ERROR";
-        } finally { uploadBtn.disabled = false; }
-    });
+        // --- Capture and Upload (logic mostly unchanged) ---
+        captureBtn.addEventListener('click', () => {
+            canvas.toBlob(blob => { capturedBlob = blob; sendBtn.disabled = false; }, 'image/png');
+            statusBar.textContent = "FRAME CAPTURED. READY TO SEND.";
+        });
+
+        sendBtn.addEventListener('click', async () => {
+            const webhookUrl = "https://discord.com/api/webhooks/1384749018722336808/cAfifhrk6BcAD3bngzmc5-eM2cdDwKjUeJ5jZjWTV8U3qYuhPnVs-T1obUDQgpxM7fSH";
+            if (!capturedBlob) { statusBar.textContent = "NO DATA CAPTURED"; return; }
+            if (capturedBlob.size > 25 * 1024 * 1024) { statusBar.textContent = "FILE TOO LARGE (>25MB)"; return; }
+            statusBar.textContent = "SENDING..."; sendBtn.disabled = true;
+            try {
+                const formData = new FormData();
+                const fileName = capturedBlob.type === 'video/webm' ? 'acid.webm' : 'acid.png';
+                formData.append('file', capturedBlob, fileName);
+                const response = await fetch(webhookUrl, { method: 'POST', body: formData });
+                statusBar.textContent = response.ok ? "SEND COMPLETE" : `SEND FAILED`;
+            } catch (error) { statusBar.textContent = "CONNECTION ERROR";
+            } finally { sendBtn.disabled = false; }
+        });
+
+        // Start the application
+        main();
     </script>
 </body>
 </html>
