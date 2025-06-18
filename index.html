@@ -79,10 +79,26 @@
         const remoteVideoPlaceholder = document.getElementById('remote-video-placeholder');
 
 
-        // --- WebRTC Configuration ---
+        // --- WebRTC Configuration with TURN server for NAT/VPN traversal ---
         const servers = {
             iceServers: [
                 { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] },
+                // The following are public TURN servers. For a production app, you should deploy your own.
+                {
+                    urls: 'turn:openrelay.metered.ca:80',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                },
+                 {
+                    urls: 'turn:openrelay.metered.ca:443',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                },
+                {
+                    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+                    username: 'openrelayproject',
+                    credential: 'openrelayproject'
+                }
             ],
             iceCandidatePoolSize: 10,
         };
@@ -91,14 +107,17 @@
         let localStream = null;
         let remoteStream = null;
         let currentRoomId = null;
-        let unsubscribeRoom = null;
         let userId = null;
+        
+        // --- State Management for Listeners ---
+        let unsubscribeRoom = null;
+        let unsubscribeCallerCandidates = null;
+        let unsubscribeCalleeCandidates = null;
 
         // --- Authentication ---
         async function authSetup() {
             try {
                 // When using a custom Firebase config, we must sign in anonymously.
-                // The custom token is tied to a different Firebase project.
                 await signInAnonymously(auth);
             } catch(e) {
                 console.error("Authentication failed", e);
@@ -150,6 +169,10 @@
                 setTimeout(start, 500); // Retry after a short delay
                 return;
             }
+            
+            // Re-initialize the peer connection to ensure a clean state
+            hangUp(true); // 'true' for a soft reset without UI changes
+            pc = new RTCPeerConnection(servers);
             
             startButton.disabled = true;
 
@@ -292,34 +315,57 @@
          * differentiating between the 'caller' and 'callee' roles.
          */
         function setupPeerConnectionListeners(roomRef, role) {
+             // Unsubscribe from previous listeners to prevent duplicates
+            if (unsubscribeCallerCandidates) unsubscribeCallerCandidates();
+            if (unsubscribeCalleeCandidates) unsubscribeCalleeCandidates();
+
              const callerCandidatesCollection = collection(roomRef, 'callerCandidates');
              const calleeCandidatesCollection = collection(roomRef, 'calleeCandidates');
 
+            // --- Enhanced connection state logging for debugging ---
+            pc.oniceconnectionstatechange = () => {
+                console.log(`ICE Connection State: ${pc.iceConnectionState}`);
+                statusDiv.textContent = `Status: ${pc.iceConnectionState}`;
+                if (pc.iceConnectionState === 'failed') {
+                    console.warn('ICE connection failed, restarting...');
+                    pc.restartIce();
+                }
+            };
+            pc.onconnectionstatechange = () => {
+                console.log(`Connection State: ${pc.connectionState}`);
+                if (pc.connectionState === 'disconnected') {
+                    hangUp();
+                }
+            };
+            
             pc.ontrack = (event) => {
                 console.log('Got remote track:', event.streams[0]);
-                statusDiv.textContent = "Connected!";
-                remoteStream = event.streams[0];
-                remoteVideo.srcObject = remoteStream;
-                remoteVideo.classList.remove('hidden');
-                remoteVideoPlaceholder.classList.add('hidden');
+                if (remoteVideo.srcObject !== event.streams[0]) {
+                    remoteStream = event.streams[0];
+                    remoteVideo.srcObject = remoteStream;
+                    remoteVideo.classList.remove('hidden');
+                    remoteVideoPlaceholder.classList.add('hidden');
+                    statusDiv.textContent = "Connected!";
+                    
+                    // Explicitly play video to handle autoplay policies that might block audio
+                    remoteVideo.play().catch(e => console.error("Remote video play failed:", e));
+                }
             };
 
             if (role === 'caller') {
-                // The caller sends candidates to 'callerCandidates' and listens to 'calleeCandidates'
                 pc.onicecandidate = (event) => {
                     if (event.candidate) addDoc(callerCandidatesCollection, event.candidate.toJSON());
                 };
-                onSnapshot(calleeCandidatesCollection, (snapshot) => {
+                unsubscribeCalleeCandidates = onSnapshot(calleeCandidatesCollection, (snapshot) => {
                     snapshot.docChanges().forEach((change) => {
                         if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
                     });
                 });
             } else { // role === 'callee'
-                // The callee sends candidates to 'calleeCandidates' and listens to 'callerCandidates'
                 pc.onicecandidate = (event) => {
                     if (event.candidate) addDoc(calleeCandidatesCollection, event.candidate.toJSON());
                 };
-                onSnapshot(callerCandidatesCollection, (snapshot) => {
+                unsubscribeCallerCandidates = onSnapshot(callerCandidatesCollection, (snapshot) => {
                     snapshot.docChanges().forEach((change) => {
                         if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
                     });
@@ -329,59 +375,69 @@
 
         /**
          * Hang up the call, clean up streams and Firebase documents.
+         * @param {boolean} softReset - If true, only resets JS state without altering UI.
          */
-        async function hangUp() {
+        async function hangUp(softReset = false) {
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
             }
             if (remoteStream) {
                 remoteStream.getTracks().forEach(track => track.stop());
+                remoteStream = null;
             }
 
             if (pc) {
                 pc.close();
             }
 
-            // Clean up UI
-            localVideo.srcObject = null;
-            remoteVideo.srcObject = null;
-            remoteVideo.classList.add('hidden');
-            remoteVideoPlaceholder.classList.remove('hidden');
-            statusDiv.textContent = "Call ended. Click 'Start' to find a new partner.";
-            startButton.disabled = false;
-            hangupButton.disabled = true;
-
-            // Clean up Firebase room
-            if (currentRoomId) {
-                const roomRef = doc(db, `artifacts/${appId}/public/data/rooms`, currentRoomId);
-                const collections = ['callerCandidates', 'calleeCandidates'];
-                for (const coll of collections) {
-                    const candidatesSnapshot = await getDocs(collection(roomRef, coll));
-                    candidatesSnapshot.forEach(async (candidateDoc) => await deleteDoc(candidateDoc.ref));
-                }
-                await deleteDoc(roomRef);
-            }
+            // Unsubscribe from all Firestore listeners
+            if (unsubscribeRoom) unsubscribeRoom();
+            if (unsubscribeCallerCandidates) unsubscribeCallerCandidates();
+            if (unsubscribeCalleeCandidates) unsubscribeCalleeCandidates();
+            unsubscribeRoom = null;
+            unsubscribeCallerCandidates = null;
+            unsubscribeCalleeCandidates = null;
             
-            // Also delete from waiting pool if the user hangs up while waiting
-            const waitingPoolRef = collection(db, `artifacts/${appId}/public/data/waiting_pool`);
-            const q = query(waitingPoolRef, where("userId", "==", userId));
-            const waitingDocs = await getDocs(q);
-            waitingDocs.forEach(async (doc) => await deleteDoc(doc.ref));
+            if (!softReset) {
+                 // Clean up UI
+                localVideo.srcObject = null;
+                remoteVideo.srcObject = null;
+                remoteVideo.classList.add('hidden');
+                remoteVideoPlaceholder.classList.remove('hidden');
+                statusDiv.textContent = "Call ended. Click 'Start' to find a new partner.";
+                startButton.disabled = false;
+                hangupButton.disabled = true;
+
+                // Clean up Firebase room
+                if (currentRoomId) {
+                    const roomRef = doc(db, `artifacts/${appId}/public/data/rooms`, currentRoomId);
+                    const collections = ['callerCandidates', 'calleeCandidates'];
+                    for (const coll of collections) {
+                        const candidatesSnapshot = await getDocs(collection(roomRef, coll));
+                        candidatesSnapshot.forEach(async (candidateDoc) => await deleteDoc(candidateDoc.ref));
+                    }
+                    await deleteDoc(roomRef);
+                }
+            
+                 // Also delete from waiting pool if the user hangs up while waiting
+                const waitingPoolRef = collection(db, `artifacts/${appId}/public/data/waiting_pool`);
+                if (userId) {
+                    const q = query(waitingPoolRef, where("userId", "==", userId));
+                    const waitingDocs = await getDocs(q);
+                    waitingDocs.forEach(async (doc) => await deleteDoc(doc.ref));
+                }
+            }
 
             // Reset state for a new call
-            pc = new RTCPeerConnection(servers);
             currentRoomId = null;
-            if (unsubscribeRoom) {
-                unsubscribeRoom();
-                unsubscribeRoom = null;
-            }
         }
 
         // --- Event Listeners ---
         startButton.onclick = start;
         hangupButton.onclick = hangUp;
         
-        window.onbeforeunload = hangUp;
+        window.onbeforeunload = () => hangUp(false);
 
     </script></body>
 </html>
