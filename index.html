@@ -150,6 +150,7 @@
 
     <!-- Firebase SDK -->
     <script type="module">
+        // IMPORTANT: This placeholder will be replaced by the environment.
         // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyC553UPBeuwAUdINVJ5AqZMUIZ1DwwY73E",
@@ -163,7 +164,7 @@ const firebaseConfig = {
 
         // Import Firebase services
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, doc, setDoc, getDoc, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         
         // --- DOM Elements ---
@@ -178,6 +179,9 @@ const firebaseConfig = {
         const userRoleDisplay = document.getElementById('user-role-display');
         const adminInfo = document.getElementById('admin-info');
         const logoutBtn = document.getElementById('logout-btn');
+
+        // --- App Config ---
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         // --- App State ---
         let isAdmin = false;
@@ -271,13 +275,15 @@ const firebaseConfig = {
         });
 
         // --- Firestore Chat Logic ---
-        const messagesColRef = collection(db, "chats", CHAT_ID, "messages");
+        // FIX: Use the correct collection path for public data to comply with security rules
+        const messagesColRef = collection(db, "artifacts", appId, "public", "data", "chats", CHAT_ID, "messages");
 
         // Send message
         messageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!authUser) {
-                alert("You are not signed in. Please refresh the page.");
+                // FIX: Replaced alert with console.error
+                console.error("You are not signed in. Please refresh the page.");
                 return;
             }
             const messageText = messageInput.value.trim();
@@ -292,7 +298,8 @@ const firebaseConfig = {
                     messageInput.value = '';
                 } catch (error) {
                     console.error("Error sending message:", error);
-                    alert("Could not send message. See console for details.");
+                    // FIX: Replaced alert with console.error
+                    console.error("Could not send message. See console for details.");
                 }
             }
         });
@@ -304,25 +311,16 @@ const firebaseConfig = {
                 unsubscribe();
             }
             
-            const q = query(collection(db, "chats", CHAT_ID, "messages"));
-            
-            // NOTE: Firestore requires an index for ordering. If you see an error in the console
-            // about a missing index, follow the link it provides to create it in the Firebase console.
-            // For now, sorting happens on the client.
+            // FIX: Use the corrected collection reference for the query
+            const q = query(messagesColRef, orderBy("createdAt"));
             
             unsubscribe = onSnapshot(q, (snapshot) => {
                 const messages = [];
                 snapshot.forEach(doc => {
                     messages.push({ id: doc.id, ...doc.data() });
                 });
-
-                // Sort messages by timestamp
-                messages.sort((a, b) => {
-                    const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
-                    const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
-                    return timeA - timeB;
-                });
-
+                
+                // No longer need to sort client-side, Firestore does it with orderBy
                 renderMessages(messages);
             }, (error) => {
                 console.error("Error listening to messages: ", error);
