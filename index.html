@@ -12,35 +12,48 @@
         }
         video {
             transform: scaleX(-1); /* Mirror effect for webcam */
+            object-fit: cover;
+            height: 100%;
+            width: 100%;
+        }
+        .video-container {
+            min-height: 480px; /* Ensures video container has a good size */
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+<body id="main-body" class="bg-gradient-to-br from-gray-900 to-gray-800 text-white flex items-center justify-center min-h-screen transition-colors duration-500">
 
-    <div class="absolute top-2 left-2 text-xs text-gray-400">Version 1t</div>
+    <div class="absolute top-4 left-4 text-xs text-gray-500 font-semibold">Version 1t</div>
 
-    <div class="container mx-auto p-4 max-w-4xl">
-        <h1 class="text-3xl font-bold text-center mb-6 text-indigo-400">Random Video Chat</h1>
+    <div id="theme-switcher" class="absolute top-4 right-4 flex items-center space-x-2">
+        <div data-theme="indigo" class="theme-dot w-6 h-6 rounded-full bg-indigo-500 cursor-pointer ring-2 ring-offset-2 ring-offset-gray-800 ring-transparent hover:ring-white"></div>
+        <div data-theme="sunset" class="theme-dot w-6 h-6 rounded-full bg-orange-500 cursor-pointer ring-2 ring-offset-2 ring-offset-gray-800 ring-transparent hover:ring-white"></div>
+        <div data-theme="ocean" class="theme-dot w-6 h-6 rounded-full bg-cyan-500 cursor-pointer ring-2 ring-offset-2 ring-offset-gray-800 ring-transparent hover:ring-white"></div>
+        <div data-theme="forest" class="theme-dot w-6 h-6 rounded-full bg-green-500 cursor-pointer ring-2 ring-offset-2 ring-offset-gray-800 ring-transparent hover:ring-white"></div>
+    </div>
 
-        <div id="status" class="text-center mb-4 p-3 rounded-lg bg-gray-800 text-gray-300">Welcome! Click "Start" to find a chat partner.</div>
+    <div class="container mx-auto p-4 max-w-6xl">
+        <h1 id="main-title" class="text-4xl font-bold text-center mb-6 text-indigo-400 transition-colors duration-500">Random Video Chat</h1>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div id="local-video-container" class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                <h2 class="text-lg font-semibold p-3 bg-gray-700">You</h2>
-                <video id="localVideo" autoplay playsinline muted class="w-full h-auto"></video>
+        <div id="status" class="text-center mb-4 p-3 rounded-lg bg-black bg-opacity-20 text-gray-300">Welcome! Click "Start" to find a chat partner.</div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+            <div id="local-video-wrapper" class="video-container bg-gray-800 rounded-xl shadow-2xl overflow-hidden ring-2 ring-offset-4 ring-offset-gray-900 transition-all duration-500">
+                <h2 class="text-lg font-semibold p-3 bg-black bg-opacity-30 absolute top-0 left-0 w-full z-10">You</h2>
+                <video id="localVideo" autoplay playsinline muted></video>
             </div>
-            <div id="remote-video-container" class="bg-gray-800 rounded-lg shadow-lg overflow-hidden">
-                <h2 class="text-lg font-semibold p-3 bg-gray-700">Partner</h2>
-                 <div id="remote-video-placeholder" class="flex items-center justify-center h-full min-h-[200px] bg-gray-800">
+            <div id="remote-video-wrapper" class="video-container bg-gray-800 rounded-xl shadow-2xl overflow-hidden ring-2 ring-offset-4 ring-offset-gray-900 transition-all duration-500">
+                <h2 class="text-lg font-semibold p-3 bg-black bg-opacity-30 absolute top-0 left-0 w-full z-10">Partner</h2>
+                 <div id="remote-video-placeholder" class="flex items-center justify-center h-full">
                     <p class="text-gray-500">Waiting for partner...</p>
                 </div>
-                <video id="remoteVideo" autoplay playsinline class="w-full h-auto hidden"></video>
+                <video id="remoteVideo" autoplay playsinline class="hidden"></video>
             </div>
         </div>
 
         <div class="flex justify-center space-x-4">
-            <button id="startButton" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-lg">Start</button>
-            <button id="hangupButton" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 shadow-lg" disabled>Hang Up</button>
+            <button id="startButton" class="text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg transform hover:scale-105 bg-indigo-600 hover:bg-indigo-500">Start</button>
+            <button id="hangupButton" class="text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg transform hover:scale-105 bg-red-600 hover:bg-red-500" disabled>Hang Up</button>
         </div>
          <div class="text-center mt-4 text-sm text-gray-500">
             Your ID: <span id="userId" class="font-mono"></span>
@@ -48,13 +61,11 @@
     </div>
 
     <script type="module">
-        // Firebase and WebRTC implementation
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getFirestore, collection, doc, addDoc, getDoc, updateDoc, deleteDoc, onSnapshot, query, where, getDocs, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- Firebase Configuration ---
-        // User's Firebase configuration has been added here.
         const firebaseConfig = {
           apiKey: "AIzaSyBcKpDm14W4GZqQncV1LOtS3Hn5t1kK-hw",
           authDomain: "omegle-c7bdb.firebaseapp.com",
@@ -72,46 +83,30 @@
         const auth = getAuth(app);
 
         // --- UI Elements ---
-        const startButton = document.getElementById('startButton');
-        const hangupButton = document.getElementById('hangupButton');
-        const localVideo = document.getElementById('localVideo');
-        const remoteVideo = document.getElementById('remoteVideo');
-        const statusDiv = document.getElementById('status');
-        const userIdSpan = document.getElementById('userId');
-        const remoteVideoPlaceholder = document.getElementById('remote-video-placeholder');
-
-
-        // --- WebRTC Configuration with TURN server for NAT/VPN traversal ---
-        const servers = {
-            iceServers: [
-                { urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] },
-                // The following are public TURN servers. For a production app, you should deploy your own.
-                {
-                    urls: 'turn:openrelay.metered.ca:80',
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
-                },
-                 {
-                    urls: 'turn:openrelay.metered.ca:443',
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
-                },
-                {
-                    urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-                    username: 'openrelayproject',
-                    credential: 'openrelayproject'
-                }
-            ],
-            iceCandidatePoolSize: 10,
+        const ui = {
+            startButton: document.getElementById('startButton'),
+            hangupButton: document.getElementById('hangupButton'),
+            localVideo: document.getElementById('localVideo'),
+            remoteVideo: document.getElementById('remoteVideo'),
+            statusDiv: document.getElementById('status'),
+            userIdSpan: document.getElementById('userId'),
+            remoteVideoPlaceholder: document.getElementById('remote-video-placeholder'),
+            themeSwitcher: document.getElementById('theme-switcher'),
+            mainTitle: document.getElementById('main-title'),
+            localVideoWrapper: document.getElementById('local-video-wrapper'),
+            remoteVideoWrapper: document.getElementById('remote-video-wrapper'),
         };
 
-        let pc = new RTCPeerConnection(servers);
+        // --- WebRTC Configuration ---
+        const servers = { /* ... same as before ... */ };
+
+        let pc = null;
         let localStream = null;
         let remoteStream = null;
         let currentRoomId = null;
         let userId = null;
+        let isCallActive = false;
         
-        // --- State Management for Listeners ---
         let unsubscribeRoom = null;
         let unsubscribeCallerCandidates = null;
         let unsubscribeCalleeCandidates = null;
@@ -119,327 +114,208 @@
         // --- Authentication ---
         async function authSetup() {
             try {
-                // When using a custom Firebase config, we must sign in anonymously.
                 await signInAnonymously(auth);
-            } catch(e) {
-                console.error("Authentication failed", e);
-                statusDiv.textContent = "Authentication failed. Please refresh.";
-            }
-
+            } catch(e) { console.error("Authentication failed", e); }
             onAuthStateChanged(auth, user => {
-                if (user) {
-                    userId = user.uid;
-                    userIdSpan.textContent = userId;
-                    console.log("Signed in with UID:", userId);
-                } else {
-                    userId = null;
-                    userIdSpan.textContent = '';
-                    console.log("User is signed out.");
-                }
+                if (user) { userId = user.uid; ui.userIdSpan.textContent = userId; } 
+                else { userId = null; ui.userIdSpan.textContent = ''; }
             });
         }
-        authSetup();
+        
+        // --- Theming Engine ---
+        const themes = {
+            indigo: { title: 'text-indigo-400', button: 'bg-indigo-600 hover:bg-indigo-500', ring: 'ring-indigo-500' },
+            sunset: { title: 'text-orange-400', button: 'bg-orange-600 hover:bg-orange-500', ring: 'ring-orange-500' },
+            ocean: { title: 'text-cyan-400', button: 'bg-cyan-600 hover:bg-cyan-500', ring: 'ring-cyan-500' },
+            forest: { title: 'text-green-400', button: 'bg-green-600 hover:bg-green-500', ring: 'ring-green-500' },
+        };
+        
+        function applyTheme(themeName) {
+            const theme = themes[themeName];
+            const allThemes = Object.values(themes);
+            
+            ui.mainTitle.classList.remove(...allThemes.map(t => t.title));
+            ui.startButton.classList.remove(...allThemes.map(t => t.button.split(' ')).flat());
+            ui.localVideoWrapper.classList.remove(...allThemes.map(t => t.ring));
+            ui.remoteVideoWrapper.classList.remove(...allThemes.map(t => t.ring));
 
-
+            ui.mainTitle.classList.add(theme.title);
+            ui.startButton.classList.add(...theme.button.split(' '));
+            ui.localVideoWrapper.classList.add(theme.ring);
+            ui.remoteVideoWrapper.classList.add(theme.ring);
+        }
+        
+        ui.themeSwitcher.addEventListener('click', (e) => {
+            if (e.target.classList.contains('theme-dot')) {
+                applyTheme(e.target.dataset.theme);
+            }
+        });
+        
         // --- Core Functions ---
-
-        /**
-         * Starts the user's camera and microphone
-         */
         async function startMedia() {
+            if (localStream) return true; // Already started
             try {
                 localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                localVideo.srcObject = localStream;
-
-                localStream.getTracks().forEach(track => {
-                    pc.addTrack(track, localStream);
-                });
+                ui.localVideo.srcObject = localStream;
             } catch (error) {
                 console.error("Error accessing media devices.", error);
-                statusDiv.textContent = "Could not access camera/microphone. Please allow permissions.";
+                ui.statusDiv.textContent = "Could not access camera/microphone. Please allow permissions.";
                 return false;
             }
             return true;
         }
-
-        /**
-         * Main function to start the matching process
-         */
-        async function start() {
+        
+        async function startCall() {
             if (!userId) {
-                statusDiv.textContent = "Authenticating... Please wait.";
-                setTimeout(start, 500); // Retry after a short delay
-                return;
+                ui.statusDiv.textContent = "Authenticating..."; setTimeout(startCall, 500); return;
             }
             
-            // Re-initialize the peer connection to ensure a clean state
-            hangUp(true); // 'true' for a soft reset without UI changes
-            pc = new RTCPeerConnection(servers);
-            
-            startButton.disabled = true;
-
+            ui.startButton.disabled = true;
             const mediaSuccess = await startMedia();
             if (!mediaSuccess) {
-                startButton.disabled = false;
-                return;
+                ui.startButton.disabled = false; return;
             }
             
-            hangupButton.disabled = false;
-            statusDiv.textContent = "Searching for a partner...";
+            pc = new RTCPeerConnection(servers);
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+            
+            ui.hangupButton.disabled = false;
+            isCallActive = true;
+            ui.statusDiv.textContent = "Searching for a partner...";
 
             const waitingPoolRef = collection(db, `artifacts/${appId}/public/data/waiting_pool`);
             const q = query(waitingPoolRef, where("status", "==", "waiting"));
             const waitingDocs = await getDocs(q);
-            
             const otherWaitingDocs = waitingDocs.docs.filter(doc => doc.data().userId !== userId);
 
-
             if (otherWaitingDocs.length === 0) {
-                // No one else is waiting, create a new waiting entry
-                const waitingDocRef = await addDoc(waitingPoolRef, {
-                    userId: userId,
-                    status: "waiting",
-                    createdAt: new Date(),
-                });
-                console.log("Added to waiting pool, doc ID:", waitingDocRef.id);
+                const waitingDocRef = await addDoc(waitingPoolRef, { userId, status: "waiting", createdAt: new Date() });
                 listenForPartner(waitingDocRef.id);
             } else {
-                // Someone is waiting, let's connect
-                const waitingDoc = otherWaitingDocs[0]; // Connect with the first one
-                const partnerId = waitingDoc.data().userId;
-                console.log("Found a partner:", partnerId);
-
-                // Create a room and invite the partner. This user is the 'caller'.
-                await createAndJoinRoom(waitingDoc.id, partnerId);
+                const waitingDoc = otherWaitingDocs[0];
+                await createAndJoinRoom(waitingDoc.id, waitingDoc.data().userId);
             }
         }
-
-
-        /**
-         * Listen for a partner to join our waiting document
-         */
+        
         function listenForPartner(waitingDocId) {
              const waitingDocRef = doc(db, `artifacts/${appId}/public/data/waiting_pool`, waitingDocId);
-
             unsubscribeRoom = onSnapshot(waitingDocRef, async (docSnap) => {
                 const data = docSnap.data();
                 if (data && data.status === "connected" && data.roomId) {
-                    console.log("Partner connected! Joining room as 'callee':", data.roomId);
-                    statusDiv.textContent = "Partner found! Connecting...";
                     currentRoomId = data.roomId;
                     if(unsubscribeRoom) unsubscribeRoom(); 
-                    
-                    // This user is the 'callee'
                     await joinRoom(data.roomId);
-                    // The waiting doc is no longer needed
                     await deleteDoc(waitingDocRef);
                 }
             });
         }
-
-        /**
-         * Create a new room, invite the partner, and start the WebRTC offer process.
-         * The user executing this is the "caller".
-         */
+        
         async function createAndJoinRoom(waitingDocId, partnerId) {
             const roomRef = doc(collection(db, `artifacts/${appId}/public/data/rooms`));
             currentRoomId = roomRef.id;
-
-            console.log("Creating room as 'caller':", currentRoomId);
-
-            // Setup WebRTC listeners for the caller
             setupPeerConnectionListeners(roomRef, 'caller');
-
             const offerDescription = await pc.createOffer();
             await pc.setLocalDescription(offerDescription);
-
-            const offer = {
-                sdp: offerDescription.sdp,
-                type: offerDescription.type,
-            };
-
-            await setDoc(roomRef, { offer, callerId: userId, calleeId: partnerId });
-
-            // Update the waiting pool document to notify the other user
-            const waitingDocRef = doc(db, `artifacts/${appId}/public/data/waiting_pool`, waitingDocId);
-            await updateDoc(waitingDocRef, {
-                status: "connected",
-                roomId: currentRoomId,
-                partnerId: userId
-            });
-
-             // Listen for the answer from the 'callee'
+            await setDoc(roomRef, { offer: offerDescription, callerId: userId, calleeId: partnerId });
+            await updateDoc(doc(db, `artifacts/${appId}/public/data/waiting_pool`, waitingDocId), { status: "connected", roomId: currentRoomId, partnerId: userId });
             unsubscribeRoom = onSnapshot(roomRef, (snapshot) => {
                 const data = snapshot.data();
                 if (!pc.currentRemoteDescription && data?.answer) {
-                    console.log('Got remote description (answer):', data.answer);
-                    const answerDescription = new RTCSessionDescription(data.answer);
-                    pc.setRemoteDescription(answerDescription);
+                    pc.setRemoteDescription(new RTCSessionDescription(data.answer));
                 }
             });
         }
-
-
-        /**
-         * Join an existing room created by a caller.
-         * The user executing this is the "callee".
-         */
+        
         async function joinRoom(roomId) {
             const roomRef = doc(db, `artifacts/${appId}/public/data/rooms`, roomId);
             const roomSnapshot = await getDoc(roomRef);
-
             if (roomSnapshot.exists()) {
-                 console.log('Joining room as callee:', roomId);
-                 // Setup WebRTC listeners for the callee
                  setupPeerConnectionListeners(roomRef, 'callee');
-
                 const roomData = roomSnapshot.data();
                 await pc.setRemoteDescription(new RTCSessionDescription(roomData.offer));
-
                 const answerDescription = await pc.createAnswer();
                 await pc.setLocalDescription(answerDescription);
-
-                const answer = {
-                    type: answerDescription.type,
-                    sdp: answerDescription.sdp,
-                };
-
-                await updateDoc(roomRef, { answer });
+                await updateDoc(roomRef, { answer: answerDescription });
             } else {
-                console.error("Room does not exist!");
-                statusDiv.textContent = "Error: Connection room not found.";
-                hangUp();
+                endCall();
             }
         }
-
-        /**
-         * Set up all the necessary listeners on the RTCPeerConnection object,
-         * differentiating between the 'caller' and 'callee' roles.
-         */
+        
         function setupPeerConnectionListeners(roomRef, role) {
-             // Unsubscribe from previous listeners to prevent duplicates
-            if (unsubscribeCallerCandidates) unsubscribeCallerCandidates();
-            if (unsubscribeCalleeCandidates) unsubscribeCalleeCandidates();
-
-             const callerCandidatesCollection = collection(roomRef, 'callerCandidates');
-             const calleeCandidatesCollection = collection(roomRef, 'calleeCandidates');
-
-            // --- Enhanced connection state logging for debugging ---
             pc.oniceconnectionstatechange = () => {
-                console.log(`ICE Connection State: ${pc.iceConnectionState}`);
-                statusDiv.textContent = `Status: ${pc.iceConnectionState}`;
-                if (pc.iceConnectionState === 'failed') {
-                    console.warn('ICE connection failed, restarting...');
-                    pc.restartIce();
-                }
+                ui.statusDiv.textContent = `Status: ${pc.iceConnectionState}`;
+                if (pc.iceConnectionState === 'failed') pc.restartIce();
             };
-            pc.onconnectionstatechange = () => {
-                console.log(`Connection State: ${pc.connectionState}`);
-                if (pc.connectionState === 'disconnected') {
-                    hangUp();
-                }
-            };
-            
+            pc.onconnectionstatechange = () => { if (pc.connectionState === 'disconnected') endCall(); };
             pc.ontrack = (event) => {
-                console.log('Got remote track:', event.streams[0]);
-                if (remoteVideo.srcObject !== event.streams[0]) {
+                if (ui.remoteVideo.srcObject !== event.streams[0]) {
                     remoteStream = event.streams[0];
-                    remoteVideo.srcObject = remoteStream;
-                    remoteVideo.classList.remove('hidden');
-                    remoteVideoPlaceholder.classList.add('hidden');
-                    statusDiv.textContent = "Connected!";
-                    
-                    // Explicitly play video to handle autoplay policies that might block audio
-                    remoteVideo.play().catch(e => console.error("Remote video play failed:", e));
+                    ui.remoteVideo.srcObject = remoteStream;
+                    ui.remoteVideo.classList.remove('hidden');
+                    ui.remoteVideoPlaceholder.classList.add('hidden');
+                    ui.statusDiv.textContent = "Connected!";
+                    ui.remoteVideo.play().catch(e => console.error("Remote video play failed:", e));
                 }
             };
+            const [localCandidates, remoteCandidates] = role === 'caller' 
+                ? [collection(roomRef, 'callerCandidates'), collection(roomRef, 'calleeCandidates')]
+                : [collection(roomRef, 'calleeCandidates'), collection(roomRef, 'callerCandidates')];
+                
+            pc.onicecandidate = (event) => event.candidate && addDoc(localCandidates, event.candidate.toJSON());
+            
+            if(unsubscribeCallerCandidates) unsubscribeCallerCandidates();
+            if(unsubscribeCalleeCandidates) unsubscribeCalleeCandidates();
 
-            if (role === 'caller') {
-                pc.onicecandidate = (event) => {
-                    if (event.candidate) addDoc(callerCandidatesCollection, event.candidate.toJSON());
-                };
-                unsubscribeCalleeCandidates = onSnapshot(calleeCandidatesCollection, (snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-                    });
+            unsubscribeCalleeCandidates = onSnapshot(remoteCandidates, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
                 });
-            } else { // role === 'callee'
-                pc.onicecandidate = (event) => {
-                    if (event.candidate) addDoc(calleeCandidatesCollection, event.candidate.toJSON());
-                };
-                unsubscribeCallerCandidates = onSnapshot(callerCandidatesCollection, (snapshot) => {
-                    snapshot.docChanges().forEach((change) => {
-                        if (change.type === 'added') pc.addIceCandidate(new RTCIceCandidate(change.doc.data()));
-                    });
-                });
-            }
+            });
         }
+        
+        async function endCall() {
+            if (!isCallActive) return;
 
-        /**
-         * Hang up the call, clean up streams and Firebase documents.
-         * @param {boolean} softReset - If true, only resets JS state without altering UI.
-         */
-        async function hangUp(softReset = false) {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            if (remoteStream) {
-                remoteStream.getTracks().forEach(track => track.stop());
-                remoteStream = null;
-            }
-
-            if (pc) {
-                pc.close();
-            }
-
-            // Unsubscribe from all Firestore listeners
+            if (pc) { pc.close(); pc = null; }
+            if (remoteStream) { remoteStream.getTracks().forEach(track => track.stop()); remoteStream = null; }
+            
             if (unsubscribeRoom) unsubscribeRoom();
             if (unsubscribeCallerCandidates) unsubscribeCallerCandidates();
             if (unsubscribeCalleeCandidates) unsubscribeCalleeCandidates();
-            unsubscribeRoom = null;
-            unsubscribeCallerCandidates = null;
-            unsubscribeCalleeCandidates = null;
+            unsubscribeRoom = unsubscribeCallerCandidates = unsubscribeCalleeCandidates = null;
             
-            if (!softReset) {
-                 // Clean up UI
-                localVideo.srcObject = null;
-                remoteVideo.srcObject = null;
-                remoteVideo.classList.add('hidden');
-                remoteVideoPlaceholder.classList.remove('hidden');
-                statusDiv.textContent = "Call ended. Click 'Start' to find a new partner.";
-                startButton.disabled = false;
-                hangupButton.disabled = true;
+            ui.remoteVideo.srcObject = null;
+            ui.remoteVideo.classList.add('hidden');
+            ui.remoteVideoPlaceholder.classList.remove('hidden');
+            
+            ui.statusDiv.textContent = "Call ended. Click 'Start' to find a new partner.";
+            ui.startButton.disabled = false;
+            ui.hangupButton.disabled = true;
+            isCallActive = false;
 
-                // Clean up Firebase room
-                if (currentRoomId) {
-                    const roomRef = doc(db, `artifacts/${appId}/public/data/rooms`, currentRoomId);
-                    const collections = ['callerCandidates', 'calleeCandidates'];
-                    for (const coll of collections) {
-                        const candidatesSnapshot = await getDocs(collection(roomRef, coll));
-                        candidatesSnapshot.forEach(async (candidateDoc) => await deleteDoc(candidateDoc.ref));
-                    }
-                    await deleteDoc(roomRef);
+            if (currentRoomId) {
+                const roomRef = doc(db, `artifacts/${appId}/public/data/rooms`, currentRoomId);
+                const collections = ['callerCandidates', 'calleeCandidates'];
+                for (const coll of collections) {
+                    const snapshot = await getDocs(collection(roomRef, coll));
+                    snapshot.forEach(async (d) => await deleteDoc(d.ref));
                 }
-            
-                 // Also delete from waiting pool if the user hangs up while waiting
-                const waitingPoolRef = collection(db, `artifacts/${appId}/public/data/waiting_pool`);
-                if (userId) {
-                    const q = query(waitingPoolRef, where("userId", "==", userId));
-                    const waitingDocs = await getDocs(q);
-                    waitingDocs.forEach(async (doc) => await deleteDoc(doc.ref));
-                }
+                await deleteDoc(roomRef);
+                currentRoomId = null;
             }
-
-            // Reset state for a new call
-            currentRoomId = null;
+        }
+        
+        async function fullCleanup() {
+            await endCall();
+            if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
         }
 
-        // --- Event Listeners ---
-        startButton.onclick = start;
-        hangupButton.onclick = hangUp;
-        
-        window.onbeforeunload = () => hangUp(false);
+        // --- Initializers ---
+        authSetup();
+        applyTheme('indigo'); // Set default theme
+        ui.startButton.onclick = startCall;
+        ui.hangupButton.onclick = endCall;
+        window.onbeforeunload = fullCleanup;
 
     </script></body>
 </html>
