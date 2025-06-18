@@ -187,6 +187,22 @@
             <!-- Admin Panel -->
             <div id="admin-panel" class="hidden">
                 <h2 class="text-3xl font-bold text-center mb-6" style="color: var(--accent-main);">Admin Dashboard</h2>
+
+                <!-- Live Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="p-4 rounded-lg text-center" style="background-color: var(--bg-secondary);">
+                        <p class="text-2xl font-bold" id="stats-total">0</p>
+                        <p style="color: var(--text-secondary);">Total Users Online</p>
+                    </div>
+                    <div class="p-4 rounded-lg text-center" style="background-color: var(--bg-secondary);">
+                        <p class="text-2xl font-bold" id="stats-chatting">0</p>
+                        <p style="color: var(--text-secondary);">Users in Chat</p>
+                    </div>
+                    <div class="p-4 rounded-lg text-center" style="background-color: var(--bg-secondary);">
+                        <p class="text-2xl font-bold" id="stats-waiting">0</p>
+                        <p style="color: var(--text-secondary);">Users Waiting</p>
+                    </div>
+                </div>
                 
                 <!-- Broadcast Message Section -->
                 <div class="p-4 rounded-lg mb-6" style="background-color: var(--bg-secondary);">
@@ -289,6 +305,12 @@
                     await startLocalVideo();
                     await getConnectedDevices('videoinput', cameraList);
                     listenForBroadcasts();
+                    // Listen for being kicked
+                    onSnapshot(userRef, (docSnap) => {
+                        if(!docSnap.exists()) {
+                            handleKicked();
+                        }
+                    });
                 } else {
                     signInAnonymously(auth).catch(error => {
                         console.error("Anonymous sign-in failed:", error);
@@ -296,6 +318,19 @@
                     });
                 }
             });
+        }
+        
+        function handleKicked() {
+            if (peerConnection) {
+                peerConnection.close();
+            }
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            chatInterface.innerHTML = `<div class="text-center p-8">
+                <h2 class="text-3xl font-bold text-red-500">You have been disconnected</h2>
+                <p class="mt-4" style="color: var(--text-secondary);">An administrator has removed you from the service.</p>
+                </div>`;
         }
 
         // --- Video and Filter Processing ---
@@ -518,7 +553,10 @@
             }
             if (userId && !isAdmin) {
                 const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-                await updateDoc(userRef, { status: 'online', chatId: null });
+                const docSnap = await getDoc(userRef);
+                if(docSnap.exists()){
+                     await updateDoc(userRef, { status: 'online', chatId: null });
+                }
             }
         }
         
@@ -593,25 +631,54 @@
              broadcastContainer.classList.remove('opacity-100', 'translate-y-0');
         });
 
+        async function kickUser(targetUserId) {
+            const userRef = doc(db, `artifacts/${appId}/public/data/users`, targetUserId);
+            await deleteDoc(userRef);
+        }
+
         function startAdminView() {
             const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
             onSnapshot(usersRef, (snapshot) => {
                 adminUsersList.innerHTML = '';
+                let total = 0;
+                let chatting = 0;
+                let waiting = 0;
+
                 snapshot.forEach(docSnap => {
                     const user = docSnap.data();
-                    if (user.id === userId) return;
+                    if (user.id === userId) return; // Don't show admin in the list
+                    
+                    total++;
+                    if (user.status === 'chatting') chatting++;
+                    if (user.status === 'waiting') waiting++;
 
                     const userCard = document.createElement('div');
-                    userCard.className = 'p-4 rounded-lg shadow-lg';
+                    userCard.className = 'p-4 rounded-lg shadow-lg flex flex-col justify-between';
                     userCard.style.backgroundColor = 'var(--bg-secondary)';
                     userCard.innerHTML = `
-                        <p class="font-semibold truncate" title="${user.id}">User: ${user.id.substring(0,8)}...</p>
-                        <p class="text-sm" style="color: var(--text-secondary);">Status: <span style="color: var(--accent-main);">${user.status}</span></p>
+                        <div>
+                            <p class="font-semibold truncate" title="${user.id}">User: ${user.id.substring(0,8)}...</p>
+                            <p class="text-sm" style="color: var(--text-secondary);">Status: <span style="color: var(--accent-main);">${user.status}</span></p>
+                        </div>
+                        <button data-kick-id="${user.id}" class="kick-btn mt-2 w-full py-1 text-white bg-red-600 hover:bg-red-700 rounded-lg text-sm">Kick</button>
                     `;
                     adminUsersList.appendChild(userCard);
                 });
+
+                document.getElementById('stats-total').textContent = total;
+                document.getElementById('stats-chatting').textContent = chatting;
+                document.getElementById('stats-waiting').textContent = waiting;
             });
         }
+        
+        adminUsersList.addEventListener('click', (e) => {
+            if(e.target.classList.contains('kick-btn')) {
+                const targetUserId = e.target.dataset.kickId;
+                if (targetUserId) {
+                    kickUser(targetUserId);
+                }
+            }
+        });
 
         // --- UI Logic (Filters, Themes, etc.) ---
         filtersBtn.addEventListener('click', () => {
