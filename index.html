@@ -59,13 +59,14 @@
         }
         video {
             transform: scaleX(-1);
+            transition: filter 0.3s ease-in-out;
         }
         #broadcast-message-container {
             transition: opacity 0.5s, transform 0.5s;
             background-color: var(--accent-main);
             color: var(--accent-text);
         }
-        .theme-btn.active {
+        .theme-btn.active, .filter-btn.active {
             background-color: var(--accent-main);
             color: var(--accent-text);
         }
@@ -130,10 +131,28 @@
                 <div class="mt-6 text-center space-x-2">
                     <button id="startBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: #16a34a;">Start Chat</button>
                     <button id="nextBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: var(--accent-main); color: var(--accent-text);">Next Chat</button>
+                    <button id="filtersBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Filters</button>
                     <button id="themesBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Themes</button>
                     <button id="stopBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #dc2626;">Stop</button>
                 </div>
                  <p id="status" class="text-center mt-4" style="color: var(--text-secondary);">Press 'Start Chat' to begin.</p>
+            </div>
+
+            <!-- Filter Options Modal -->
+            <div id="filter-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
+                <div class="p-6 rounded-xl shadow-2xl" style="background-color: var(--bg-secondary);">
+                     <h3 class="text-xl font-bold text-center mb-4">Camera Filters</h3>
+                     <div class="grid grid-cols-3 gap-2">
+                        <button class="filter-btn p-2 rounded-lg active" data-filter="none">None</button>
+                        <button class="filter-btn p-2 rounded-lg" data-filter="grayscale(100%)">Grayscale</button>
+                        <button class="filter-btn p-2 rounded-lg" data-filter="sepia(100%)">Sepia</button>
+                        <button class="filter-btn p-2 rounded-lg" data-filter="invert(100%)">Invert</button>
+                        <button class="filter-btn p-2 rounded-lg" data-filter="contrast(200%)">Contrast</button>
+                        <button class="filter-btn p-2 rounded-lg" data-filter="brightness(150%)">Bright</button>
+                        <button class="filter-btn p-2 rounded-lg" data-filter="blur(5px)">Blur</button>
+                     </div>
+                     <button id="closeFiltersBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
+                </div>
             </div>
 
             <!-- Theme Options Modal -->
@@ -214,6 +233,9 @@
         const themesBtn = document.getElementById('themesBtn');
         const themeOptions = document.getElementById('theme-options');
         const closeThemesBtn = document.getElementById('closeThemesBtn');
+        const filtersBtn = document.getElementById('filtersBtn');
+        const filterOptions = document.getElementById('filter-options');
+        const closeFiltersBtn = document.getElementById('closeFiltersBtn');
 
         // --- State Management ---
         let localStream;
@@ -480,6 +502,30 @@
                 });
             });
         }
+
+        // --- Filter Logic ---
+        function applyFilter(filterValue) {
+            localVideo.style.filter = filterValue;
+            remoteVideo.style.filter = filterValue;
+        }
+
+        filtersBtn.addEventListener('click', () => {
+            filterOptions.classList.remove('hidden');
+        });
+
+        closeFiltersBtn.addEventListener('click', () => {
+            filterOptions.classList.add('hidden');
+        });
+
+        filterOptions.addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-btn')) {
+                const filter = e.target.dataset.filter;
+                applyFilter(filter);
+
+                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+                e.target.classList.add('active');
+            }
+        });
         
         // --- Theme Switcher ---
         function applyTheme(themeName) {
@@ -492,7 +538,7 @@
 
         closeThemesBtn.addEventListener('click', () => {
             themeOptions.classList.add('hidden');
-});
+        });
 
         themeOptions.addEventListener('click', (e) => {
             if(e.target.classList.contains('theme-btn')) {
