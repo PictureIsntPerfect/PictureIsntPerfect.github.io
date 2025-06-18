@@ -66,7 +66,7 @@
             background-color: var(--accent-main);
             color: var(--accent-text);
         }
-        .theme-btn.active, .filter-btn.active {
+        .theme-btn.active, .filter-btn.active, .camera-btn.active {
             background-color: var(--accent-main);
             color: var(--accent-text);
         }
@@ -128,14 +128,26 @@
                 </div>
 
                 <!-- Controls -->
-                <div class="mt-6 text-center space-x-2">
+                <div class="mt-6 text-center space-x-2 flex flex-wrap justify-center gap-2">
                     <button id="startBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: #16a34a;">Start Chat</button>
                     <button id="nextBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: var(--accent-main); color: var(--accent-text);">Next Chat</button>
+                    <button id="cameraBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Camera</button>
                     <button id="filtersBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Filters</button>
                     <button id="themesBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Themes</button>
                     <button id="stopBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #dc2626;">Stop</button>
                 </div>
                  <p id="status" class="text-center mt-4" style="color: var(--text-secondary);">Press 'Start Chat' to begin.</p>
+            </div>
+
+            <!-- Camera Options Modal -->
+            <div id="camera-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
+                <div class="p-6 rounded-xl shadow-2xl w-full max-w-md" style="background-color: var(--bg-secondary);">
+                     <h3 class="text-xl font-bold text-center mb-4">Select Camera</h3>
+                     <div id="camera-list" class="flex flex-col gap-2">
+                        <!-- Camera buttons will be inserted here -->
+                     </div>
+                     <button id="closeCameraBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
+                </div>
             </div>
 
             <!-- Filter Options Modal -->
@@ -236,6 +248,10 @@
         const filtersBtn = document.getElementById('filtersBtn');
         const filterOptions = document.getElementById('filter-options');
         const closeFiltersBtn = document.getElementById('closeFiltersBtn');
+        const cameraBtn = document.getElementById('cameraBtn');
+        const cameraOptions = document.getElementById('camera-options');
+        const cameraList = document.getElementById('camera-list');
+        const closeCameraBtn = document.getElementById('closeCameraBtn');
 
         // --- State Management ---
         let localStream;
@@ -244,6 +260,7 @@
         let isFindingPartner = false;
         let isAdmin = false;
         let unsubscribeUser, unsubscribeChat, unsubscribeBroadcast;
+        let currentVideoDeviceId = null;
 
         const servers = {
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
@@ -262,6 +279,7 @@
                     await setDoc(userRef, { id: userId, status: 'online' }, { merge: true });
                     
                     await startLocalVideo();
+                    await getConnectedDevices('videoinput', cameraList);
                     listenForBroadcasts();
                 } else {
                     signInAnonymously(auth).catch(error => {
@@ -272,20 +290,61 @@
             });
         }
 
-        // --- Core Functions ---
-        async function startLocalVideo() {
+        // --- Camera & Device Functions
+        async function getConnectedDevices(type, listElement) {
             try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === type);
+                listElement.innerHTML = ''; // Clear previous list
+                
+                videoDevices.forEach((device, index) => {
+                    const button = document.createElement('button');
+                    button.classList.add('camera-btn', 'p-2', 'rounded-lg', 'w-full', 'text-left');
+                    button.style.backgroundColor = 'var(--bg-tertiary)';
+                    button.dataset.deviceId = device.deviceId;
+                    button.textContent = device.label || `Camera ${index + 1}`;
+                    if( (currentVideoDeviceId === null && index === 0) || currentVideoDeviceId === device.deviceId){
+                        button.classList.add('active');
+                    }
+                    listElement.appendChild(button);
+                });
+            } catch (error) {
+                console.error("Error enumerating devices:", error);
+            }
+        }
+
+        async function startLocalVideo(deviceId = null) {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+            currentVideoDeviceId = deviceId;
+            const constraints = {
+                video: { deviceId: deviceId ? { exact: deviceId } : undefined },
+                audio: true,
+            };
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
                 localVideo.srcObject = localStream;
                 startBtn.disabled = false;
                 statusEl.textContent = "Ready to connect.";
+
+                // If in an active chat, replace the track
+                if (peerConnection) {
+                    const videoTrack = localStream.getVideoTracks()[0];
+                    const sender = peerConnection.getSenders().find(s => s.track.kind === 'video');
+                    if(sender) {
+                        sender.replaceTrack(videoTrack);
+                    }
+                }
+
             } catch (error) {
                 console.error("Error accessing media devices.", error);
-                statusEl.textContent = "Could not access camera/mic. Please allow permissions.";
+                statusEl.textContent = "Could not access camera. Please allow permissions.";
                 startBtn.disabled = true;
             }
         }
         
+        // --- Core Chat Functions ---
         async function startChat() {
             if (!userId || isFindingPartner) return;
             isFindingPartner = true;
@@ -547,6 +606,24 @@
 
                 document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
+            }
+        });
+
+        // --- Camera Selection Logic ---
+        cameraBtn.addEventListener('click', async () => {
+            await getConnectedDevices('videoinput', cameraList);
+            cameraOptions.classList.remove('hidden');
+        });
+
+        closeCameraBtn.addEventListener('click', () => {
+            cameraOptions.classList.add('hidden');
+        });
+        
+        cameraList.addEventListener('click', (e) => {
+             if (e.target.classList.contains('camera-btn')) {
+                const deviceId = e.target.dataset.deviceId;
+                startLocalVideo(deviceId);
+                cameraOptions.classList.add('hidden');
             }
         });
 
