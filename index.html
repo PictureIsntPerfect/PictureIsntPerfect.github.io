@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Chat - Omegle Clone</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -157,7 +156,6 @@
         let isFindingPartner = false;
         let isAdmin = false;
         let unsubscribeUser, unsubscribeChat, unsubscribeBroadcast;
-        let synth;
 
         const servers = {
             iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }],
@@ -187,14 +185,6 @@
             });
         }
 
-        // --- Audio Initialization ---
-        function initAudio() {
-            if (synth) return;
-            // Initialize Tone.js synth after a user interaction
-            Tone.start();
-            synth = new Tone.Synth().toDestination();
-        }
-
         // --- Core Functions ---
         async function startLocalVideo() {
             try {
@@ -211,9 +201,7 @@
         
         async function startChat() {
             if (!userId || isFindingPartner) return;
-            initAudio(); // Ensure audio context is ready
             isFindingPartner = true;
-            // ... (rest of the function is the same)
             statusEl.textContent = "Searching for a partner...";
             startBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
@@ -398,8 +386,6 @@
         
         function displayBroadcastMessage(message) {
             if(isAdmin) return; // Don't show broadcast to admin
-            initAudio(); // Ensure audio is ready
-            synth.triggerAttackRelease("C5", "8n"); // Play a C5 note
             broadcastText.textContent = message;
             broadcastContainer.classList.remove('opacity-0', '-translate-y-full');
             broadcastContainer.classList.add('opacity-100', 'translate-y-0');
@@ -552,6 +538,7 @@
              }
         });
 
+        // Initialize the app after the DOM is fully loaded.
         init();
 
     </script>
