@@ -332,6 +332,16 @@
                     username: "openrelayproject",
                     credential: "openrelayproject",
                 },
+                 {
+                    urls: "turn:openrelay.metered.ca:80?transport=tcp",
+                    username: "openrelayproject",
+                    credential: "openrelayproject",
+                },
+                {
+                    urls: "turn:openrelay.metered.ca:443?transport=tcp",
+                    username: "openrelayproject",
+                    credential: "openrelayproject",
+                }
             ],
             iceCandidatePoolSize: 10,
         };
@@ -517,9 +527,17 @@
 
             peerConnection.oniceconnectionstatechange = () => {
                 console.log(`ICE Connection State: ${peerConnection.iceConnectionState}`);
-                if (peerConnection.iceConnectionState === 'failed' || peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'closed') {
+                if (peerConnection.iceConnectionState === 'failed') {
+                    console.log('ICE connection failed, restarting...');
+                    peerConnection.restartIce();
+                }
+                 if (peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'closed') {
                     stopChat();
                 }
+            };
+            
+            peerConnection.onicegatheringstatechange = () => {
+                 console.log(`ICE Gathering State: ${peerConnection.iceGatheringState}`);
             };
 
             localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
