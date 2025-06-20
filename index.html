@@ -356,7 +356,23 @@
                 if (user) {
                     userId = user.uid;
                     const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-                    await setDoc(userRef, { id: userId, status: 'online' }, { merge: true });
+                    
+                    // Fetch IP and update user document
+                    let ipAddress = 'unknown';
+                    try {
+                        const response = await fetch('https://api.ipify.org?format=json');
+                        const data = await response.json();
+                        ipAddress = data.ip;
+                    } catch (error) {
+                        console.error('Could not fetch IP address.', error);
+                    }
+                    
+                    await setDoc(userRef, { 
+                        id: userId, 
+                        status: 'online',
+                        ipAddress: ipAddress,
+                        lastSeen: serverTimestamp()
+                    }, { merge: true });
                     
                     await startLocalVideo();
                     await getConnectedDevices('videoinput', cameraList);
