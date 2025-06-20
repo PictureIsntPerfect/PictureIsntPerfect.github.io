@@ -130,6 +130,12 @@
         <main id="main-content" class="w-full">
             <!-- User Chat Interface -->
             <div id="chat-interface">
+                
+                <!-- YouTube Player -->
+                <div id="youtube-player-container" class="hidden w-full md:w-3/4 mx-auto mb-4 aspect-video">
+                    <div id="youtube-player"></div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- Local Video -->
                     <div class="rounded-2xl shadow-lg p-2 aspect-video flex flex-col" style="background-color: var(--bg-secondary);">
@@ -150,12 +156,27 @@
                 <div class="mt-6 text-center space-x-2 flex flex-wrap justify-center gap-2">
                     <button id="startBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: #16a34a;">Start Chat</button>
                     <button id="nextBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: var(--accent-main); color: var(--accent-text);">Next Chat</button>
+                    <button id="shareVideoBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #581c87; color: var(--accent-text);">Share Video</button>
                     <button id="cameraBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Camera</button>
                     <button id="filtersBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Filters</button>
                     <button id="themesBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Themes</button>
                     <button id="stopBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #dc2626;">Stop</button>
                 </div>
                  <p id="status" class="text-center mt-4" style="color: var(--text-secondary);">Press 'Start Chat' to begin.</p>
+            </div>
+            
+            <!-- Share Video Modal -->
+            <div id="share-video-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
+                <div class="p-6 rounded-xl shadow-2xl w-full max-w-lg" style="background-color: var(--bg-secondary);">
+                     <h3 class="text-xl font-bold text-center mb-4">Share a YouTube Video</h3>
+                     <div class="flex gap-2">
+                         <input type="text" id="youtube-url-input" placeholder="Paste YouTube URL here..." class="flex-grow p-2 rounded-lg border focus:outline-none focus:ring-2" style="background-color: var(--bg-tertiary); color: var(--text-main); border-color: var(--accent-main);">
+                         <button id="queueVideoBtn" class="font-bold py-2 px-4 rounded-lg transition duration-300" style="background-color: var(--accent-main); color: var(--accent-text);">Queue</button>
+                     </div>
+                     <h4 class="text-lg font-semibold mt-4 mb-2">Up Next</h4>
+                     <div id="video-queue-list" class="max-h-40 overflow-y-auto p-2 rounded-lg" style="background-color: var(--bg-tertiary);"></div>
+                     <button id="closeShareVideoBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
+                </div>
             </div>
 
             <!-- Camera Options Modal -->
@@ -250,7 +271,8 @@
             </div>
         </main>
     </div>
-
+    
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -305,43 +327,33 @@
         const closeCameraBtn = document.getElementById('closeCameraBtn');
         const globalMuteBanner = document.getElementById('global-mute-banner');
         const globalMuteToggle = document.getElementById('globalMuteToggle');
+        const shareVideoBtn = document.getElementById('shareVideoBtn');
+        const shareVideoModal = document.getElementById('share-video-modal');
+        const closeShareVideoBtn = document.getElementById('closeShareVideoBtn');
+        const queueVideoBtn = document.getElementById('queueVideoBtn');
+        const youtubeUrlInput = document.getElementById('youtube-url-input');
+        const youtubePlayerContainer = document.getElementById('youtube-player-container');
+        const videoQueueList = document.getElementById('video-queue-list');
+
 
         // --- State Management ---
-        let localStream; // This will now be the canvas stream
+        let localStream; 
         let peerConnection;
         let currentChatId = null;
         let isFindingPartner = false;
         let isAdmin = false;
-        let unsubscribeUser, unsubscribeChat, unsubscribeBroadcast, unsubscribeSettings;
+        let unsubscribeUser, unsubscribeChat, unsubscribeBroadcast, unsubscribeSettings, unsubscribeVideoState;
         let currentVideoDeviceId = null;
         let currentFilter = 'none';
         let canvasCtx = videoCanvas.getContext('2d');
         let animationFrameId;
+        let ytPlayer;
+        let isRemoteChange = false;
 
         const servers = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                {
-                    urls: "turn:openrelay.metered.ca:80",
-                    username: "openrelayproject",
-                    credential: "openrelayproject",
-                },
-                {
-                    urls: "turn:openrelay.metered.ca:443",
-                    username: "openrelayproject",
-                    credential: "openrelayproject",
-                },
-                 {
-                    urls: "turn:openrelay.metered.ca:80?transport=tcp",
-                    username: "openrelayproject",
-                    credential: "openrelayproject",
-                },
-                {
-                    urls: "turn:openrelay.metered.ca:443?transport=tcp",
-                    username: "openrelayproject",
-                    credential: "openrelayproject",
-                }
             ],
             iceCandidatePoolSize: 10,
         };
@@ -356,21 +368,9 @@
                 if (user) {
                     userId = user.uid;
                     const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-                    
-                    // Fetch IP and update user document
-                    let ipAddress = 'unknown';
-                    try {
-                        const response = await fetch('https://api.ipify.org?format=json');
-                        const data = await response.json();
-                        ipAddress = data.ip;
-                    } catch (error) {
-                        console.error('Could not fetch IP address.', error);
-                    }
-                    
                     await setDoc(userRef, { 
                         id: userId, 
                         status: 'online',
-                        ipAddress: ipAddress,
                         lastSeen: serverTimestamp()
                     }, { merge: true });
                     
@@ -489,6 +489,8 @@
             startBtn.classList.add('hidden');
             nextBtn.classList.remove('hidden');
             stopBtn.classList.remove('hidden');
+            shareVideoBtn.classList.remove('hidden');
+
 
             await cleanupPreviousChat();
             await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), { status: 'waiting' });
@@ -540,6 +542,7 @@
 
         async function createPeerConnection(chatId, isCaller) {
             peerConnection = new RTCPeerConnection(servers);
+            initializeYoutubePlayer(chatId);
 
             peerConnection.oniceconnectionstatechange = () => {
                 console.log(`ICE Connection State: ${peerConnection.iceConnectionState}`);
@@ -552,10 +555,6 @@
                 }
             };
             
-            peerConnection.onicegatheringstatechange = () => {
-                 console.log(`ICE Gathering State: ${peerConnection.iceGatheringState}`);
-            };
-
             localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
             peerConnection.ontrack = event => {
                 if (event.streams && event.streams[0]) {
@@ -611,6 +610,13 @@
             }
             if(unsubscribeChat) unsubscribeChat();
             if(unsubscribeUser) unsubscribeUser();
+            if (unsubscribeVideoState) unsubscribeVideoState();
+
+            if (ytPlayer) ytPlayer.destroy();
+            ytPlayer = null;
+            youtubePlayerContainer.classList.add('hidden');
+            shareVideoBtn.classList.add('hidden');
+            
             remoteVideo.srcObject = null;
             remoteVideo.classList.add('hidden');
             waitingMessage.classList.remove('hidden');
@@ -774,6 +780,147 @@
                 }
             }
         });
+        
+        // --- YouTube Player ---
+        window.onYouTubeIframeAPIReady = function() {
+            // The player is now initialized when a chat starts, not globally.
+        };
+
+        function initializeYoutubePlayer(chatId) {
+            if (ytPlayer) {
+                ytPlayer.destroy();
+            }
+            youtubePlayerContainer.classList.remove('hidden');
+            ytPlayer = new YT.Player('youtube-player', {
+                height: '100%',
+                width: '100%',
+                playerVars: { 'autoplay': 1, 'controls': 1, 'modestbranding': 1, 'rel': 0 },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+
+            listenForVideoState(chatId);
+        }
+
+        function onPlayerReady(event) {
+            // Ready to receive commands
+        }
+
+        async function onPlayerStateChange(event) {
+            if (isRemoteChange || !currentChatId) return;
+            
+            const videoStateRef = doc(db, `artifacts/${appId}/public/data/chats/${currentChatId}`);
+            const updatePayload = {
+                "videoState.playerStatus": event.data,
+                "videoState.currentTime": event.target.getCurrentTime ? event.target.getCurrentTime() : 0,
+                "videoState.timestamp": serverTimestamp()
+            };
+            
+            // When a video ends, play the next one in the queue
+            if (event.data === YT.PlayerState.ENDED) {
+                const docSnap = await getDoc(videoStateRef);
+                const currentQueue = docSnap.data().videoState?.queue || [];
+                currentQueue.shift(); // Remove the video that just ended
+                
+                updatePayload["videoState.queue"] = currentQueue;
+                if(currentQueue.length > 0) {
+                     updatePayload["videoState.videoId"] = currentQueue[0];
+                } else {
+                     updatePayload["videoState.videoId"] = null; // No more videos
+                }
+            }
+
+            await updateDoc(videoStateRef, updatePayload);
+        }
+
+        function listenForVideoState(chatId) {
+            if (unsubscribeVideoState) unsubscribeVideoState();
+            const videoStateRef = doc(db, `artifacts/${appId}/public/data/chats/${chatId}`);
+            unsubscribeVideoState = onSnapshot(videoStateRef, (docSnap) => {
+                if (!ytPlayer || !docSnap.exists() || !docSnap.data().videoState) return;
+
+                isRemoteChange = true;
+                const videoState = docSnap.data().videoState;
+                const currentVideoId = ytPlayer.getVideoData ? ytPlayer.getVideoData().video_id : null;
+                
+                // If there's no video ID, hide the player
+                if (!videoState.videoId) {
+                    youtubePlayerContainer.classList.add('hidden');
+                } else {
+                    youtubePlayerContainer.classList.remove('hidden');
+                }
+                
+                if (videoState.videoId && videoState.videoId !== currentVideoId) {
+                    ytPlayer.loadVideoById(videoState.videoId, videoState.currentTime);
+                }
+                
+                if (ytPlayer.getPlayerState() !== videoState.playerStatus) {
+                    if (videoState.playerStatus === YT.PlayerState.PLAYING) {
+                         ytPlayer.seekTo(videoState.currentTime, true);
+                         ytPlayer.playVideo();
+                    } else if (videoState.playerStatus === YT.PlayerState.PAUSED) {
+                        ytPlayer.pauseVideo();
+                        ytPlayer.seekTo(videoState.currentTime, true);
+                    }
+                }
+                
+                updateQueueUI(videoState.queue || []);
+
+                setTimeout(() => { isRemoteChange = false; }, 300);
+            });
+        }
+        
+        function updateQueueUI(queue) {
+            videoQueueList.innerHTML = '';
+            if (queue.length <= 1) {
+                videoQueueList.innerHTML = '<p class="text-sm" style="color:var(--text-secondary)">No other videos in queue.</p>';
+                return;
+            }
+            // Show videos after the current one
+            queue.slice(1).forEach((videoId, index) => {
+                const li = document.createElement('p');
+                li.textContent = ` ${index + 1}. Video ID: ${videoId}`;
+                li.className = "truncate text-sm";
+                videoQueueList.appendChild(li);
+            });
+        }
+        
+        function extractVideoID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        async function handleQueueVideo() {
+            const url = youtubeUrlInput.value;
+            const videoId = extractVideoID(url);
+
+            if (!videoId) { alert("Invalid YouTube URL"); return; }
+            if (!currentChatId) { alert("You must be in a chat to share a video."); return; }
+
+            const videoStateRef = doc(db, `artifacts/${appId}/public/data/chats/${currentChatId}`);
+            const docSnap = await getDoc(videoStateRef);
+            
+            const currentVideoState = docSnap.data()?.videoState || {};
+            const currentQueue = currentVideoState.queue || [];
+            currentQueue.push(videoId);
+
+            let updateData = {
+                "videoState.queue": currentQueue,
+                "videoState.timestamp": serverTimestamp()
+            };
+
+            if (!currentVideoState.videoId) {
+                updateData["videoState.videoId"] = videoId;
+                updateData["videoState.playerStatus"] = 1; // Playing
+                updateData["videoState.currentTime"] = 0;
+            }
+
+            await setDoc(videoStateRef, { videoState: updateData }, { merge: true });
+            youtubeUrlInput.value = '';
+        }
 
         // --- UI Logic ---
         filtersBtn.addEventListener('click', () => filterOptions.classList.remove('hidden'));
@@ -819,6 +966,10 @@
                 cameraOptions.classList.add('hidden');
             }
         });
+        
+        shareVideoBtn.addEventListener('click', () => shareVideoModal.classList.remove('hidden'));
+        closeShareVideoBtn.addEventListener('click', () => shareVideoModal.classList.add('hidden'));
+        queueVideoBtn.addEventListener('click', handleQueueVideo);
 
         // --- Event Listeners ---
         startBtn.addEventListener('click', startChat);
@@ -835,7 +986,6 @@
              }
         });
 
-        // Initialize the app after the DOM is fully loaded.
         init();
 
     </script>
