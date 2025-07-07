@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StonerTalk - Video Chat</title>
+    <title>TalkAndWatch - Group Video Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -59,110 +59,74 @@
         }
         video {
             transform: scaleX(-1);
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 0.5rem;
         }
-        #broadcast-message-container, #global-mute-banner {
-            transition: opacity 0.5s, transform 0.5s;
-            background-color: var(--accent-main);
-            color: var(--accent-text);
+        #video-grid .video-container {
+            position: relative;
+        }
+        #video-grid .video-name {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.875rem;
         }
         .theme-btn.active, .filter-btn.active, .camera-btn.active {
             background-color: var(--accent-main);
             color: var(--accent-text);
         }
-         /* Toggle Switch styles */
-        .toggle-bg:after {
-            content: '';
-            @apply absolute top-0.5 left-0.5 bg-white border border-gray-300 rounded-full h-5 w-5 transition shadow-sm;
-        }
-        input:checked + .toggle-bg:after {
-            @apply transform translate-x-full;
-        }
-        input:checked + .toggle-bg {
-            @apply bg-green-500;
-        }
-
     </style>
 </head>
 <body class="flex flex-col items-center min-h-screen antialiased">
-
-    <!-- Banners -->
-    <div id="broadcast-message-container" class="fixed top-0 left-0 right-0 p-4 text-center z-50 transform -translate-y-full opacity-0">
-        <p id="broadcast-message-text"></p>
-        <button id="close-broadcast" class="absolute top-2 right-4 text-2xl font-bold">&times;</button>
-    </div>
-    <div id="global-mute-banner" class="fixed top-0 left-0 right-0 p-4 text-center z-50 transform -translate-y-full opacity-0 bg-yellow-500 text-black">
-        <p>All audio is currently muted by an administrator.</p>
-    </div>
-
 
     <!-- Hidden elements for video processing -->
     <video id="rawVideo" class="hidden" autoplay muted></video>
     <canvas id="videoCanvas" class="hidden"></canvas>
 
-
     <!-- Main Application Wrapper -->
-    <div id="app" class="w-full max-w-6xl mx-auto p-4 mt-24">
+    <div id="app" class="w-full max-w-7xl mx-auto p-4">
 
         <!-- Header -->
         <header class="text-center mb-6">
-            <h1 id="main-title" class="text-4xl font-bold" style="color: var(--accent-main);">StonerTalk</h1>
-            <p class="mt-2" style="color: var(--text-secondary);">Connect with strangers from around the world.</p>
+            <h1 id="main-title" class="text-4xl font-bold" style="color: var(--accent-main);">TalkAndWatch</h1>
+            <p class="mt-2" style="color: var(--text-secondary);">Watch videos and chat with people from around the world.</p>
         </header>
         
-        <!-- Admin Login Button -->
-        <div id="admin-login-button-container" class="text-center mb-4">
-            <button id="adminLoginBtn" class="font-bold py-2 px-4 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary); color: var(--text-main);">Admin Login</button>
-        </div>
-
-        <!-- Admin Login Modal -->
-        <div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center hidden z-50">
-            <div class="p-8 rounded-2xl shadow-2xl w-full max-w-sm" style="background-color: var(--bg-secondary);">
-                <h2 class="text-2xl font-bold text-center mb-6">Admin Access</h2>
-                <input id="username" type="text" placeholder="Username" class="w-full p-3 mb-4 rounded-lg border focus:outline-none focus:ring-2" style="background-color: var(--bg-tertiary); border-color: var(--accent-main); color: var(--text-main);">
-                <input id="password" type="password" placeholder="Password" class="w-full p-3 mb-4 rounded-lg border focus:outline-none focus:ring-2" style="background-color: var(--bg-tertiary); border-color: var(--accent-main); color: var(--text-main);">
-                <button id="loginSubmit" class="w-full font-bold py-3 rounded-lg transition duration-300" style="background-color: var(--accent-main); color: var(--accent-text);">Login</button>
-                <button id="closeModal" class="w-full font-bold py-2 rounded-lg transition duration-300 mt-2" style="background-color: var(--bg-tertiary); color: var(--text-main);">Cancel</button>
-                <p id="loginError" class="text-red-500 text-center mt-4 hidden">Invalid credentials.</p>
-            </div>
-        </div>
-
-        <!-- Main Content: Chat or Admin Panel -->
+        <!-- Main Content -->
         <main id="main-content" class="w-full">
             <!-- User Chat Interface -->
             <div id="chat-interface">
                 
                 <!-- YouTube Player -->
-                <div id="youtube-player-container" class="hidden w-full md:w-3/4 mx-auto mb-4 aspect-video">
+                <div id="youtube-player-container" class="hidden w-full md:w-3/4 mx-auto mb-4 aspect-video bg-black rounded-xl">
                     <div id="youtube-player"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Local Video -->
-                    <div class="rounded-2xl shadow-lg p-2 aspect-video flex flex-col" style="background-color: var(--bg-secondary);">
-                        <video id="localVideo" autoplay playsinline muted class="w-full h-full object-cover rounded-lg"></video>
-                        <span class="text-center pt-2" style="color: var(--text-secondary);">You</span>
-                    </div>
-                    <!-- Remote Video -->
-                    <div class="rounded-2xl shadow-lg p-2 aspect-video flex flex-col" style="background-color: var(--bg-secondary);">
-                        <div id="remote-video-container" class="w-full h-full flex items-center justify-center bg-black rounded-lg">
-                             <video id="remoteVideo" autoplay playsinline class="w-full h-full object-cover rounded-lg hidden"></video>
-                             <div id="waiting-message" style="color: var(--text-secondary);">Waiting for a partner...</div>
-                        </div>
-                        <span class="text-center pt-2" style="color: var(--text-secondary);">Stranger</span>
-                    </div>
+                <!-- Video Grid -->
+                <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    <!-- Videos will be dynamically added here -->
                 </div>
+                <div id="waiting-message" class="text-center py-10" style="color: var(--text-secondary);">
+                    Press 'Join Call' to start.
+                </div>
+
 
                 <!-- Controls -->
                 <div class="mt-6 text-center space-x-2 flex flex-wrap justify-center gap-2">
-                    <button id="startBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: #16a34a;">Start Chat</button>
-                    <button id="nextBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: var(--accent-main); color: var(--accent-text);">Next Chat</button>
+                    <button id="joinBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: #16a34a;">Join Call</button>
+                    <button id="leaveBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #dc2626;">Leave Call</button>
                     <button id="shareVideoBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #581c87; color: var(--accent-text);">Share Video</button>
                     <button id="cameraBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Camera</button>
                     <button id="filtersBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Filters</button>
                     <button id="themesBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Themes</button>
-                    <button id="stopBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #dc2626;">Stop</button>
                 </div>
-                 <p id="status" class="text-center mt-4" style="color: var(--text-secondary);">Press 'Start Chat' to begin.</p>
+                 <p id="status" class="text-center mt-4" style="color: var(--text-secondary);"></p>
             </div>
             
             <!-- Share Video Modal -->
@@ -183,9 +147,7 @@
             <div id="camera-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
                 <div class="p-6 rounded-xl shadow-2xl w-full max-w-md" style="background-color: var(--bg-secondary);">
                      <h3 class="text-xl font-bold text-center mb-4">Select Camera</h3>
-                     <div id="camera-list" class="flex flex-col gap-2">
-                        <!-- Camera buttons will be inserted here -->
-                     </div>
+                     <div id="camera-list" class="flex flex-col gap-2"></div>
                      <button id="closeCameraBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
                 </div>
             </div>
@@ -220,55 +182,6 @@
                      <button id="closeThemesBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
                 </div>
             </div>
-
-            <!-- Admin Panel -->
-            <div id="admin-panel" class="hidden">
-                <h2 class="text-3xl font-bold text-center mb-6" style="color: var(--accent-main);">Admin Dashboard</h2>
-
-                <!-- Live Stats -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                    <div class="p-4 rounded-lg text-center" style="background-color: var(--bg-secondary);">
-                        <p class="text-2xl font-bold" id="stats-total">0</p>
-                        <p style="color: var(--text-secondary);">Total Users Online</p>
-                    </div>
-                    <div class="p-4 rounded-lg text-center" style="background-color: var(--bg-secondary);">
-                        <p class="text-2xl font-bold" id="stats-chatting">0</p>
-                        <p style="color: var(--text-secondary);">Users in Chat</p>
-                    </div>
-                    <div class="p-4 rounded-lg text-center" style="background-color: var(--bg-secondary);">
-                        <p class="text-2xl font-bold" id="stats-waiting">0</p>
-                        <p style="color: var(--text-secondary);">Users Waiting</p>
-                    </div>
-                </div>
-                
-                <!-- Admin Controls -->
-                <div class="p-4 rounded-lg mb-6" style="background-color: var(--bg-secondary);">
-                    <h3 class="text-xl font-semibold mb-2">Moderation Tools</h3>
-                    <div class="grid md:grid-cols-2 gap-4">
-                        <div>
-                             <h4 class="font-semibold mb-1">Broadcast Message</h4>
-                            <div class="flex gap-2">
-                                <input type="text" id="broadcast-input" placeholder="Enter your message..." class="flex-grow p-2 rounded-lg border focus:outline-none focus:ring-2" style="background-color: var(--bg-tertiary); color: var(--text-main); border-color: var(--accent-main);">
-                                <button id="send-broadcast-btn" class="font-bold py-2 px-4 rounded-lg transition duration-300" style="background-color: var(--accent-main); color: var(--accent-text);">Send</button>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between p-2 rounded-lg" style="background-color: var(--bg-tertiary);">
-                             <h4 class="font-semibold">Global Audio Mute</h4>
-                             <label for="globalMuteToggle" class="flex items-center cursor-pointer">
-                                <div class="relative">
-                                    <input type="checkbox" id="globalMuteToggle" class="sr-only">
-                                    <div class="block bg-gray-600 w-10 h-6 rounded-full toggle-bg"></div>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <h3 class="text-2xl font-bold text-center mb-4" style="color: var(--accent-main);">Online Users</h3>
-                <div id="admin-users-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <!-- Online users will be listed here -->
-                </div>
-            </div>
         </main>
     </div>
     
@@ -276,7 +189,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch, updateDoc, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch, updateDoc, addDoc, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
         const firebaseConfig = {
@@ -289,32 +202,20 @@
           measurementId: "G-P65WBJMXX3"
         };
         
-        const appId = 'omegle-c7bdb';
+        const appId = 'talkandwatch-app'; // Unique ID for this app's data
+        const GLOBAL_CALL_ID = 'mainCall'; // Single ID for the global call
         
         let app, db, auth;
         let userId;
 
         // --- DOM Elements ---
-        const localVideo = document.getElementById('localVideo');
-        const remoteVideo = document.getElementById('remoteVideo');
+        const videoGrid = document.getElementById('video-grid');
         const rawVideo = document.getElementById('rawVideo');
         const videoCanvas = document.getElementById('videoCanvas');
-        const startBtn = document.getElementById('startBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        const stopBtn = document.getElementById('stopBtn');
+        const joinBtn = document.getElementById('joinBtn');
+        const leaveBtn = document.getElementById('leaveBtn');
         const statusEl = document.getElementById('status');
-        const adminLoginBtn = document.getElementById('adminLoginBtn');
-        const adminLoginModal = document.getElementById('adminLoginModal');
-        const adminLoginButtonContainer = document.getElementById('admin-login-button-container');
-        const closeModal = document.getElementById('closeModal');
-        const loginSubmit = document.getElementById('loginSubmit');
-        const chatInterface = document.getElementById('chat-interface');
-        const adminPanel = document.getElementById('admin-panel');
-        const adminUsersList = document.getElementById('admin-users-list');
         const waitingMessage = document.getElementById('waiting-message');
-        const broadcastContainer = document.getElementById('broadcast-message-container');
-        const broadcastText = document.getElementById('broadcast-message-text');
-        const closeBroadcastBtn = document.getElementById('close-broadcast');
         const themesBtn = document.getElementById('themesBtn');
         const themeOptions = document.getElementById('theme-options');
         const closeThemesBtn = document.getElementById('closeThemesBtn');
@@ -325,8 +226,6 @@
         const cameraOptions = document.getElementById('camera-options');
         const cameraList = document.getElementById('camera-list');
         const closeCameraBtn = document.getElementById('closeCameraBtn');
-        const globalMuteBanner = document.getElementById('global-mute-banner');
-        const globalMuteToggle = document.getElementById('globalMuteToggle');
         const shareVideoBtn = document.getElementById('shareVideoBtn');
         const shareVideoModal = document.getElementById('share-video-modal');
         const closeShareVideoBtn = document.getElementById('closeShareVideoBtn');
@@ -337,18 +236,18 @@
 
 
         // --- State Management ---
-        let localStream; 
-        let peerConnection;
-        let currentChatId = null;
-        let isFindingPartner = false;
-        let isAdmin = false;
-        let unsubscribeUser, unsubscribeChat, unsubscribeBroadcast, unsubscribeSettings, unsubscribeVideoState;
+        let localStream;
+        let peerConnections = {}; // { remoteUserId: RTCPeerConnection }
+        let signalingListeners = {}; // { remoteUserId: unsubscribeFunction }
+        let callListener = null;
+        let videoStateListener = null;
+        let isInCall = false;
         let currentVideoDeviceId = null;
         let currentFilter = 'none';
         let canvasCtx = videoCanvas.getContext('2d');
         let animationFrameId;
         let ytPlayer;
-        let isRemoteChange = false;
+        let isRemoteYTChange = false;
 
         const servers = {
             iceServers: [
@@ -367,40 +266,16 @@
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     userId = user.uid;
-                    const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-                    await setDoc(userRef, { 
-                        id: userId, 
-                        status: 'online',
-                        lastSeen: serverTimestamp()
-                    }, { merge: true });
-                    
                     await startLocalVideo();
                     await getConnectedDevices('videoinput', cameraList);
-                    listenForBroadcasts();
-                    listenForSettings();
-                    onSnapshot(userRef, (docSnap) => {
-                        if(!docSnap.exists() && !isAdmin) {
-                            handleKicked();
-                        }
-                    });
+                    listenForVideoState();
                 } else {
-                    signInAnonymously(auth).catch(error => {
+                    await signInAnonymously(auth).catch(error => {
                         console.error("Anonymous sign-in failed:", error);
                         statusEl.textContent = "Authentication failed. Please refresh.";
                     });
                 }
             });
-        }
-        
-        function handleKicked() {
-            if (peerConnection) peerConnection.close();
-            if (localStream) localStream.getTracks().forEach(track => track.stop());
-            document.body.innerHTML = `<div class="w-full h-screen flex items-center justify-center text-center p-8" style="background-color: var(--bg-main); color: var(--text-main);">
-                <div>
-                    <h2 class="text-3xl font-bold text-red-500">You have been disconnected</h2>
-                    <p class="mt-4" style="color: var(--text-secondary);">An administrator has removed you from the service.</p>
-                </div>
-            </div>`;
         }
 
         // --- Video and Filter Processing ---
@@ -417,7 +292,9 @@
         }
 
         async function startLocalVideo(deviceId = null) {
-            if (localStream) localStream.getTracks().forEach(track => track.stop());
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
             if(animationFrameId) cancelAnimationFrame(animationFrameId);
             
             currentVideoDeviceId = deviceId;
@@ -441,21 +318,220 @@
                 const canvasVideoTrack = canvasStream.getVideoTracks()[0];
                 localStream = new MediaStream([canvasVideoTrack, ...audioTracks]);
 
-                localVideo.srcObject = localStream;
-                startBtn.disabled = false;
-                statusEl.textContent = "Ready to connect.";
-
-                if (peerConnection) {
-                    const videoSender = peerConnection.getSenders().find(s => s.track.kind === 'video');
-                    if (videoSender) videoSender.replaceTrack(canvasVideoTrack);
-                    
-                    const audioSender = peerConnection.getSenders().find(s => s.track.kind === 'audio');
-                    if (audioSender) audioSender.replaceTrack(audioTracks[0]);
+                addVideoElement(userId, localStream, true); // Add local video to grid
+                joinBtn.disabled = false;
+                statusEl.textContent = "Ready to join the call.";
+                
+                // If already in a call, update the track for all peers
+                if (isInCall) {
+                    for (const peerId in peerConnections) {
+                        const pc = peerConnections[peerId];
+                        const sender = pc.getSenders().find(s => s.track.kind === 'video');
+                        if (sender) {
+                            sender.replaceTrack(canvasVideoTrack);
+                        }
+                    }
                 }
+
             } catch (error) {
                 console.error("Error accessing media devices.", error);
                 statusEl.textContent = "Could not access camera. Please allow permissions.";
-                startBtn.disabled = true;
+                joinBtn.disabled = true;
+            }
+        }
+        
+        // --- Core Call Functions ---
+        async function joinCall() {
+            if (!localStream || isInCall) return;
+            isInCall = true;
+
+            joinBtn.classList.add('hidden');
+            leaveBtn.classList.remove('hidden');
+            shareVideoBtn.classList.remove('hidden');
+            waitingMessage.classList.add('hidden');
+            statusEl.textContent = "Joining call...";
+
+            const callDocRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
+            
+            // Listen for changes in participants
+            callListener = onSnapshot(callDocRef, (snapshot) => {
+                if (!snapshot.exists()) return;
+                const participants = snapshot.data().participants || [];
+                statusEl.textContent = `In call with ${participants.length -1} other(s).`;
+
+                // Connect to new participants
+                participants.forEach(participantId => {
+                    if (participantId !== userId && !peerConnections[participantId]) {
+                        console.log(`New participant found: ${participantId}. Creating peer connection.`);
+                        createPeerConnection(participantId, true); // We are the caller to the new person
+                    }
+                });
+
+                // Remove disconnected participants
+                Object.keys(peerConnections).forEach(peerId => {
+                    if (!participants.includes(peerId)) {
+                        console.log(`Participant left: ${peerId}. Cleaning up.`);
+                        closePeerConnection(peerId);
+                    }
+                });
+            });
+
+            // Add self to participants list
+            await setDoc(callDocRef, { participants: arrayUnion(userId) }, { merge: true });
+            initializeYoutubePlayer();
+        }
+
+        async function leaveCall() {
+            if (!isInCall) return;
+            isInCall = false;
+
+            joinBtn.classList.remove('hidden');
+            leaveBtn.classList.add('hidden');
+            shareVideoBtn.classList.add('hidden');
+            statusEl.textContent = "You have left the call.";
+
+            // Remove self from participants list
+            const callDocRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
+            await updateDoc(callDocRef, { participants: arrayRemove(userId) });
+
+            // Clean up all connections and listeners
+            if (callListener) callListener();
+            callListener = null;
+
+            Object.keys(peerConnections).forEach(peerId => {
+                closePeerConnection(peerId);
+            });
+            
+            // Remove all remote videos
+            const remoteVideos = videoGrid.querySelectorAll('.remote-video');
+            remoteVideos.forEach(video => video.parentElement.remove());
+
+            if (ytPlayer) ytPlayer.destroy();
+            ytPlayer = null;
+            youtubePlayerContainer.classList.add('hidden');
+        }
+
+        function createPeerConnection(remoteUserId, isCaller) {
+            if (peerConnections[remoteUserId]) return;
+
+            const pc = new RTCPeerConnection(servers);
+            peerConnections[remoteUserId] = pc;
+
+            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+            pc.ontrack = (event) => {
+                console.log(`Track received from ${remoteUserId}`);
+                addVideoElement(remoteUserId, event.streams[0]);
+            };
+
+            pc.onicecandidate = (event) => {
+                if (event.candidate) {
+                    const signal = { from: userId, to: remoteUserId, candidate: event.candidate.toJSON() };
+                    addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), signal);
+                }
+            };
+
+            pc.oniceconnectionstatechange = () => {
+                if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'closed') {
+                    console.log(`ICE connection with ${remoteUserId} failed. Closing.`);
+                    closePeerConnection(remoteUserId);
+                }
+            };
+
+            // Start signaling
+            startSignaling(remoteUserId, isCaller);
+        }
+
+        async function startSignaling(remoteUserId, isCaller) {
+            const signalingRef = collection(db, `artifacts/${appId}/public/data/signaling`);
+            const q = query(signalingRef, where("to", "==", userId), where("from", "==", remoteUserId));
+            
+            signalingListeners[remoteUserId] = onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach(async (change) => {
+                    if (change.type === 'added') {
+                        const signal = change.doc.data();
+                        const pc = peerConnections[remoteUserId];
+                        if (!pc) return;
+
+                        if (signal.offer) {
+                            console.log(`Received offer from ${remoteUserId}`);
+                            await pc.setRemoteDescription(new RTCSessionDescription(signal.offer));
+                            const answer = await pc.createAnswer();
+                            await pc.setLocalDescription(answer);
+                            const response = { from: userId, to: remoteUserId, answer: { type: answer.type, sdp: answer.sdp } };
+                            addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), response);
+                        } else if (signal.answer) {
+                             console.log(`Received answer from ${remoteUserId}`);
+                            if(pc.signalingState !== 'stable') {
+                                await pc.setRemoteDescription(new RTCSessionDescription(signal.answer));
+                            }
+                        } else if (signal.candidate) {
+                            await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+                        }
+                        // Delete signal doc after processing
+                        deleteDoc(change.doc.ref);
+                    }
+                });
+            });
+
+            if (isCaller) {
+                const pc = peerConnections[remoteUserId];
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                const signal = { from: userId, to: remoteUserId, offer: { type: offer.type, sdp: offer.sdp } };
+                addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), signal);
+                 console.log(`Sent offer to ${remoteUserId}`);
+            }
+        }
+        
+        function closePeerConnection(remoteUserId) {
+            const pc = peerConnections[remoteUserId];
+            if (pc) {
+                pc.close();
+                delete peerConnections[remoteUserId];
+            }
+            if (signalingListeners[remoteUserId]) {
+                signalingListeners[remoteUserId]();
+                delete signalingListeners[remoteUserId];
+            }
+            removeVideoElement(remoteUserId);
+        }
+
+        // --- UI & Video Element Management ---
+        function addVideoElement(id, stream, isLocal = false) {
+            if (document.getElementById(`video-container-${id}`)) return; // Already exists
+
+            const videoContainer = document.createElement('div');
+            videoContainer.id = `video-container-${id}`;
+            videoContainer.className = 'video-container aspect-video rounded-lg shadow-lg bg-black';
+            if(!isLocal) videoContainer.classList.add('remote-video');
+
+            const video = document.createElement('video');
+            video.srcObject = stream;
+            video.autoplay = true;
+            video.playsInline = true;
+            if (isLocal) {
+                video.muted = true;
+            }
+
+            const nameTag = document.createElement('div');
+            nameTag.className = 'video-name';
+            nameTag.textContent = isLocal ? 'You' : `User ${id.substring(0, 6)}`;
+
+            videoContainer.appendChild(video);
+            videoContainer.appendChild(nameTag);
+            videoGrid.appendChild(videoContainer);
+            waitingMessage.classList.add('hidden');
+        }
+
+        function removeVideoElement(id) {
+            const videoContainer = document.getElementById(`video-container-${id}`);
+            if (videoContainer) {
+                videoContainer.remove();
+            }
+             if (videoGrid.children.length <= 1) { // Only local video left
+                waitingMessage.classList.remove('hidden');
+                waitingMessage.textContent = 'Waiting for others to join...';
             }
         }
 
@@ -467,11 +543,11 @@
                 
                 videoDevices.forEach((device, index) => {
                     const button = document.createElement('button');
-                    button.classList.add('camera-btn', 'p-2', 'rounded-lg', 'w-full', 'text-left');
+                    button.className = 'camera-btn p-2 rounded-lg w-full text-left';
                     button.style.backgroundColor = 'var(--bg-tertiary)';
                     button.dataset.deviceId = device.deviceId;
                     button.textContent = device.label || `Camera ${index + 1}`;
-                    if( (currentVideoDeviceId === null && index === 0) || currentVideoDeviceId === device.deviceId){
+                    if((!currentVideoDeviceId && index === 0) || currentVideoDeviceId === device.deviceId){
                         button.classList.add('active');
                     }
                     listElement.appendChild(button);
@@ -480,374 +556,60 @@
                 console.error("Error enumerating devices:", error);
             }
         }
-
-        // --- Core Chat Functions ---
-        async function startChat() {
-            if (!userId || isFindingPartner) return;
-            isFindingPartner = true;
-            statusEl.textContent = "Searching for a partner...";
-            startBtn.classList.add('hidden');
-            nextBtn.classList.remove('hidden');
-            stopBtn.classList.remove('hidden');
-            shareVideoBtn.classList.remove('hidden');
-
-
-            await cleanupPreviousChat();
-            await updateDoc(doc(db, `artifacts/${appId}/public/data/users`, userId), { status: 'waiting' });
-
-            try {
-                const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
-                const q = query(usersRef, where("status", "==", "waiting"));
-                const querySnapshot = await getDocs(q);
-                
-                let partnerId = null;
-                querySnapshot.forEach(doc => {
-                    if (doc.id !== userId && !partnerId) { partnerId = doc.id; }
-                });
-
-                if (partnerId) {
-                    currentChatId = `${userId}_${partnerId}`;
-                    const chatRef = doc(db, `artifacts/${appId}/public/data/chats`, currentChatId);
-                    const batch = writeBatch(db);
-                    batch.update(doc(db, `artifacts/${appId}/public/data/users`, userId), { status: 'chatting', chatId: currentChatId });
-                    batch.update(doc(db, `artifacts/${appId}/public/data/users`, partnerId), { status: 'chatting', chatId: currentChatId });
-                    batch.set(chatRef, { users: [userId, partnerId] });
-                    await batch.commit();
-                    await createPeerConnection(currentChatId, true);
-                } else {
-                    listenForChatInitiation();
-                }
-            } catch (error) {
-                console.error("Error starting chat:", error);
-                statusEl.textContent = "Error finding a partner. Please try again.";
-                resetState();
-            } finally {
-                isFindingPartner = false;
-            }
-        }
-        
-        function listenForChatInitiation() {
-            if (unsubscribeUser) unsubscribeUser();
-            const userDocRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-            unsubscribeUser = onSnapshot(userDocRef, async (docSnap) => {
-                const data = docSnap.data();
-                if (data && data.status === 'chatting' && data.chatId) {
-                    if (unsubscribeUser) unsubscribeUser();
-                    currentChatId = data.chatId;
-                    statusEl.textContent = "Partner found! Connecting...";
-                    await createPeerConnection(currentChatId, false);
-                }
-            });
-        }
-
-        async function createPeerConnection(chatId, isCaller) {
-            peerConnection = new RTCPeerConnection(servers);
-            initializeYoutubePlayer(chatId);
-
-            peerConnection.oniceconnectionstatechange = () => {
-                console.log(`ICE Connection State: ${peerConnection.iceConnectionState}`);
-                if (peerConnection.iceConnectionState === 'failed') {
-                    console.log('ICE connection failed, restarting...');
-                    peerConnection.restartIce();
-                }
-                 if (peerConnection.iceConnectionState === 'disconnected' || peerConnection.iceConnectionState === 'closed') {
-                    stopChat();
-                }
-            };
-            
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-            peerConnection.ontrack = event => {
-                if (event.streams && event.streams[0]) {
-                    remoteVideo.srcObject = event.streams[0];
-                    remoteVideo.classList.remove('hidden');
-                    waitingMessage.classList.add('hidden');
-                    statusEl.textContent = "Connected!";
-                }
-            };
-            
-            const chatRef = doc(db, `artifacts/${appId}/public/data/chats`, chatId);
-            const offerCandidatesRef = collection(chatRef, 'offerCandidates');
-            const answerCandidatesRef = collection(chatRef, 'answerCandidates');
-
-            peerConnection.onicecandidate = event => {
-                if (event.candidate) {
-                    const candidatesRef = isCaller ? offerCandidatesRef : answerCandidatesRef;
-                    addDoc(candidatesRef, event.candidate.toJSON());
-                }
-            };
-            
-            if (isCaller) {
-                const offerDescription = await peerConnection.createOffer();
-                await peerConnection.setLocalDescription(offerDescription);
-                const offer = { sdp: offerDescription.sdp, type: offerDescription.type };
-                await setDoc(chatRef, { offer }, { merge: true });
-                unsubscribeChat = onSnapshot(chatRef, async (snapshot) => {
-                    const data = snapshot.data();
-                    if (data && data.answer && !peerConnection.currentRemoteDescription) {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                    }
-                });
-                onSnapshot(answerCandidatesRef, s => s.docChanges().forEach(c => c.type === 'added' && peerConnection.addIceCandidate(new RTCIceCandidate(c.doc.data()))));
-            } else {
-                unsubscribeChat = onSnapshot(chatRef, async (snapshot) => {
-                    const data = snapshot.data();
-                    if (data && data.offer && !peerConnection.currentRemoteDescription) {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
-                        const answerDescription = await peerConnection.createAnswer();
-                        await peerConnection.setLocalDescription(answerDescription);
-                        const answer = { sdp: answerDescription.sdp, type: answerDescription.type };
-                        await updateDoc(chatRef, { answer });
-                    }
-                });
-                onSnapshot(offerCandidatesRef, s => s.docChanges().forEach(c => c.type === 'added' && peerConnection.addIceCandidate(new RTCIceCandidate(c.doc.data()))));
-            }
-        }
-        
-        async function cleanupPreviousChat() {
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            if(unsubscribeChat) unsubscribeChat();
-            if(unsubscribeUser) unsubscribeUser();
-            if (unsubscribeVideoState) unsubscribeVideoState();
-
-            if (ytPlayer) ytPlayer.destroy();
-            ytPlayer = null;
-            youtubePlayerContainer.classList.add('hidden');
-            shareVideoBtn.classList.add('hidden');
-            
-            remoteVideo.srcObject = null;
-            remoteVideo.classList.add('hidden');
-            waitingMessage.classList.remove('hidden');
-            if (currentChatId) {
-                await deleteDoc(doc(db, `artifacts/${appId}/public/data/chats`, currentChatId)).catch(e => {});
-                currentChatId = null;
-            }
-            if (userId && !isAdmin) {
-                const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-                const docSnap = await getDoc(userRef);
-                if(docSnap.exists()){
-                     await updateDoc(userRef, { status: 'online', chatId: null });
-                }
-            }
-        }
-        
-        function resetState() {
-             cleanupPreviousChat();
-             isFindingPartner = false;
-             startBtn.classList.remove('hidden');
-             nextBtn.classList.add('hidden');
-             stopBtn.classList.add('hidden');
-             statusEl.textContent = "Ready to connect.";
-        }
-        
-        async function stopChat() {
-            await cleanupPreviousChat();
-            resetState();
-            statusEl.textContent = "Chat ended. Press 'Start Chat' to begin again.";
-        }
-        
-        async function nextChat() {
-            await stopChat();
-            await startChat();
-        }
-
-        // --- Admin & Broadcast Functions ---
-        function handleAdminLogin() {
-            if (document.getElementById('username').value === 'KHEMIST' && document.getElementById('password').value === 'TEST2121') {
-                isAdmin = true;
-                adminLoginModal.classList.add('hidden');
-                chatInterface.classList.add('hidden');
-                adminLoginButtonContainer.classList.add('hidden');
-                adminPanel.classList.remove('hidden');
-                document.getElementById('send-broadcast-btn').addEventListener('click', sendBroadcast);
-                globalMuteToggle.addEventListener('change', handleGlobalMuteToggle);
-                startAdminView();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
-            }
-        }
-
-        async function sendBroadcast() {
-            const input = document.getElementById('broadcast-input');
-            const message = input.value.trim();
-            if (message) {
-                const broadcastRef = doc(db, `artifacts/${appId}/public/data/globals`, 'broadcast');
-                await setDoc(broadcastRef, {
-                    message: message,
-                    timestamp: serverTimestamp()
-                });
-                input.value = '';
-            }
-        }
-
-        function listenForBroadcasts() {
-            if (unsubscribeBroadcast) unsubscribeBroadcast();
-            const broadcastRef = doc(db, `artifacts/${appId}/public/data/globals`, 'broadcast');
-            unsubscribeBroadcast = onSnapshot(broadcastRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    displayBroadcastMessage(data.message);
-                }
-            });
-        }
-        
-        function displayBroadcastMessage(message) {
-            if(isAdmin) return;
-            broadcastText.textContent = message;
-            broadcastContainer.classList.remove('opacity-0', '-translate-y-full');
-            broadcastContainer.classList.add('opacity-100', 'translate-y-0');
-        }
-        
-        closeBroadcastBtn.addEventListener('click', () => {
-             broadcastContainer.classList.add('opacity-0', '-translate-y-full');
-             broadcastContainer.classList.remove('opacity-100', 'translate-y-0');
-        });
-
-        async function kickUser(targetUserId) {
-            const userRef = doc(db, `artifacts/${appId}/public/data/users`, targetUserId);
-            await deleteDoc(userRef);
-        }
-
-        async function handleGlobalMuteToggle(e) {
-            const isMuted = e.target.checked;
-            const settingsRef = doc(db, `artifacts/${appId}/public/data/globals`, 'settings');
-            await setDoc(settingsRef, { isMuted: isMuted }, { merge: true });
-        }
-
-        function listenForSettings() {
-            const settingsRef = doc(db, `artifacts/${appId}/public/data/globals`, 'settings');
-            unsubscribeSettings = onSnapshot(settingsRef, (docSnap) => {
-                const settings = docSnap.data() || {};
-                const isMuted = settings.isMuted || false;
-                
-                if (isAdmin) {
-                    globalMuteToggle.checked = isMuted;
-                } else {
-                    remoteVideo.muted = isMuted;
-                    if(isMuted) {
-                        globalMuteBanner.classList.remove('opacity-0', '-translate-y-full');
-                        globalMuteBanner.classList.add('opacity-100', 'translate-y-0');
-                    } else {
-                         globalMuteBanner.classList.add('opacity-0', '-translate-y-full');
-                         globalMuteBanner.classList.remove('opacity-100', 'translate-y-0');
-                    }
-                }
-            });
-        }
-
-        function startAdminView() {
-            const usersRef = collection(db, `artifacts/${appId}/public/data/users`);
-            onSnapshot(usersRef, (snapshot) => {
-                adminUsersList.innerHTML = '';
-                let total = 0;
-                let chatting = 0;
-                let waiting = 0;
-
-                snapshot.forEach(docSnap => {
-                    const user = docSnap.data();
-                    if (user.id === userId) return; 
-                    
-                    total++;
-                    if (user.status === 'chatting') chatting++;
-                    if (user.status === 'waiting') waiting++;
-
-                    const userCard = document.createElement('div');
-                    userCard.className = 'p-4 rounded-lg shadow-lg flex flex-col justify-between';
-                    userCard.style.backgroundColor = 'var(--bg-secondary)';
-                    userCard.innerHTML = `
-                        <div>
-                            <p class="font-semibold truncate" title="${user.id}">User: ${user.id.substring(0,8)}...</p>
-                            <p class="text-sm" style="color: var(--text-secondary);">Status: <span style="color: var(--accent-main);">${user.status}</span></p>
-                        </div>
-                        <button data-kick-id="${user.id}" class="kick-btn mt-2 w-full py-1 text-white bg-red-600 hover:bg-red-700 rounded-lg text-sm">Kick</button>
-                    `;
-                    adminUsersList.appendChild(userCard);
-                });
-
-                document.getElementById('stats-total').textContent = total;
-                document.getElementById('stats-chatting').textContent = chatting;
-                document.getElementById('stats-waiting').textContent = waiting;
-            });
-        }
-        
-        adminUsersList.addEventListener('click', (e) => {
-            if(e.target.classList.contains('kick-btn')) {
-                const targetUserId = e.target.dataset.kickId;
-                if (targetUserId) {
-                    kickUser(targetUserId);
-                }
-            }
-        });
         
         // --- YouTube Player ---
-        window.onYouTubeIframeAPIReady = function() {
-            // The player is now initialized when a chat starts, not globally.
-        };
+        window.onYouTubeIframeAPIReady = function() {};
 
-        function initializeYoutubePlayer(chatId) {
-            if (ytPlayer) {
-                ytPlayer.destroy();
-            }
-            youtubePlayerContainer.classList.remove('hidden');
+        function initializeYoutubePlayer() {
+            if (ytPlayer) return;
             ytPlayer = new YT.Player('youtube-player', {
                 height: '100%',
                 width: '100%',
                 playerVars: { 'autoplay': 1, 'controls': 1, 'modestbranding': 1, 'rel': 0 },
                 events: {
-                    'onReady': onPlayerReady,
                     'onStateChange': onPlayerStateChange
                 }
             });
-
-            listenForVideoState(chatId);
-        }
-
-        function onPlayerReady(event) {
-            // Ready to receive commands
         }
 
         async function onPlayerStateChange(event) {
-            if (isRemoteChange || !currentChatId) return;
+            if (isRemoteYTChange || !isInCall) return;
             
-            const videoStateRef = doc(db, `artifacts/${appId}/public/data/chats/${currentChatId}`);
+            const videoStateRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
             const updatePayload = {
                 "videoState.playerStatus": event.data,
                 "videoState.currentTime": event.target.getCurrentTime ? event.target.getCurrentTime() : 0,
                 "videoState.timestamp": serverTimestamp()
             };
             
-            // When a video ends, play the next one in the queue
             if (event.data === YT.PlayerState.ENDED) {
                 const docSnap = await getDoc(videoStateRef);
                 const currentQueue = docSnap.data().videoState?.queue || [];
-                currentQueue.shift(); // Remove the video that just ended
+                currentQueue.shift();
                 
                 updatePayload["videoState.queue"] = currentQueue;
-                if(currentQueue.length > 0) {
-                     updatePayload["videoState.videoId"] = currentQueue[0];
-                } else {
-                     updatePayload["videoState.videoId"] = null; // No more videos
-                }
+                updatePayload["videoState.videoId"] = currentQueue.length > 0 ? currentQueue[0] : null;
             }
 
             await updateDoc(videoStateRef, updatePayload);
         }
 
-        function listenForVideoState(chatId) {
-            if (unsubscribeVideoState) unsubscribeVideoState();
-            const videoStateRef = doc(db, `artifacts/${appId}/public/data/chats/${chatId}`);
-            unsubscribeVideoState = onSnapshot(videoStateRef, (docSnap) => {
-                if (!ytPlayer || !docSnap.exists() || !docSnap.data().videoState) return;
+        function listenForVideoState() {
+            if (videoStateListener) videoStateListener();
+            const videoStateRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
+            videoStateListener = onSnapshot(videoStateRef, (docSnap) => {
+                if (!ytPlayer || !docSnap.exists() || !docSnap.data().videoState) {
+                     youtubePlayerContainer.classList.add('hidden');
+                     return;
+                }
 
-                isRemoteChange = true;
+                isRemoteYTChange = true;
                 const videoState = docSnap.data().videoState;
                 const currentVideoId = ytPlayer.getVideoData ? ytPlayer.getVideoData().video_id : null;
                 
-                // If there's no video ID, hide the player
                 if (!videoState.videoId) {
                     youtubePlayerContainer.classList.add('hidden');
+                    if (ytPlayer.stopVideo) ytPlayer.stopVideo();
                 } else {
                     youtubePlayerContainer.classList.remove('hidden');
                 }
@@ -867,8 +629,7 @@
                 }
                 
                 updateQueueUI(videoState.queue || []);
-
-                setTimeout(() => { isRemoteChange = false; }, 300);
+                setTimeout(() => { isRemoteYTChange = false; }, 500);
             });
         }
         
@@ -876,15 +637,14 @@
             videoQueueList.innerHTML = '';
             if (queue.length <= 1) {
                 videoQueueList.innerHTML = '<p class="text-sm" style="color:var(--text-secondary)">No other videos in queue.</p>';
-                return;
+            } else {
+                queue.slice(1).forEach((videoId, index) => {
+                    const p = document.createElement('p');
+                    p.textContent = ` ${index + 1}. Video ID: ${videoId}`;
+                    p.className = "truncate text-sm";
+                    videoQueueList.appendChild(p);
+                });
             }
-            // Show videos after the current one
-            queue.slice(1).forEach((videoId, index) => {
-                const li = document.createElement('p');
-                li.textContent = ` ${index + 1}. Video ID: ${videoId}`;
-                li.className = "truncate text-sm";
-                videoQueueList.appendChild(li);
-            });
         }
         
         function extractVideoID(url) {
@@ -894,17 +654,21 @@
         }
 
         async function handleQueueVideo() {
-            const url = youtubeUrlInput.value;
+            const url = youtubeUrlInput.value.trim();
             const videoId = extractVideoID(url);
 
             if (!videoId) { alert("Invalid YouTube URL"); return; }
-            if (!currentChatId) { alert("You must be in a chat to share a video."); return; }
+            if (!isInCall) { alert("You must be in a call to share a video."); return; }
 
-            const videoStateRef = doc(db, `artifacts/${appId}/public/data/chats/${currentChatId}`);
+            const videoStateRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
             const docSnap = await getDoc(videoStateRef);
             
             const currentVideoState = docSnap.data()?.videoState || {};
             const currentQueue = currentVideoState.queue || [];
+            if (currentQueue.includes(videoId)) {
+                youtubeUrlInput.value = '';
+                return; // Don't add duplicates
+            }
             currentQueue.push(videoId);
 
             let updateData = {
@@ -912,9 +676,10 @@
                 "videoState.timestamp": serverTimestamp()
             };
 
+            // If nothing is playing, start this video immediately
             if (!currentVideoState.videoId) {
                 updateData["videoState.videoId"] = videoId;
-                updateData["videoState.playerStatus"] = 1; // Playing
+                updateData["videoState.playerStatus"] = YT.PlayerState.PLAYING;
                 updateData["videoState.currentTime"] = 0;
             }
 
@@ -922,10 +687,9 @@
             youtubeUrlInput.value = '';
         }
 
-        // --- UI Logic ---
+        // --- UI Logic & Event Listeners ---
         filtersBtn.addEventListener('click', () => filterOptions.classList.remove('hidden'));
         closeFiltersBtn.addEventListener('click', () => filterOptions.classList.add('hidden'));
-
         filterOptions.addEventListener('click', (e) => {
             if (e.target.classList.contains('filter-btn')) {
                 currentFilter = e.target.dataset.filter;
@@ -934,29 +698,18 @@
             }
         });
         
-        function applyTheme(themeName) {
-            document.documentElement.className = themeName;
-        }
-
         themesBtn.addEventListener('click', () => themeOptions.classList.remove('hidden'));
         closeThemesBtn.addEventListener('click', () => themeOptions.classList.add('hidden'));
-
         themeOptions.addEventListener('click', (e) => {
             if(e.target.classList.contains('theme-btn')) {
-                const theme = e.target.dataset.theme;
-                applyTheme(theme);
+                document.documentElement.className = e.target.dataset.theme;
                 document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
             }
         });
         
-        cameraBtn.addEventListener('click', async () => {
-            await getConnectedDevices('videoinput', cameraList);
-            cameraOptions.classList.remove('hidden');
-        });
-
+        cameraBtn.addEventListener('click', () => cameraOptions.classList.remove('hidden'));
         closeCameraBtn.addEventListener('click', () => cameraOptions.classList.add('hidden'));
-        
         cameraList.addEventListener('click', (e) => {
              if (e.target.classList.contains('camera-btn')) {
                 const deviceId = e.target.dataset.deviceId;
@@ -971,20 +724,10 @@
         closeShareVideoBtn.addEventListener('click', () => shareVideoModal.classList.add('hidden'));
         queueVideoBtn.addEventListener('click', handleQueueVideo);
 
-        // --- Event Listeners ---
-        startBtn.addEventListener('click', startChat);
-        nextBtn.addEventListener('click', nextChat);
-        stopBtn.addEventListener('click', stopChat);
-        adminLoginBtn.addEventListener('click', () => adminLoginModal.classList.remove('hidden'));
-        closeModal.addEventListener('click', () => adminLoginModal.classList.add('hidden'));
-        loginSubmit.addEventListener('click', handleAdminLogin);
+        joinBtn.addEventListener('click', joinCall);
+        leaveBtn.addEventListener('click', leaveCall);
 
-        window.addEventListener('beforeunload', async () => {
-             if (userId) {
-                const userRef = doc(db, `artifacts/${appId}/public/data/users`, userId);
-                await deleteDoc(userRef);
-             }
-        });
+        window.addEventListener('beforeunload', leaveCall);
 
         init();
 
