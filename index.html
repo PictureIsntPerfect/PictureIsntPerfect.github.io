@@ -68,33 +68,14 @@
         .tab-inactive {
             background-color: transparent;
             color: #a0aec0;
-             border-bottom: 2px solid #444;
+            border-bottom: 2px solid #444;
         }
-        .slot {
-            width: 80px;
-            height: 100px;
-            border: 2px solid #444;
-            background-color: #1a1a1a;
-            font-size: 4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        #admin-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
         }
-        .playing-card {
-            width: 70px;
-            height: 100px;
-            background-color: white;
-            color: black;
-            border-radius: 5px;
-            border: 1px solid #333;
-            display: inline-flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 5px;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-        .playing-card.red { color: red; }
     </style>
 </head>
 <body class="text-white">
@@ -107,11 +88,12 @@
     <div class="container mx-auto p-4 max-w-7xl hidden" id="game-container">
         <!-- Header -->
         <header class="mb-6 p-4 rounded-lg bg-gray-800 border border-cyan-400 shadow-lg">
-            <div class="flex flex-col md:flex-row justify-between items-center">
-                <h1 class="text-4xl font-orbitron text-cyan-400 mb-2 md:mb-0">HYPEBEAST SIMULATOR</h1>
-                <div class="text-center md:text-right">
+            <div class="flex justify-between items-start">
+                 <h1 class="text-4xl font-orbitron text-cyan-400">HYPEBEAST SIMULATOR</h1>
+                 <div class="text-right">
+                    <button id="admin-login-btn" class="text-xs bg-red-800 hover:bg-red-700 px-2 py-1 rounded-full mb-2">Admin</button>
                     <p class="text-lg">Player ID: <span id="player-id" class="font-mono text-yellow-300"></span></p>
-                    <p class="text-sm text-gray-400">(Share this ID with friends to trade)</p>
+                    <p class="text-sm text-gray-400">(Share this ID to trade or for admin actions)</p>
                 </div>
             </div>
         </header>
@@ -148,8 +130,9 @@
                 <!-- Tabs -->
                 <div class="flex border-b border-gray-600">
                     <button id="tab-marketplace" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-active">Marketplace</button>
+                    <button id="tab-pawn-shop" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Pawn Shop</button>
+                    <button id="tab-exotic-wares" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Exotic Wares</button>
                     <button id="tab-hype-shop" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Hype Shop</button>
-                    <button id="tab-casino" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Casino</button>
                 </div>
 
                 <!-- Main Content Panes -->
@@ -158,38 +141,23 @@
                     <div id="marketplace-container" class="card p-4 rounded-lg">
                         <div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[550px] overflow-y-auto pr-2"></div>
                     </div>
+                    <!-- Pawn Shop -->
+                    <div id="pawn-shop-container" class="card p-4 rounded-lg hidden">
+                         <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-xl font-orbitron text-yellow-400">Second-Hand Goods</h3>
+                            <button id="refresh-pawn-stock-btn" class="btn bg-yellow-600 text-sm py-1 px-3">Refresh Stock (Manual)</button>
+                        </div>
+                        <div id="pawn-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2"></div>
+                    </div>
+                     <!-- Exotic Wares -->
+                    <div id="exotic-wares-container" class="card p-4 rounded-lg hidden">
+                        <h3 class="text-xl font-orbitron text-green-400 mb-4">The Collector's Corner</h3>
+                        <div id="exotic-wares" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[550px] overflow-y-auto pr-2"></div>
+                    </div>
                     <!-- Hype Shop -->
                     <div id="hype-shop-container" class="card p-4 rounded-lg hidden">
+                        <h3 class="text-xl font-orbitron text-orange-400 mb-4">Hype Rewards</h3>
                          <div id="hype-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[550px] overflow-y-auto pr-2"></div>
-                    </div>
-                    <!-- Casino -->
-                    <div id="casino-container" class="card p-4 rounded-lg hidden">
-                        <h3 class="text-xl font-orbitron text-purple-400 mb-4">Blackjack</h3>
-                        <div class="bg-green-800 p-4 rounded-lg mb-4">
-                            <div class="mb-2">Dealer's Hand: <span id="blackjack-dealer-score"></span></div>
-                            <div id="blackjack-dealer-cards" class="flex gap-2 mb-4 h-[110px]"></div>
-                            <div class="mb-2">Your Hand: <span id="blackjack-player-score"></span></div>
-                            <div id="blackjack-player-cards" class="flex gap-2 h-[110px]"></div>
-                        </div>
-                        <div id="blackjack-result" class="text-center font-bold text-xl mb-2"></div>
-                        <div class="flex items-center gap-4">
-                            <input type="number" id="blackjack-bet" value="100" class="bg-gray-700 p-2 rounded w-24">
-                            <button id="blackjack-deal-btn" class="btn bg-green-600 flex-1">Deal</button>
-                            <button id="blackjack-hit-btn" class="btn bg-blue-600 flex-1" disabled>Hit</button>
-                            <button id="blackjack-stand-btn" class="btn bg-red-600 flex-1" disabled>Stand</button>
-                        </div>
-                        <hr class="my-6 border-gray-600">
-                        <h3 class="text-xl font-orbitron text-purple-400 mb-4">Slots</h3>
-                        <div class="flex justify-center gap-4 mb-4">
-                            <div id="slot1" class="slot">👟</div>
-                            <div id="slot2" class="slot">🧢</div>
-                            <div id="slot3" class="slot">👕</div>
-                        </div>
-                        <div id="slots-result" class="text-center font-bold text-xl mb-2"></div>
-                        <div class="flex items-center gap-4">
-                            <input type="number" id="slots-bet" value="50" class="bg-gray-700 p-2 rounded w-24">
-                            <button id="slots-spin-btn" class="btn bg-purple-600 flex-1">Spin</button>
-                        </div>
                     </div>
                 </div>
                 
@@ -202,42 +170,112 @@
         </div>
     </div>
 
-    <!-- Modals (Sell, Message) -->
+    <!-- Modals -->
     <div id="sell-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40">
         <div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20">
             <h3 class="text-2xl font-orbitron mb-4 text-cyan-300">Sell Item</h3>
             <div id="sell-item-display" class="mb-4"></div>
-            <p class="mb-2">Set your price:</p>
-            <input type="number" id="sell-price" class="w-full bg-gray-700 border border-gray-500 rounded p-2 text-white mb-4" placeholder="e.g., 500">
-            <div class="flex justify-end gap-4">
-                <button id="cancel-sell" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button>
-                <button id="confirm-sell" class="btn bg-cyan-500 hover:bg-cyan-600">List on Market</button>
+            <div class="bg-gray-700 p-3 rounded-lg mb-4">
+                <p class="font-bold">Option 1: List on Player Market</p>
+                <p class="text-sm text-gray-400 mb-2">Set your price and wait for another player to buy. High risk, high reward!</p>
+                <input type="number" id="sell-price" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="e.g., 500">
+                 <button id="confirm-sell" class="btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600">List on Market</button>
+            </div>
+             <div class="bg-gray-700 p-3 rounded-lg mb-4">
+                <p class="font-bold">Option 2: Sell to AI Collector</p>
+                <p class="text-sm text-gray-400 mb-2">Sell instantly for a guaranteed price. Quick cash, but less profit.</p>
+                <button id="sell-to-ai-btn" class="btn w-full bg-green-600 hover:bg-green-700">Sell Now for <span id="ai-sell-price"></span></button>
+            </div>
+            <div class="flex justify-end">
+                <button id="cancel-sell" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Cancel</button>
             </div>
         </div>
     </div>
     <div id="message-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40">
         <div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20 text-center">
             <p id="message-text" class="text-lg mb-4"></p>
-            <button id="close-message" class="btn bg-cyan-500 hover:bg-cyan-600">OK</button>
+            <button id="close-message" class="btn bg-cyan-500 hover:bg-cyan-600 px-6 py-2">OK</button>
+        </div>
+    </div>
+    <div id="admin-login-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50">
+        <div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20">
+            <h3 class="text-2xl font-orbitron mb-4 text-red-500">Admin Login</h3>
+            <input type="text" id="admin-user" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-2" placeholder="Username">
+            <input type="password" id="admin-pass" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-4" placeholder="Password">
+            <div class="flex justify-end gap-4">
+                <button id="cancel-admin-login" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button>
+                <button id="confirm-admin-login" class="btn bg-red-500 hover:bg-red-600">Login</button>
+            </div>
         </div>
     </div>
 
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="card p-4 rounded-lg w-96 hidden">
+        <h2 class="text-2xl font-orbitron border-b border-red-500 pb-2 mb-4 text-red-400">Admin Controls</h2>
+        <div class="space-y-4">
+            <!-- Give Cash -->
+            <div>
+                <label class="font-bold">Give Cash</label>
+                <div class="flex gap-2">
+                    <input type="text" id="admin-cash-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID">
+                    <input type="number" id="admin-cash-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount">
+                    <button id="admin-give-cash-btn" class="btn bg-green-600 text-sm px-2">Give</button>
+                </div>
+            </div>
+            <!-- Give Hype -->
+            <div>
+                <label class="font-bold">Give Hype Points</label>
+                <div class="flex gap-2">
+                    <input type="text" id="admin-hype-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID">
+                    <input type="number" id="admin-hype-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount">
+                    <button id="admin-give-hype-btn" class="btn bg-orange-600 text-sm px-2">Give</button>
+                </div>
+            </div>
+            <!-- Give Item -->
+            <div>
+                <label class="font-bold">Give Item</label>
+                <div class="flex gap-2">
+                    <input type="text" id="admin-item-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID">
+                    <select id="admin-item-select" class="w-48 bg-gray-800 p-1 rounded"></select>
+                    <button id="admin-give-item-btn" class="btn bg-purple-600 text-sm px-2">Give</button>
+                </div>
+            </div>
+            <!-- Broadcast -->
+            <div>
+                <label class="font-bold">Broadcast Message</label>
+                <div class="flex gap-2">
+                    <input type="text" id="admin-broadcast-msg" class="w-full bg-gray-800 p-1 rounded" placeholder="Message...">
+                    <button id="admin-broadcast-btn" class="btn bg-cyan-600 text-sm px-2">Send</button>
+                </div>
+            </div>
+             <!-- Reset Player -->
+            <div>
+                <label class="font-bold text-red-500">Reset Player (DANGER)</label>
+                <div class="flex gap-2">
+                    <input type="text" id="admin-reset-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID to Reset">
+                    <button id="admin-reset-btn" class="btn bg-red-800 text-sm px-2">RESET</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, runTransaction, increment, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, runTransaction, increment, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- FIREBASE CONFIG ---
         const firebaseConfig = {
-          apiKey: "AIzaSyDdZ9FVhqazqUdAs72H5PmCzBVsEaqswPI",
-          authDomain: "hypebeastgame.firebaseapp.com",
-          projectId: "hypebeastgame",
-          storageBucket: "hypebeastgame.appspot.com",
-          messagingSenderId: "788150739009",
-          appId: "1:788150739009:web:9c06e6ae1c5ec15c4c66c0",
-          measurementId: "G-T1YL986BMB"
+            apiKey: "AIzaSyDdZ9FVhqazqUdAs72H5PmCzBVsEaqswPI",
+            authDomain: "hypebeastgame.firebaseapp.com",
+            projectId: "hypebeastgame",
+            storageBucket: "hypebeastgame.appspot.com",
+            messagingSenderId: "788150739009",
+            appId: "1:788150739009:web:9c06e6ae1c5ec15c4c66c0",
+            measurementId: "G-T1YL986BMB"
         };
-        const appId = 'hypebeast-simulator';
+        const appId = 'hypebeast-simulator-v2'; // Use a unique ID for your app
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -248,6 +286,7 @@
         let currentUserId = null;
         let itemToSellId = null;
         let originalItemValues = {}; // To store base values before events
+        let isAdmin = false;
 
         // --- UI ELEMENTS ---
         const loadingScreen = document.getElementById('loading-screen');
@@ -268,64 +307,85 @@
         const sellPriceInput = document.getElementById('sell-price');
         const cancelSellBtn = document.getElementById('cancel-sell');
         const confirmSellBtn = document.getElementById('confirm-sell');
+        const sellToAIBtn = document.getElementById('sell-to-ai-btn');
+        const aiSellPriceEl = document.getElementById('ai-sell-price');
         const messageModal = document.getElementById('message-modal');
         const messageText = document.getElementById('message-text');
         const closeMessageBtn = document.getElementById('close-message');
         const eventBanner = document.getElementById('event-banner');
         
-        // Tabs
+        // Tabs and Containers
         const tabs = {
             marketplace: document.getElementById('tab-marketplace'),
+            pawnShop: document.getElementById('tab-pawn-shop'),
+            exoticWares: document.getElementById('tab-exotic-wares'),
             hypeShop: document.getElementById('tab-hype-shop'),
-            casino: document.getElementById('tab-casino'),
         };
         const containers = {
             marketplace: document.getElementById('marketplace-container'),
+            pawnShop: document.getElementById('pawn-shop-container'),
+            exoticWares: document.getElementById('exotic-wares-container'),
             hypeShop: document.getElementById('hype-shop-container'),
-            casino: document.getElementById('casino-container'),
         };
         const hypeShopEl = document.getElementById('hype-shop');
+        const exoticWaresEl = document.getElementById('exotic-wares');
+        const pawnShopEl = document.getElementById('pawn-shop');
+        const refreshPawnStockBtn = document.getElementById('refresh-pawn-stock-btn');
 
-        // --- ITEM DATABASE ---
+        // Admin UI
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const adminLoginModal = document.getElementById('admin-login-modal');
+        const cancelAdminLoginBtn = document.getElementById('cancel-admin-login');
+        const confirmAdminLoginBtn = document.getElementById('confirm-admin-login');
+        const adminPanel = document.getElementById('admin-panel');
+        const adminItemSelect = document.getElementById('admin-item-select');
+
+
+        // --- ITEM DATABASES ---
         const clothingItems = {
-            // Common
             'tee01': { name: 'Plain White Tee', baseValue: 15, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 30 L80 30 L85 80 L15 80 Z" fill="#fff" stroke="#ccc" stroke-width="1"/><path d="M40 30 C40 15 60 15 60 30" fill="none" stroke="#ccc" stroke-width="1"/></svg>`, category: 'clothing' },
             'cap01': { name: 'Basic Dad Cap', baseValue: 20, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 25 C 10 10, 90 10, 90 25 L 10 25 Z" fill="#333"/><path d="M10 25 L 90 25 L 100 25 L 0 25 Z" fill="#333" stroke="#000" stroke-width="1"/></svg>`, category: 'clothing' },
             'socks01': { name: 'Tube Socks', baseValue: 10, svg: `<svg viewBox="0 0 50 100" class="item-svg"><path d="M10 10 L40 10 L35 90 L15 90 Z" fill="#fff" stroke="#000" stroke-width="1"/><rect x="10" y="12" width="30" height="5" fill="#f00"/><rect x="10" y="22" width="30" height="5" fill="#00f"/></svg>`, category: 'clothing' },
-            // Uncommon
             'hoodie01': { name: 'Graphic Hoodie', baseValue: 80, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 40 L80 40 L80 90 L20 90 Z" fill="#555"/><path d="M30 40 C30 20 70 20 70 40" fill="#444"/><text x="50" y="70" font-size="20" fill="#fff" text-anchor="middle">HYPE</text></svg>`, category: 'clothing' },
             'sneaker01': { name: 'Retro Runners', baseValue: 120, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#eee" stroke="#000" stroke-width="1"/><path d="M55 30 L60 20 L70 20 L75 30" fill="none" stroke="red" stroke-width="2"/></svg>`, category: 'shoes' },
             'jeans01': { name: 'Distressed Jeans', baseValue: 90, svg: `<svg viewBox="0 0 80 120" class="item-svg"><path d="M10 10 L70 10 L60 110 L20 110 Z" fill="#369" stroke="#000" stroke-width="1"/><path d="M30 50 L35 55" stroke="#fff" stroke-width="1"/><path d="M50 70 L45 75" stroke="#fff" stroke-width="1"/></svg>`, category: 'clothing' },
-            // Rare
             'jacket01': { name: 'Techwear Bomber', baseValue: 400, svg: `<svg viewBox="0 0 100 90" class="item-svg"><path d="M10 20 L90 20 L80 80 L20 80 Z" fill="#111" stroke="#0f0" stroke-width="1"/><path d="M10 20 L0 5 L30 20" fill="#222"/><path d="M90 20 L100 5 L70 20" fill="#222"/></svg>`, category: 'clothing' },
             'sneaker02': { name: 'Cosmic Kicks', baseValue: 550, svg: `<svg viewBox="0 0 200 100" class="item-svg"><path d="M20 70 L50 70 L60 50 L100 50 L110 70 L180 70 L170 90 L30 90 Z" fill="none" stroke="#FFD700" stroke-width="3"/><path d="M60 50 L70 30 L90 30 L100 50" fill="none" stroke="#FFD700" stroke-width="3"/><path d="M50 70 Q 40 60 40 50 Q 50 40 60 50" fill="#00FFFF" opacity="0.5"/><path d="M110 70 Q 120 60 120 50 Q 110 40 100 50" fill="#FF00FF" opacity="0.5"/></svg>`, category: 'shoes' },
             'watch01': { name: 'Carbon Fiber Watch', baseValue: 800, svg: `<svg viewBox="0 0 100 100" class="item-svg"><circle cx="50" cy="50" r="30" fill="#222" stroke="#aaa" stroke-width="2"/><path d="M50 20 L50 10 M50 80 L50 90 M20 50 L10 50 M80 50 L90 50" stroke="#444" stroke-width="4"/><path d="M50 50 L50 30" stroke="#fff" stroke-width="2"/><path d="M50 50 L65 50" stroke="#fff" stroke-width="1"/></svg>`, category: 'accessories' },
-            // Legendary
             'jacket02': { name: 'Holographic Puffer', baseValue: 2500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><linearGradient id="holo" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff00ff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient></defs><path d="M10 30 L90 30 L80 90 L20 90 Z" fill="url(#holo)"/><path d="M10 30 C10 10 90 10 90 30" fill="url(#holo)"/></svg>`, category: 'clothing' },
             'sneaker03': { name: 'Self-Lacing Kicks', baseValue: 5000, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#ccc" stroke="#0ff" stroke-width="1"/><path d="M50 30 L55 20 M75 30 L70 20" stroke="#0ff" stroke-width="1.5"/></svg>`, category: 'shoes' },
         };
-        // Store a deep copy of original values
+        const exoticItems = {
+            'mushroom01': { name: 'Glow Shroom', cost: 2000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(100,255,255,0.8)"/><stop offset="100%" stop-color="rgba(100,255,255,0)"/></radialGradient></defs><path d="M40 90 L60 90 L60 60 L70 60 C 90 60 90 40 70 40 L30 40 C10 40 10 60 30 60 L40 60 Z" fill="#9400D3"/><circle cx="50" cy="50" r="40" fill="url(#glow)"/></svg>`, category: 'exotic' },
+            'grass01': { name: 'Emerald Grass', cost: 1500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><g stroke="#00ff7f" stroke-width="3" stroke-linecap="round"><path d="M20 90 C 30 20, 40 20, 50 90"/><path d="M40 90 C 50 30, 60 30, 70 90"/><path d="M60 90 C 70 40, 80 40, 90 90"/></g></svg>`, category: 'exotic' },
+            'crystal01': { name: 'Crimson Crystal', cost: 5000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M50 10 L20 40 L30 90 L70 90 L80 40 Z" fill="#DC143C" stroke="#FF6347" stroke-width="3"/><path d="M50 10 L50 90 M20 40 L80 40 M30 90 L50 40 L70 90" stroke="#FF0000" stroke-width="1.5" opacity="0.7"/></svg>`, category: 'exotic' },
+            'orb01': { name: 'Floating Orb', cost: 10000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><radialGradient id="orbGlow" cx="50%" cy="50%" r="50%"><stop offset="60%" stop-color="rgba(255,215,0,1)"/><stop offset="100%" stop-color="rgba(255,165,0,0)"/></radialGradient></defs><circle cx="50" cy="50" r="25" fill="gold"/><circle cx="50" cy="50" r="40" fill="url(#orbGlow)"/><path d="M30 75 Q 50 65, 70 75" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/></svg>`, category: 'exotic' },
+        };
+        const hypeShopItems = {
+            'drone01': { name: 'Mini Drone', points: 500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M40 40 L60 40 L60 60 L40 60 Z" fill="#ccc"/><path d="M50 40 L50 10 M50 60 L50 90 M40 50 L10 50 M60 50 L90 50" stroke="#333" stroke-width="2"/><circle cx="10" cy="50" r="5" fill="#555"/><circle cx="90" cy="50" r="5" fill="#555"/><circle cx="50" cy="10" r="5" fill="#555"/><circle cx="50" cy="90" r="5" fill="#555"/></svg>`, category: 'hype' },
+            'keyboard01': { name: 'RGB Keyboard', points: 1000, svg: `<svg viewBox="0 0 120 50" class="item-svg"><rect x="10" y="10" width="100" height="30" rx="5" fill="#222" stroke="#555"/><rect x="15" y="15" width="10" height="5" fill="red"/><rect x="30" y="15" width="10" height="5" fill="orange"/><rect x="45" y="15" width="10" height="5" fill="yellow"/><rect x="60" y="15" width="10" height="5" fill="green"/><rect x="75" y="15" width="10" height="5" fill="blue"/><rect x="90" y="15" width="10" height="5" fill="purple"/></svg>`, category: 'hype' },
+            'vr01': { name: 'VR Headset', points: 2500, svg: `<svg viewBox="0 0 100 60" class="item-svg"><path d="M10 10 H 90 V 50 H 10 Z" fill="#111" stroke="#0ff" stroke-width="1"/><path d="M90 20 H 100 V 40 H 90" stroke="#333" stroke-width="3"/><path d="M10 20 H 0 V 40 H 10" stroke="#333" stroke-width="3"/></svg>`, category: 'hype' },
+        };
+        const allGameItems = { ...clothingItems, ...exoticItems, ...hypeShopItems };
+        
         Object.keys(clothingItems).forEach(key => {
             originalItemValues[key] = { ...clothingItems[key] };
         });
-        const allItemKeys = Object.keys(clothingItems);
-
-        const hypeShopItems = {
-            'drone01': { name: 'Mini Drone', points: 500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M40 40 L60 40 L60 60 L40 60 Z" fill="#ccc"/><path d="M50 40 L50 10 M50 60 L50 90 M40 50 L10 50 M60 50 L90 50" stroke="#333" stroke-width="2"/><circle cx="10" cy="50" r="5" fill="#555"/><circle cx="90" cy="50" r="5" fill="#555"/><circle cx="50" cy="10" r="5" fill="#555"/><circle cx="50" cy="90" r="5" fill="#555"/></svg>` },
-            'keyboard01': { name: 'RGB Keyboard', points: 1000, svg: `<svg viewBox="0 0 120 50" class="item-svg"><rect x="10" y="10" width="100" height="30" rx="5" fill="#222" stroke="#555"/><rect x="15" y="15" width="10" height="5" fill="red"/><rect x="30" y="15" width="10" height="5" fill="orange"/><rect x="45" y="15" width="10" height="5" fill="yellow"/><rect x="60" y="15" width="10" height="5" fill="green"/><rect x="75" y="15" width="10" height="5" fill="blue"/><rect x="90" y="15" width="10" height="5" fill="purple"/></svg>` },
-            'vr01': { name: 'VR Headset', points: 2500, svg: `<svg viewBox="0 0 100 60" class="item-svg"><path d="M10 10 H 90 V 50 H 10 Z" fill="#111" stroke="#0ff" stroke-width="1"/><path d="M90 20 H 100 V 40 H 90" stroke="#333" stroke-width="3"/><path d="M10 20 H 0 V 40 H 10" stroke="#333" stroke-width="3"/></svg>` },
-        };
+        const allClothingItemKeys = Object.keys(clothingItems);
 
         // --- AUTH & INIT ---
         onAuthStateChanged(auth, user => {
             if (user) {
                 currentUserId = user.uid;
-                playerIdEl.textContent = currentUserId.substring(0, 8);
+                playerIdEl.textContent = currentUserId; // Show full ID
                 initPlayer(currentUserId);
                 listenToMarketplace();
+                listenToPawnShop();
                 listenToLogs();
-                setInterval(runAIBuyerLogic, 45000); // AI buys something every 45s
-                setInterval(triggerRandomEvent, 180000); // Event every 3 minutes
+                populateAdminItemSelect();
+                setInterval(runAIBuyerLogic, 60000); 
+                setInterval(refreshPawnShopStock, 300000);
+                setInterval(triggerRandomEvent, 180000);
             } else {
                 signInAnonymously(auth).catch(error => {
                     console.error("Anonymous sign-in failed:", error);
@@ -338,7 +398,13 @@
             const playerRef = doc(db, "artifacts", appId, "players", userId);
             const playerSnap = await getDoc(playerRef);
             if (!playerSnap.exists()) {
-                await setDoc(playerRef, { cash: 1000, hypePoints: 0, inventory: {}, stats: { itemsSold: 0 } });
+                await setDoc(playerRef, { 
+                    cash: 1000, 
+                    hypePoints: 0, 
+                    inventory: {}, 
+                    stats: { itemsSold: 0 },
+                    starterPackClaimed: false 
+                });
                 addLog(`A new hustler, ${userId.substring(0,4)}..., just hit the streets.`);
             }
             onSnapshot(playerRef, (doc) => {
@@ -354,9 +420,19 @@
             if (!currentPlayer) return;
             playerCashEl.textContent = `$${currentPlayer.cash.toLocaleString()}`;
             playerHypePointsEl.textContent = currentPlayer.hypePoints.toLocaleString();
-            itemsSoldEl.textContent = currentPlayer.stats.itemsSold;
+            itemsSoldEl.textContent = (currentPlayer.stats && currentPlayer.stats.itemsSold) ? currentPlayer.stats.itemsSold : 0;
+            
+            if (currentPlayer.starterPackClaimed) {
+                getStarterPackBtn.disabled = true;
+                getStarterPackBtn.textContent = "Starter Pack Claimed";
+            } else {
+                 getStarterPackBtn.disabled = false;
+                 getStarterPackBtn.textContent = "Get Starter Pack";
+            }
+
             renderInventory();
             renderHypeShop();
+            renderExoticWaresShop();
             const invValue = calculateInventoryValue();
             inventoryValueEl.textContent = `$${invValue.toLocaleString()}`;
             netWorthEl.textContent = `$${(currentPlayer.cash + invValue).toLocaleString()}`;
@@ -364,20 +440,44 @@
 
         function renderInventory() {
             playerInventoryEl.innerHTML = '';
-            if (Object.keys(currentPlayer.inventory).length === 0) {
+            if (!currentPlayer.inventory || Object.keys(currentPlayer.inventory).length === 0) {
                 playerInventoryEl.innerHTML = `<p class="col-span-full text-center text-gray-400">Your closet is empty.</p>`;
                 return;
             }
-            for (const itemId in currentPlayer.inventory) {
-                const item = currentPlayer.inventory[itemId];
-                const itemDef = clothingItems[item.type] || hypeShopItems[item.type];
+            const sortedInventory = Object.entries(currentPlayer.inventory).sort(([,a], [,b]) => {
+                const itemA = allGameItems[a.type];
+                const itemB = allGameItems[b.type];
+                const valueA = itemA.baseValue || itemA.cost || itemA.points || 0;
+                const valueB = itemB.baseValue || itemB.cost || itemB.points || 0;
+                return valueB - valueA;
+            });
+
+            for (const [itemId, item] of sortedInventory) {
+                const itemDef = allGameItems[item.type];
+                if (!itemDef) continue;
                 const card = document.createElement('div');
-                card.className = 'card p-2 rounded-lg text-center fade-in';
+                card.className = 'card p-2 rounded-lg text-center fade-in flex flex-col justify-between';
+                let valueText = '';
+                let sellButton = '';
+
+                if (itemDef.category === 'exotic') {
+                    valueText = `<p class="text-xs text-green-400">Cost: $${itemDef.cost.toLocaleString()}</p>`;
+                    sellButton = `<div class="w-full mt-2 text-green-400 text-xs font-bold py-1 px-2 rounded">COLLECTIBLE</div>`;
+                } else if (itemDef.category === 'hype') {
+                    valueText = `<p class="text-xs text-orange-400">Cost: ${itemDef.points.toLocaleString()} HP</p>`;
+                     sellButton = `<div class="w-full mt-2 text-orange-400 text-xs font-bold py-1 px-2 rounded">HYPE REWARD</div>`;
+                } else { // clothing
+                    valueText = `<p class="text-xs text-gray-400">Value: $${itemDef.baseValue.toLocaleString()}</p>`;
+                    sellButton = `<button class="sell-btn btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold py-1 px-2 rounded" data-item-id="${itemId}">Sell</button>`;
+                }
+                
                 card.innerHTML = `
-                    <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
-                    <p class="font-bold text-sm truncate">${itemDef.name}</p>
-                    <p class="text-xs text-gray-400">${itemDef.baseValue ? `Value: $${itemDef.baseValue}` : `Hype Item`}</p>
-                    ${itemDef.baseValue ? `<button class="sell-btn btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold py-1 px-2 rounded" data-item-id="${itemId}">Sell</button>` : `<div class="w-full mt-2 text-purple-400 text-xs font-bold py-1 px-2 rounded">Not for sale</div>`}
+                    <div>
+                        <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
+                        <p class="font-bold text-sm truncate">${itemDef.name}</p>
+                        ${valueText}
+                    </div>
+                    ${sellButton}
                 `;
                 playerInventoryEl.appendChild(card);
             }
@@ -394,11 +494,28 @@
                     <div class="w-full h-24 flex items-center justify-center">${item.svg}</div>
                     <p class="font-bold mt-2 truncate">${item.name}</p>
                     <p class="text-lg font-bold text-orange-400 my-1">${item.points.toLocaleString()} HP</p>
-                    <button class="buy-hype-btn btn w-full mt-2 bg-orange-500 hover:bg-orange-600" data-item-id="${itemId}">Unlock</button>
+                    <button class="buy-hype-btn btn w-full mt-auto bg-orange-500 hover:bg-orange-600" data-item-id="${itemId}">Unlock</button>
                 `;
                 hypeShopEl.appendChild(card);
             }
             document.querySelectorAll('.buy-hype-btn').forEach(b => b.addEventListener('click', () => buyHypeItem(b.dataset.itemId)));
+        }
+
+        function renderExoticWaresShop() {
+            exoticWaresEl.innerHTML = '';
+            for (const itemId in exoticItems) {
+                const item = exoticItems[itemId];
+                const card = document.createElement('div');
+                card.className = 'card p-3 rounded-lg flex flex-col fade-in';
+                card.innerHTML = `
+                    <div class="w-full h-24 flex items-center justify-center">${item.svg}</div>
+                    <p class="font-bold mt-2 truncate">${item.name}</p>
+                    <p class="text-lg font-bold text-green-400 my-1">$${item.cost.toLocaleString()}</p>
+                    <button class="buy-exotic-btn btn w-full mt-auto bg-green-600 hover:bg-green-700" data-item-id="${itemId}">Buy</button>
+                `;
+                exoticWaresEl.appendChild(card);
+            }
+            document.querySelectorAll('.buy-exotic-btn').forEach(b => b.addEventListener('click', () => buyExoticItem(b.dataset.itemId)));
         }
 
         function listenToMarketplace() {
@@ -412,7 +529,7 @@
                 snapshot.forEach(doc => {
                     const listing = doc.data();
                     const itemDef = clothingItems[listing.item.type];
-                    if (!itemDef) return; // Skip if item is invalid
+                    if (!itemDef) return;
                     const card = document.createElement('div');
                     card.className = 'card p-3 rounded-lg flex flex-col fade-in';
                     card.innerHTML = `
@@ -420,11 +537,37 @@
                         <p class="font-bold mt-2 truncate">${itemDef.name}</p>
                         <p class="text-lg font-bold text-green-400 my-1">$${listing.price.toLocaleString()}</p>
                         <p class="text-xs text-gray-400 truncate">Seller: ${listing.sellerId.substring(0, 8)}...</p>
-                        ${listing.sellerId !== currentUserId ? `<button class="buy-btn btn w-full mt-2 bg-green-500 hover:bg-green-600" data-listing-id="${doc.id}">Buy</button>` : `<button class="btn w-full mt-2 bg-gray-600" disabled>Your Listing</button>`}
+                        ${listing.sellerId !== currentUserId ? `<button class="buy-btn btn w-full mt-auto bg-green-500 hover:bg-green-600" data-listing-id="${doc.id}">Buy</button>` : `<button class="btn w-full mt-auto bg-gray-600" disabled>Your Listing</button>`}
                     `;
                     marketplaceEl.appendChild(card);
                 });
                 document.querySelectorAll('.buy-btn').forEach(b => b.addEventListener('click', () => buyItem(b.dataset.listingId)));
+            });
+        }
+
+        function listenToPawnShop() {
+            const pawnShopRef = collection(db, "artifacts", appId, "public", "data", "pawnshop");
+            onSnapshot(pawnShopRef, (snapshot) => {
+                pawnShopEl.innerHTML = '';
+                 if (snapshot.empty) {
+                    pawnShopEl.innerHTML = `<p class="col-span-full text-center text-gray-400">The pawn shop is empty. Check back later.</p>`;
+                    return;
+                }
+                snapshot.forEach(doc => {
+                    const listing = doc.data();
+                    const itemDef = clothingItems[listing.item.type];
+                    if (!itemDef) return;
+                    const card = document.createElement('div');
+                    card.className = 'card p-3 rounded-lg flex flex-col fade-in';
+                    card.innerHTML = `
+                        <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
+                        <p class="font-bold mt-2 truncate">${itemDef.name}</p>
+                        <p class="text-lg font-bold text-green-400 my-1">$${listing.price.toLocaleString()}</p>
+                        <button class="buy-pawn-btn btn w-full mt-auto bg-yellow-500 hover:bg-yellow-600" data-listing-id="${doc.id}">Buy</button>
+                    `;
+                    pawnShopEl.appendChild(card);
+                });
+                 document.querySelectorAll('.buy-pawn-btn').forEach(b => b.addEventListener('click', () => buyFromPawnShop(b.dataset.listingId)));
             });
         }
 
@@ -435,15 +578,15 @@
                 let allLogs = [];
                 snapshot.forEach(doc => allLogs.push({ ...doc.data(), id: doc.id }));
                 allLogs.sort((a, b) => b.timestamp - a.timestamp);
-                allLogs = allLogs.slice(0, 15);
+                allLogs = allLogs.slice(0, 20);
                 allLogs.forEach(log => {
                     const logEntry = document.createElement('p');
                     logEntry.textContent = log.message;
-                    if (log.message.includes('bought') || log.message.includes('won')) logEntry.className = 'text-green-400';
+                    if (log.message.includes('bought') || log.message.includes('Sold')) logEntry.className = 'text-green-400';
                     else if (log.message.includes('listed')) logEntry.className = 'text-yellow-400';
                     else if (log.message.includes('unlocked')) logEntry.className = 'text-orange-400';
                     else if (log.message.includes('unboxed')) logEntry.className = 'text-purple-400';
-                    else if (log.message.includes('EVENT')) logEntry.className = 'text-yellow-300 font-bold';
+                    else if (log.message.includes('EVENT') || log.message.includes('ADMIN')) logEntry.className = 'text-red-400 font-bold';
                     else logEntry.className = 'text-cyan-400';
                     gameLogEl.appendChild(logEntry);
                 });
@@ -452,8 +595,8 @@
 
         // --- PLAYER ACTIONS ---
         getStarterPackBtn.addEventListener('click', async () => {
-            if (Object.keys(currentPlayer.inventory).length > 0) {
-                showMessage("You've already received a starter pack!");
+            if (currentPlayer.starterPackClaimed) {
+                showMessage("You have already claimed your starter pack.");
                 return;
             }
             const starterItems = {};
@@ -461,7 +604,10 @@
             for (let i = 0; i < 2; i++) {
                 starterItems[crypto.randomUUID()] = { type: commonItems[Math.floor(Math.random() * commonItems.length)] };
             }
-            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { inventory: starterItems });
+            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { 
+                inventory: { ...currentPlayer.inventory, ...starterItems },
+                starterPackClaimed: true
+            });
             showMessage("Starter pack received! Check your closet.");
             addLog(`${currentUserId.substring(0,4)}... got their first drop.`);
         });
@@ -471,7 +617,7 @@
             if (currentPlayer.cash < cost) return showMessage("Not enough cash for a loot box!");
             
             const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
-            const randomType = allItemKeys[Math.floor(Math.random() * allItemKeys.length)];
+            const randomType = allClothingItemKeys[Math.floor(Math.random() * allClothingItemKeys.length)];
             const newItem = { [crypto.randomUUID()]: { type: randomType } };
             
             await updateDoc(playerRef, {
@@ -489,7 +635,7 @@
             if (currentPlayer.hypePoints < item.points) return showMessage("Not enough Hype Points!");
             
             const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
-            const newItem = { [crypto.randomUUID()]: { type: itemId } };
+            const newItem = { [crypto.randomUUID()]: { type: itemId, category: 'hype' } };
 
             await updateDoc(playerRef, {
                 hypePoints: increment(-item.points),
@@ -499,12 +645,31 @@
             addLog(`${currentUserId.substring(0,4)}... unlocked the ${item.name}!`);
         }
 
+        async function buyExoticItem(itemId) {
+            const item = exoticItems[itemId];
+            if (currentPlayer.cash < item.cost) return showMessage("Not enough cash for this exotic item!");
+            
+            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
+            const newItem = { [crypto.randomUUID()]: { type: itemId, category: 'exotic' } };
+
+            await updateDoc(playerRef, {
+                cash: increment(-item.cost),
+                inventory: { ...currentPlayer.inventory, ...newItem }
+            });
+            showMessage(`You bought the rare ${item.name}!`);
+            addLog(`${currentUserId.substring(0,4)}... bought the exotic ${item.name}!`);
+        }
+
         function openSellModal(itemId) {
             itemToSellId = itemId;
             const item = currentPlayer.inventory[itemId];
             const itemDef = clothingItems[item.type];
-            sellItemDisplay.innerHTML = `<div class="card p-4 rounded-lg text-center bg-gray-700"><div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div><p class="font-bold text-lg">${itemDef.name}</p></div>`;
+            sellItemDisplay.innerHTML = `<div class="card p-4 rounded-lg text-center bg-gray-800"><div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div><p class="font-bold text-lg">${itemDef.name}</p></div>`;
             sellPriceInput.value = itemDef.baseValue;
+            
+            const aiPrice = Math.round(itemDef.baseValue * 0.7);
+            aiSellPriceEl.textContent = `$${aiPrice.toLocaleString()}`;
+            
             sellModal.classList.add('flex');
             sellModal.classList.remove('hidden');
         }
@@ -532,6 +697,26 @@
             sellModal.classList.add('hidden');
             sellModal.classList.remove('flex');
         });
+        
+        sellToAIBtn.addEventListener('click', async () => {
+            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
+            const itemToPawn = currentPlayer.inventory[itemToSellId];
+            const itemDef = clothingItems[itemToPawn.type];
+            const pawnPrice = Math.round(itemDef.baseValue * 0.7);
+
+            const newInventory = { ...currentPlayer.inventory };
+            delete newInventory[itemToSellId];
+
+            await updateDoc(playerRef, {
+                inventory: newInventory,
+                cash: increment(pawnPrice),
+                'stats.itemsSold': increment(1)
+            });
+
+            addLog(`Sold ${itemDef.name} to a collector for $${pawnPrice}.`);
+            sellModal.classList.add('hidden');
+            sellModal.classList.remove('flex');
+        });
 
         async function buyItem(listingId, buyerId = currentUserId) {
             const listingRef = doc(db, "artifacts", appId, "public", "data", "marketplace", listingId);
@@ -544,20 +729,20 @@
                     
                     const listing = listingSnap.data();
                     const buyerSnap = await transaction.get(buyerRef);
+                    if (!buyerSnap.exists()) throw "Buyer does not exist.";
                     const buyerData = buyerSnap.data();
 
                     if (buyerData.cash < listing.price) {
                         if (buyerId === currentUserId) throw "You don't have enough cash!";
-                        else return; // AI can't afford it, just stop
+                        else return; 
                     }
                     
                     const sellerRef = doc(db, "artifacts", appId, "players", listing.sellerId);
                     const sellerSnap = await transaction.get(sellerRef);
-                    if (!sellerSnap.exists()) { // Seller might have left
+                    if (!sellerSnap.exists()) {
                         transaction.delete(listingRef);
                         return;
                     }
-                    const sellerData = sellerSnap.data();
 
                     const newInventory = { ...buyerData.inventory, [crypto.randomUUID()]: listing.item };
                     transaction.update(buyerRef, {
@@ -583,6 +768,36 @@
             }
         }
 
+        async function buyFromPawnShop(listingId) {
+             const listingRef = doc(db, "artifacts", appId, "public", "data", "pawnshop", listingId);
+             const buyerRef = doc(db, "artifacts", appId, "players", currentUserId);
+
+             try {
+                await runTransaction(db, async (transaction) => {
+                    const listingSnap = await transaction.get(listingRef);
+                    if (!listingSnap.exists()) throw "This item was just sold!";
+                    
+                    const listing = listingSnap.data();
+                    const buyerSnap = await transaction.get(buyerRef);
+                    const buyerData = buyerSnap.data();
+
+                    if (buyerData.cash < listing.price) throw "You don't have enough cash!";
+                    
+                    const newInventory = { ...buyerData.inventory, [crypto.randomUUID()]: listing.item };
+                    transaction.update(buyerRef, {
+                        cash: increment(-listing.price), inventory: newInventory
+                    });
+                    
+                    transaction.delete(listingRef);
+                    addLog(`${currentUserId.substring(0,4)}... bought ${clothingItems[listing.item.type].name} from the pawn shop.`);
+                });
+                showMessage("Purchase successful!");
+             } catch (error) {
+                console.error("Pawn shop buy failed: ", error);
+                showMessage(typeof error === 'string' ? error : "Pawn shop transaction failed.");
+             }
+        }
+
         // --- AI & EVENTS ---
         async function runAIBuyerLogic() {
             const marketplaceRef = collection(db, "artifacts", appId, "public", "data", "marketplace");
@@ -593,15 +808,13 @@
             listingsSnap.forEach(doc => listings.push({ id: doc.id, ...doc.data() }));
             
             const randomListing = listings[Math.floor(Math.random() * listings.length)];
-            if (randomListing.sellerId === currentUserId) return; // AI won't buy from the current player to avoid easy exploits
+            if (randomListing.sellerId === currentUserId) return;
 
             const itemDef = clothingItems[randomListing.item.type];
             if (!itemDef) return;
 
-            // AI decides if the price is good
-            const perceivedValue = itemDef.baseValue * (1 + (Math.random() - 0.5) * 0.4); // +/- 20%
-            if (randomListing.price <= perceivedValue * 1.1) { // Will pay up to 10% over perceived value
-                // Use a dummy AI player ID for the transaction
+            const perceivedValue = itemDef.baseValue * (1 + (Math.random() - 0.5) * 0.4);
+            if (randomListing.price <= perceivedValue * 1.1) {
                 const aiPlayerId = `ai_buyer_${crypto.randomUUID().substring(0,8)}`;
                 const aiPlayerRef = doc(db, "artifacts", appId, "players", aiPlayerId);
                 await setDoc(aiPlayerRef, { cash: 1000000, hypePoints: 0, inventory: {}, stats: { itemsSold: 0 } });
@@ -609,16 +822,46 @@
                 await buyItem(randomListing.id, aiPlayerId);
             }
         }
+        
+        async function refreshPawnShopStock() {
+            const pawnShopRef = collection(db, "artifacts", appId, "public", "data", "pawnshop");
+            const batch = writeBatch(db);
+
+            const oldStockSnap = await getDocs(pawnShopRef);
+            oldStockSnap.forEach(doc => batch.delete(doc.ref));
+
+            const stockCount = 5 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < stockCount; i++) {
+                const randomType = allClothingItemKeys[Math.floor(Math.random() * allClothingItemKeys.length)];
+                const itemDef = clothingItems[randomType];
+                const price = Math.round(itemDef.baseValue * (0.8 + Math.random() * 0.4));
+                const newListingRef = doc(pawnShopRef);
+                batch.set(newListingRef, {
+                    item: { type: randomType },
+                    price: price,
+                    createdAt: new Date()
+                });
+            }
+            await batch.commit();
+            addLog("The pawn shop has restocked its items.");
+        }
+        refreshPawnStockBtn.addEventListener('click', refreshPawnShopStock);
 
         let currentEvent = null;
-        function triggerRandomEvent() {
-            // Revert previous event first
-            if (currentEvent) {
+        function triggerRandomEvent(message = null) {
+            if (currentEvent && !message) {
                 Object.keys(originalItemValues).forEach(key => {
                     clothingItems[key].baseValue = originalItemValues[key].baseValue;
                 });
                 eventBanner.classList.add('hidden');
                 currentEvent = null;
+            }
+
+            if(message) {
+                 eventBanner.textContent = message;
+                 eventBanner.classList.remove('hidden');
+                 setTimeout(() => eventBanner.classList.add('hidden'), 10000); // Hide after 10s
+                 return;
             }
 
             const events = [
@@ -630,179 +873,103 @@
             
             Object.keys(clothingItems).forEach(key => {
                 if (currentEvent.category === 'all' || clothingItems[key].category === currentEvent.category) {
-                    clothingItems[key].baseValue = Math.round(clothingItems[key].baseValue * currentEvent.multiplier);
+                    clothingItems[key].baseValue = Math.round(originalItemValues[key].baseValue * currentEvent.multiplier);
                 }
             });
 
             eventBanner.textContent = `EVENT: ${currentEvent.name} - ${currentEvent.description}`;
             eventBanner.classList.remove('hidden');
             addLog(`EVENT: ${currentEvent.name} has started!`);
-            updateUI(); // Re-render everything with new values
+            updateUI();
         }
 
-
-        // --- CASINO LOGIC ---
-        const blackjack = {
-            deck: [],
-            playerHand: [],
-            dealerHand: [],
-            playerScore: 0,
-            dealerScore: 0,
-            bet: 0,
-            inProgress: false,
-        };
-        const bjDealBtn = document.getElementById('blackjack-deal-btn');
-        const bjHitBtn = document.getElementById('blackjack-hit-btn');
-        const bjStandBtn = document.getElementById('blackjack-stand-btn');
-
-        function createDeck() {
-            const suits = ['♥', '♦', '♣', '♠'];
-            const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-            blackjack.deck = [];
-            for (const suit of suits) {
-                for (const rank of ranks) {
-                    blackjack.deck.push({ suit, rank });
-                }
-            }
-        }
-        function shuffleDeck() {
-            for (let i = blackjack.deck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [blackjack.deck[i], blackjack.deck[j]] = [blackjack.deck[j], blackjack.deck[i]];
-            }
-        }
-        function getCardValue(card) {
-            if (['J', 'Q', 'K'].includes(card.rank)) return 10;
-            if (card.rank === 'A') return 11;
-            return parseInt(card.rank);
-        }
-        function calculateScore(hand) {
-            let score = hand.reduce((sum, card) => sum + getCardValue(card), 0);
-            let aceCount = hand.filter(c => c.rank === 'A').length;
-            while (score > 21 && aceCount > 0) {
-                score -= 10;
-                aceCount--;
-            }
-            return score;
-        }
-        function renderHands(revealDealer = false) {
-            const playerCardsEl = document.getElementById('blackjack-player-cards');
-            const dealerCardsEl = document.getElementById('blackjack-dealer-cards');
-            playerCardsEl.innerHTML = blackjack.playerHand.map(c => createCardElement(c)).join('');
-            document.getElementById('blackjack-player-score').textContent = `(${calculateScore(blackjack.playerHand)})`;
-
-            if (revealDealer) {
-                dealerCardsEl.innerHTML = blackjack.dealerHand.map(c => createCardElement(c)).join('');
-                document.getElementById('blackjack-dealer-score').textContent = `(${calculateScore(blackjack.dealerHand)})`;
+        // --- ADMIN LOGIC ---
+        adminLoginBtn.addEventListener('click', () => adminLoginModal.classList.replace('hidden', 'flex'));
+        cancelAdminLoginBtn.addEventListener('click', () => adminLoginModal.classList.replace('flex', 'hidden'));
+        confirmAdminLoginBtn.addEventListener('click', () => {
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+            if (user === 'KHEM' && pass === 'SHIT') {
+                isAdmin = true;
+                adminLoginModal.classList.replace('flex', 'hidden');
+                adminPanel.classList.remove('hidden');
+                showMessage("Admin access granted.");
             } else {
-                dealerCardsEl.innerHTML = createCardElement(blackjack.dealerHand[0]) + `<div class="playing-card bg-gray-500"></div>`;
-                document.getElementById('blackjack-dealer-score').textContent = '';
-            }
-        }
-        function createCardElement(card) {
-            const isRed = ['♥', '♦'].includes(card.suit);
-            return `<div class="playing-card ${isRed ? 'red' : ''}"><span>${card.rank}${card.suit}</span><span>${card.rank}${card.suit}</span></div>`;
-        }
-        async function endBlackjack(result, payoutMultiplier) {
-            renderHands(true);
-            const resultEl = document.getElementById('blackjack-result');
-            resultEl.textContent = result;
-            if (payoutMultiplier > 0) {
-                const winnings = Math.round(blackjack.bet * payoutMultiplier);
-                await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { cash: increment(winnings) });
-            }
-            blackjack.inProgress = false;
-            bjDealBtn.disabled = false;
-            bjHitBtn.disabled = true;
-            bjStandBtn.disabled = true;
-        }
-        bjDealBtn.addEventListener('click', async () => {
-            const betAmount = parseInt(document.getElementById('blackjack-bet').value);
-            if (isNaN(betAmount) || betAmount <= 0) return showMessage("Invalid bet amount.");
-            if (currentPlayer.cash < betAmount) return showMessage("Not enough cash.");
-            
-            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { cash: increment(-betAmount) });
-            
-            blackjack.bet = betAmount;
-            blackjack.inProgress = true;
-            createDeck();
-            shuffleDeck();
-            blackjack.playerHand = [blackjack.deck.pop(), blackjack.deck.pop()];
-            blackjack.dealerHand = [blackjack.deck.pop(), blackjack.deck.pop()];
-
-            document.getElementById('blackjack-result').textContent = '';
-            bjDealBtn.disabled = true;
-            bjHitBtn.disabled = false;
-            bjStandBtn.disabled = false;
-            renderHands();
-
-            if (calculateScore(blackjack.playerHand) === 21) {
-                endBlackjack("Blackjack!", 2.5); // Win 1.5x bet + original bet back
+                showMessage("Incorrect credentials.");
             }
         });
-        bjHitBtn.addEventListener('click', () => {
-            if (!blackjack.inProgress) return;
-            blackjack.playerHand.push(blackjack.deck.pop());
-            renderHands();
-            if (calculateScore(blackjack.playerHand) > 21) {
-                endBlackjack("Bust!", 0); // Lose bet
+        
+        function populateAdminItemSelect() {
+            adminItemSelect.innerHTML = '';
+            for(const itemId in allGameItems) {
+                const option = document.createElement('option');
+                option.value = itemId;
+                option.textContent = allGameItems[itemId].name;
+                adminItemSelect.appendChild(option);
             }
-        });
-        bjStandBtn.addEventListener('click', () => {
-            if (!blackjack.inProgress) return;
-            bjHitBtn.disabled = true;
-            bjStandBtn.disabled = true;
+        }
+
+        document.getElementById('admin-give-cash-btn').addEventListener('click', async () => {
+            if(!isAdmin) return;
+            const targetId = document.getElementById('admin-cash-id').value.trim();
+            const amount = parseInt(document.getElementById('admin-cash-amount').value);
+            if(!targetId || isNaN(amount) || amount <= 0) return showMessage("Invalid ID or amount.");
             
-            let dealerScore = calculateScore(blackjack.dealerHand);
-            while (dealerScore < 17) {
-                blackjack.dealerHand.push(blackjack.deck.pop());
-                dealerScore = calculateScore(blackjack.dealerHand);
-            }
-            renderHands(true);
-
-            const playerScore = calculateScore(blackjack.playerHand);
-            if (dealerScore > 21 || playerScore > dealerScore) {
-                endBlackjack("You Win!", 2); // Win 1x bet + original bet back
-            } else if (dealerScore > playerScore) {
-                endBlackjack("Dealer Wins!", 0);
-            } else {
-                endBlackjack("Push!", 1); // Get bet back
-            }
+            const playerRef = doc(db, "artifacts", appId, "players", targetId);
+            await updateDoc(playerRef, { cash: increment(amount) });
+            addLog(`ADMIN: Gave $${amount.toLocaleString()} to ${targetId.substring(0,4)}...`);
+            showMessage("Cash granted.");
         });
 
-        // Slots
-        const slotsSpinBtn = document.getElementById('slots-spin-btn');
-        slotsSpinBtn.addEventListener('click', async () => {
-            const betAmount = parseInt(document.getElementById('slots-bet').value);
-            if (isNaN(betAmount) || betAmount <= 0) return showMessage("Invalid bet amount.");
-            if (currentPlayer.cash < betAmount) return showMessage("Not enough cash.");
+        document.getElementById('admin-give-hype-btn').addEventListener('click', async () => {
+            if(!isAdmin) return;
+            const targetId = document.getElementById('admin-hype-id').value.trim();
+            const amount = parseInt(document.getElementById('admin-hype-amount').value);
+            if(!targetId || isNaN(amount) || amount <= 0) return showMessage("Invalid ID or amount.");
+            
+            const playerRef = doc(db, "artifacts", appId, "players", targetId);
+            await updateDoc(playerRef, { hypePoints: increment(amount) });
+            addLog(`ADMIN: Gave ${amount.toLocaleString()} Hype Points to ${targetId.substring(0,4)}...`);
+            showMessage("Hype Points granted.");
+        });
 
-            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { cash: increment(-betAmount) });
+        document.getElementById('admin-give-item-btn').addEventListener('click', async () => {
+            if(!isAdmin) return;
+            const targetId = document.getElementById('admin-item-id').value.trim();
+            const itemId = adminItemSelect.value;
+            if(!targetId || !itemId) return showMessage("Invalid ID or item.");
 
-            const symbols = ['👟', '🧢', '👕', '💎', '💰', '🔥'];
-            const reel1 = symbols[Math.floor(Math.random() * symbols.length)];
-            const reel2 = symbols[Math.floor(Math.random() * symbols.length)];
-            const reel3 = symbols[Math.floor(Math.random() * symbols.length)];
-            document.getElementById('slot1').textContent = reel1;
-            document.getElementById('slot2').textContent = reel2;
-            document.getElementById('slot3').textContent = reel3;
+            const playerRef = doc(db, "artifacts", appId, "players", targetId);
+            const newItem = { [crypto.randomUUID()]: { type: itemId, category: allGameItems[itemId].category } };
+            
+            await updateDoc(playerRef, { inventory: { ...currentPlayer.inventory, ...newItem } });
+            addLog(`ADMIN: Gave ${allGameItems[itemId].name} to ${targetId.substring(0,4)}...`);
+            showMessage("Item granted.");
+        });
 
-            let winnings = 0;
-            let resultText = "Try Again!";
-            if (reel1 === reel2 && reel2 === reel3) {
-                if (reel1 === '🔥') winnings = betAmount * 50;
-                else if (reel1 === '💰') winnings = betAmount * 25;
-                else if (reel1 === '💎') winnings = betAmount * 10;
-                else winnings = betAmount * 5;
-            } else if (reel1 === reel2 || reel2 === reel3 || reel1 === reel3) {
-                winnings = betAmount * 2;
-            }
+        document.getElementById('admin-broadcast-btn').addEventListener('click', () => {
+             if(!isAdmin) return;
+             const msg = document.getElementById('admin-broadcast-msg').value;
+             if(!msg) return showMessage("Message cannot be empty.");
+             triggerRandomEvent(`ADMIN MSG: ${msg}`); // Re-using event banner for broadcast
+             addLog(`ADMIN: Broadcasted "${msg}"`);
+        });
 
-            if (winnings > 0) {
-                resultText = `You won $${winnings}!`;
-                await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { cash: increment(winnings) });
-            }
-            document.getElementById('slots-result').textContent = resultText;
+        document.getElementById('admin-reset-btn').addEventListener('click', async () => {
+            if(!isAdmin) return;
+            const targetId = document.getElementById('admin-reset-id').value.trim();
+            if(!targetId) return showMessage("Invalid ID.");
+            
+            const playerRef = doc(db, "artifacts", appId, "players", targetId);
+            await setDoc(playerRef, { 
+                cash: 1000, 
+                hypePoints: 0, 
+                inventory: {}, 
+                stats: { itemsSold: 0 },
+                starterPackClaimed: false 
+            });
+            addLog(`ADMIN: Player ${targetId.substring(0,4)}... has been reset.`);
+            showMessage("Player reset successfully.");
         });
 
 
@@ -815,7 +982,11 @@
             }, 0);
         }
         async function addLog(message) {
-            await addDoc(collection(db, "artifacts", appId, "public", "data", "logs"), { message, timestamp: Date.now() });
+            try {
+                await addDoc(collection(db, "artifacts", appId, "public", "data", "logs"), { message, timestamp: Date.now() });
+            } catch (error) {
+                console.error("Failed to add log:", error);
+            }
         }
         function showMessage(text) {
             messageText.textContent = text;
@@ -827,16 +998,22 @@
             messageModal.classList.remove('flex');
         });
         Object.keys(tabs).forEach(key => {
-            tabs[key].addEventListener('click', () => {
-                Object.keys(containers).forEach(cKey => {
-                    containers[cKey].classList.add('hidden');
-                    tabs[cKey].classList.remove('tab-active');
-                    tabs[cKey].classList.add('tab-inactive');
+            if(tabs[key]) {
+                tabs[key].addEventListener('click', () => {
+                    Object.keys(containers).forEach(cKey => {
+                        if(containers[cKey]) containers[cKey].classList.add('hidden');
+                        if(tabs[cKey]) {
+                           tabs[cKey].classList.remove('tab-active');
+                           tabs[cKey].classList.add('tab-inactive');
+                        }
+                    });
+                    if(containers[key]) containers[key].classList.remove('hidden');
+                    if(tabs[key]) {
+                        tabs[key].classList.add('tab-active');
+                        tabs[key].classList.remove('tab-inactive');
+                    }
                 });
-                containers[key].classList.remove('hidden');
-                tabs[key].classList.add('tab-active');
-                tabs[key].classList.remove('tab-inactive');
-            });
+            }
         });
 
     </script>
