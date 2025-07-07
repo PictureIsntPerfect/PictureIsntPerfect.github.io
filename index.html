@@ -1,696 +1,843 @@
 <!DOCTYPE html>
-<html lang="en" class="theme-default">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SHIT-CORD - Group Video Chat</title>
+    <title>Hypebeast Simulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-main: #111827; /* gray-900 */
-            --bg-secondary: #1f2937; /* gray-800 */
-            --bg-tertiary: #374151; /* gray-700 */
-            --text-main: #f9fafb; /* gray-50 */
-            --text-secondary: #9ca3af; /* gray-400 */
-            --accent-main: #06b6d4; /* cyan-500 */
-            --accent-hover: #0891b2; /* cyan-600 */
-            --accent-text: #ffffff;
-        }
-
-        html.theme-light {
-            --bg-main: #f3f4f6; /* gray-100 */
-            --bg-secondary: #ffffff;
-            --bg-tertiary: #e5e7eb; /* gray-200 */
-            --text-main: #111827; /* gray-900 */
-            --text-secondary: #4b5563; /* gray-600 */
-            --accent-main: #3b82f6; /* blue-500 */
-            --accent-hover: #2563eb; /* blue-600 */
-            --accent-text: #ffffff;
-        }
-        
-        html.theme-cyberpunk {
-            --bg-main: #0c002b;
-            --bg-secondary: #1a0552;
-            --bg-tertiary: #2e0f80;
-            --text-main: #f9ff5a;
-            --text-secondary: #b0a8ff;
-            --accent-main: #ff00ff; /* Magenta */
-            --accent-hover: #c400c4;
-            --accent-text: #f9ff5a;
-        }
-
-        html.theme-ocean {
-             --bg-main: #0a2f4c;
-            --bg-secondary: #0e446d;
-            --bg-tertiary: #125b8f;
-            --text-main: #e0f2fe; /* light-sky-50 */
-            --text-secondary: #a8d5f3;
-            --accent-main: #34d399; /* emerald-400 */
-            --accent-hover: #10b981; /* emerald-500 */
-            --accent-text: #0a2f4c;
-        }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            transition: background-color 0.3s, color 0.3s;
+            font-family: 'Roboto', sans-serif;
+            background-color: #1a1a1a;
+            color: #f0f0f0;
         }
-        video {
-            transform: scaleX(-1);
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .card {
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.2);
+        }
+        .btn {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn:after {
+            content: '';
+            position: absolute;
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 0.5rem;
+            top: 0;
+            left: -100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
         }
-        #video-grid .video-container {
-            position: relative;
-            background-color: var(--bg-tertiary);
+        .btn:hover:after {
+            left: 100%;
         }
-        #video-grid .video-name {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
-            background-color: rgba(0,0,0,0.5);
+        .btn:disabled {
+            background-color: #4a5568;
+            cursor: not-allowed;
+        }
+        .modal-bg {
+            background-color: rgba(0,0,0,0.8);
+        }
+        .item-svg {
+            width: 100%;
+            height: 120px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        .tab-active {
+            background-color: #06b6d4;
             color: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.875rem;
+            border-bottom: 2px solid #06b6d4;
         }
-        .theme-btn.active, .filter-btn.active, .camera-btn.active {
-            background-color: var(--accent-main);
-            color: var(--accent-text);
+        .tab-inactive {
+            background-color: transparent;
+            color: #a0aec0;
+             border-bottom: 2px solid #444;
         }
+        .slot {
+            width: 80px;
+            height: 100px;
+            border: 2px solid #444;
+            background-color: #1a1a1a;
+            font-size: 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .playing-card {
+            width: 70px;
+            height: 100px;
+            background-color: white;
+            color: black;
+            border-radius: 5px;
+            border: 1px solid #333;
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .playing-card.red { color: red; }
     </style>
 </head>
-<body class="flex flex-col items-center min-h-screen antialiased">
+<body class="text-white">
 
-    <!-- Hidden elements for video processing -->
-    <video id="rawVideo" class="hidden" autoplay muted playsinline></video>
-    <canvas id="videoCanvas" class="hidden"></canvas>
+    <div id="loading-screen" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex flex-col justify-center items-center z-50">
+        <div class="font-orbitron text-4xl text-cyan-400 mb-4 animate-pulse">HYPEBEAST SIMULATOR</div>
+        <div class="text-lg">Connecting to the server...</div>
+    </div>
 
-    <!-- Main Application Wrapper -->
-    <div id="app" class="w-full max-w-7xl mx-auto p-4">
-
+    <div class="container mx-auto p-4 max-w-7xl hidden" id="game-container">
         <!-- Header -->
-        <header class="text-center mb-6">
-            <h1 id="main-title" class="text-4xl font-bold" style="color: var(--accent-main);">SHIT-CORD</h1>
-            <p class="mt-2" style="color: var(--text-secondary);">Watch videos and chat with people from around the world.</p>
+        <header class="mb-6 p-4 rounded-lg bg-gray-800 border border-cyan-400 shadow-lg">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <h1 class="text-4xl font-orbitron text-cyan-400 mb-2 md:mb-0">HYPEBEAST SIMULATOR</h1>
+                <div class="text-center md:text-right">
+                    <p class="text-lg">Player ID: <span id="player-id" class="font-mono text-yellow-300"></span></p>
+                    <p class="text-sm text-gray-400">(Share this ID with friends to trade)</p>
+                </div>
+            </div>
         </header>
         
-        <!-- Main Content -->
-        <main id="main-content" class="w-full">
-            <div id="chat-interface">
+        <!-- Random Event Banner -->
+        <div id="event-banner" class="hidden mb-4 p-3 rounded-lg bg-yellow-500 text-black font-bold text-center fade-in"></div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- Player Stats -->
+                <div class="card p-4 rounded-lg">
+                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">My Empire</h2>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center"><span>Cash:</span><span id="player-cash" class="text-2xl font-bold text-green-400">$0</span></div>
+                        <div class="flex justify-between items-center"><span>Hype Points:</span><span id="player-hype-points" class="text-2xl font-bold text-orange-400">0</span></div>
+                        <div class="flex justify-between items-center"><span>Inventory Value:</span><span id="inventory-value" class="text-lg font-bold text-purple-400">$0</span></div>
+                        <div class="flex justify-between items-center"><span>Net Worth:</span><span id="net-worth" class="text-lg font-bold text-yellow-400">$0</span></div>
+                        <div class="flex justify-between items-center"><span>Items Sold:</span><span id="items-sold" class="text-lg font-bold text-cyan-400">0</span></div>
+                    </div>
+                    <button id="get-starter-pack" class="btn w-full mt-4 bg-green-500 hover:bg-green-600">Get Starter Pack</button>
+                    <button id="buy-loot-box" class="btn w-full mt-2 bg-purple-500 hover:bg-purple-600">Buy Loot Box ($500)</button>
+                </div>
+
+                <!-- My Inventory -->
+                <div class="card p-4 rounded-lg">
+                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">My Closet</h2>
+                    <div id="player-inventory" class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2"></div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Tabs -->
+                <div class="flex border-b border-gray-600">
+                    <button id="tab-marketplace" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-active">Marketplace</button>
+                    <button id="tab-hype-shop" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Hype Shop</button>
+                    <button id="tab-casino" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Casino</button>
+                </div>
+
+                <!-- Main Content Panes -->
+                <div id="main-content-area">
+                    <!-- Marketplace -->
+                    <div id="marketplace-container" class="card p-4 rounded-lg">
+                        <div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[550px] overflow-y-auto pr-2"></div>
+                    </div>
+                    <!-- Hype Shop -->
+                    <div id="hype-shop-container" class="card p-4 rounded-lg hidden">
+                         <div id="hype-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[550px] overflow-y-auto pr-2"></div>
+                    </div>
+                    <!-- Casino -->
+                    <div id="casino-container" class="card p-4 rounded-lg hidden">
+                        <h3 class="text-xl font-orbitron text-purple-400 mb-4">Blackjack</h3>
+                        <div class="bg-green-800 p-4 rounded-lg mb-4">
+                            <div class="mb-2">Dealer's Hand: <span id="blackjack-dealer-score"></span></div>
+                            <div id="blackjack-dealer-cards" class="flex gap-2 mb-4 h-[110px]"></div>
+                            <div class="mb-2">Your Hand: <span id="blackjack-player-score"></span></div>
+                            <div id="blackjack-player-cards" class="flex gap-2 h-[110px]"></div>
+                        </div>
+                        <div id="blackjack-result" class="text-center font-bold text-xl mb-2"></div>
+                        <div class="flex items-center gap-4">
+                            <input type="number" id="blackjack-bet" value="100" class="bg-gray-700 p-2 rounded w-24">
+                            <button id="blackjack-deal-btn" class="btn bg-green-600 flex-1">Deal</button>
+                            <button id="blackjack-hit-btn" class="btn bg-blue-600 flex-1" disabled>Hit</button>
+                            <button id="blackjack-stand-btn" class="btn bg-red-600 flex-1" disabled>Stand</button>
+                        </div>
+                        <hr class="my-6 border-gray-600">
+                        <h3 class="text-xl font-orbitron text-purple-400 mb-4">Slots</h3>
+                        <div class="flex justify-center gap-4 mb-4">
+                            <div id="slot1" class="slot">👟</div>
+                            <div id="slot2" class="slot">🧢</div>
+                            <div id="slot3" class="slot">👕</div>
+                        </div>
+                        <div id="slots-result" class="text-center font-bold text-xl mb-2"></div>
+                        <div class="flex items-center gap-4">
+                            <input type="number" id="slots-bet" value="50" class="bg-gray-700 p-2 rounded w-24">
+                            <button id="slots-spin-btn" class="btn bg-purple-600 flex-1">Spin</button>
+                        </div>
+                    </div>
+                </div>
                 
-                <!-- YouTube Player -->
-                <div id="youtube-player-container" class="hidden w-full md:w-3/4 mx-auto mb-4 aspect-video bg-black rounded-xl shadow-lg">
-                    <div id="youtube-player"></div>
-                </div>
-
-                <!-- Video Grid -->
-                <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <!-- Local video will be injected here first -->
-                </div>
-                <div id="waiting-message" class="text-center py-10" style="color: var(--text-secondary);">
-                    Press 'Join Call' to start.
-                </div>
-
-                <!-- Controls -->
-                <div class="mt-6 text-center space-x-2 flex flex-wrap justify-center gap-2">
-                    <button id="joinBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: #16a34a;" disabled>Join Call</button>
-                    <button id="leaveBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #dc2626;">Leave Call</button>
-                    <button id="shareVideoBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #581c87; color: var(--accent-text);">Share Video</button>
-                    <button id="cameraBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Camera</button>
-                    <button id="filtersBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Filters</button>
-                    <button id="themesBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Themes</button>
-                </div>
-                 <p id="status" class="text-center mt-4 h-6" style="color: var(--text-secondary);"></p>
-            </div>
-            
-            <!-- Modals (Share, Camera, Filter, Theme) -->
-            <div id="share-video-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
-                <div class="p-6 rounded-xl shadow-2xl w-full max-w-lg" style="background-color: var(--bg-secondary);">
-                     <h3 class="text-xl font-bold text-center mb-4">Share a YouTube Video</h3>
-                     <div class="flex gap-2">
-                         <input type="text" id="youtube-url-input" placeholder="Paste YouTube URL here..." class="flex-grow p-2 rounded-lg border focus:outline-none focus:ring-2" style="background-color: var(--bg-tertiary); color: var(--text-main); border-color: var(--accent-main);">
-                         <button id="queueVideoBtn" class="font-bold py-2 px-4 rounded-lg transition duration-300" style="background-color: var(--accent-main); color: var(--accent-text);">Queue</button>
-                     </div>
-                     <h4 class="text-lg font-semibold mt-4 mb-2">Up Next</h4>
-                     <div id="video-queue-list" class="max-h-40 overflow-y-auto p-2 rounded-lg" style="background-color: var(--bg-tertiary);"></div>
-                     <button id="closeShareVideoBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
+                <!-- Game Log -->
+                <div class="card p-4 rounded-lg">
+                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">Activity Feed</h2>
+                    <div id="game-log" class="text-sm space-y-2 max-h-40 overflow-y-auto pr-2 font-mono"></div>
                 </div>
             </div>
-            <div id="camera-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
-                <div class="p-6 rounded-xl shadow-2xl w-full max-w-md" style="background-color: var(--bg-secondary);">
-                     <h3 class="text-xl font-bold text-center mb-4">Select Camera</h3>
-                     <div id="camera-list" class="flex flex-col gap-2"></div>
-                     <button id="closeCameraBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
-                </div>
-            </div>
-            <div id="filter-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
-                <div class="p-6 rounded-xl shadow-2xl" style="background-color: var(--bg-secondary);">
-                     <h3 class="text-xl font-bold text-center mb-4">Camera Filters</h3>
-                     <div class="grid grid-cols-3 gap-2">
-                        <button class="filter-btn p-2 rounded-lg active" data-filter="none">None</button>
-                        <button class="filter-btn p-2 rounded-lg" data-filter="grayscale(100%)">Grayscale</button>
-                        <button class="filter-btn p-2 rounded-lg" data-filter="sepia(100%)">Sepia</button>
-                        <button class="filter-btn p-2 rounded-lg" data-filter="invert(100%)">Invert</button>
-                        <button class="filter-btn p-2 rounded-lg" data-filter="contrast(200%)">Contrast</button>
-                        <button class="filter-btn p-2 rounded-lg" data-filter="brightness(150%)">Bright</button>
-                        <button class="filter-btn p-2 rounded-lg" data-filter="blur(5px)">Blur</button>
-                     </div>
-                     <button id="closeFiltersBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
-                </div>
-            </div>
-            <div id="theme-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
-                <div class="p-6 rounded-xl shadow-2xl" style="background-color: var(--bg-secondary);">
-                     <h3 class="text-xl font-bold text-center mb-4">Color Themes</h3>
-                     <div class="grid grid-cols-2 gap-2">
-                        <button class="theme-btn p-2 rounded-lg active" data-theme="theme-default">Default</button>
-                        <button class="theme-btn p-2 rounded-lg" data-theme="theme-light">Light</button>
-                        <button class="theme-btn p-2 rounded-lg" data-theme="theme-cyberpunk">Cyberpunk</button>
-                        <button class="theme-btn p-2 rounded-lg" data-theme="theme-ocean">Ocean</button>
-                     </div>
-                     <button id="closeThemesBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
-                </div>
-            </div>
-        </main>
+        </div>
     </div>
-    
-    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Modals (Sell, Message) -->
+    <div id="sell-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40">
+        <div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20">
+            <h3 class="text-2xl font-orbitron mb-4 text-cyan-300">Sell Item</h3>
+            <div id="sell-item-display" class="mb-4"></div>
+            <p class="mb-2">Set your price:</p>
+            <input type="number" id="sell-price" class="w-full bg-gray-700 border border-gray-500 rounded p-2 text-white mb-4" placeholder="e.g., 500">
+            <div class="flex justify-end gap-4">
+                <button id="cancel-sell" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button>
+                <button id="confirm-sell" class="btn bg-cyan-500 hover:bg-cyan-600">List on Market</button>
+            </div>
+        </div>
+    </div>
+    <div id="message-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40">
+        <div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20 text-center">
+            <p id="message-text" class="text-lg mb-4"></p>
+            <button id="close-message" class="btn bg-cyan-500 hover:bg-cyan-600">OK</button>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, runTransaction, increment, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, writeBatch, updateDoc, addDoc, serverTimestamp, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- Firebase Configuration ---
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
-          apiKey: "AIzaSyBcKpDm14W4GZqQncV1LOtS3Hn5t1kK-hw",
-          authDomain: "omegle-c7bdb.firebaseapp.com",
-          projectId: "omegle-c7bdb",
-          storageBucket: "omegle-c7bdb.appspot.com",
-          messagingSenderId: "470349324814",
-          appId: "1:470349324814:web:8271072b8d4cd0de01125f",
-          measurementId: "G-P65WBJMXX3"
+          apiKey: "AIzaSyDdZ9FVhqazqUdAs72H5PmCzBVsEaqswPI",
+          authDomain: "hypebeastgame.firebaseapp.com",
+          projectId: "hypebeastgame",
+          storageBucket: "hypebeastgame.appspot.com",
+          messagingSenderId: "788150739009",
+          appId: "1:788150739009:web:9c06e6ae1c5ec15c4c66c0",
+          measurementId: "G-T1YL986BMB"
         };
+        const appId = 'hypebeast-simulator';
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // --- GAME STATE ---
+        let currentPlayer = null;
+        let currentUserId = null;
+        let itemToSellId = null;
+        let originalItemValues = {}; // To store base values before events
+
+        // --- UI ELEMENTS ---
+        const loadingScreen = document.getElementById('loading-screen');
+        const gameContainer = document.getElementById('game-container');
+        const playerIdEl = document.getElementById('player-id');
+        const playerCashEl = document.getElementById('player-cash');
+        const playerHypePointsEl = document.getElementById('player-hype-points');
+        const inventoryValueEl = document.getElementById('inventory-value');
+        const netWorthEl = document.getElementById('net-worth');
+        const itemsSoldEl = document.getElementById('items-sold');
+        const playerInventoryEl = document.getElementById('player-inventory');
+        const marketplaceEl = document.getElementById('marketplace');
+        const gameLogEl = document.getElementById('game-log');
+        const getStarterPackBtn = document.getElementById('get-starter-pack');
+        const buyLootBoxBtn = document.getElementById('buy-loot-box');
+        const sellModal = document.getElementById('sell-modal');
+        const sellItemDisplay = document.getElementById('sell-item-display');
+        const sellPriceInput = document.getElementById('sell-price');
+        const cancelSellBtn = document.getElementById('cancel-sell');
+        const confirmSellBtn = document.getElementById('confirm-sell');
+        const messageModal = document.getElementById('message-modal');
+        const messageText = document.getElementById('message-text');
+        const closeMessageBtn = document.getElementById('close-message');
+        const eventBanner = document.getElementById('event-banner');
         
-        const appId = 'talkandwatch-app-v2'; // Use a new ID to avoid data conflicts
-        const GLOBAL_CALL_ID = 'mainCall';
-        
-        let app, db, auth;
-        let userId;
+        // Tabs
+        const tabs = {
+            marketplace: document.getElementById('tab-marketplace'),
+            hypeShop: document.getElementById('tab-hype-shop'),
+            casino: document.getElementById('tab-casino'),
+        };
+        const containers = {
+            marketplace: document.getElementById('marketplace-container'),
+            hypeShop: document.getElementById('hype-shop-container'),
+            casino: document.getElementById('casino-container'),
+        };
+        const hypeShopEl = document.getElementById('hype-shop');
 
-        // --- DOM Elements ---
-        const videoGrid = document.getElementById('video-grid');
-        const rawVideo = document.getElementById('rawVideo');
-        const videoCanvas = document.getElementById('videoCanvas');
-        const joinBtn = document.getElementById('joinBtn');
-        const leaveBtn = document.getElementById('leaveBtn');
-        const statusEl = document.getElementById('status');
-        const waitingMessage = document.getElementById('waiting-message');
-        const shareVideoBtn = document.getElementById('shareVideoBtn');
-        const youtubePlayerContainer = document.getElementById('youtube-player-container');
-        const youtubeUrlInput = document.getElementById('youtube-url-input');
-        const queueVideoBtn = document.getElementById('queueVideoBtn');
-        const videoQueueList = document.getElementById('video-queue-list');
-        // Add other DOM elements...
+        // --- ITEM DATABASE ---
+        const clothingItems = {
+            // Common
+            'tee01': { name: 'Plain White Tee', baseValue: 15, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 30 L80 30 L85 80 L15 80 Z" fill="#fff" stroke="#ccc" stroke-width="1"/><path d="M40 30 C40 15 60 15 60 30" fill="none" stroke="#ccc" stroke-width="1"/></svg>`, category: 'clothing' },
+            'cap01': { name: 'Basic Dad Cap', baseValue: 20, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 25 C 10 10, 90 10, 90 25 L 10 25 Z" fill="#333"/><path d="M10 25 L 90 25 L 100 25 L 0 25 Z" fill="#333" stroke="#000" stroke-width="1"/></svg>`, category: 'clothing' },
+            'socks01': { name: 'Tube Socks', baseValue: 10, svg: `<svg viewBox="0 0 50 100" class="item-svg"><path d="M10 10 L40 10 L35 90 L15 90 Z" fill="#fff" stroke="#000" stroke-width="1"/><rect x="10" y="12" width="30" height="5" fill="#f00"/><rect x="10" y="22" width="30" height="5" fill="#00f"/></svg>`, category: 'clothing' },
+            // Uncommon
+            'hoodie01': { name: 'Graphic Hoodie', baseValue: 80, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 40 L80 40 L80 90 L20 90 Z" fill="#555"/><path d="M30 40 C30 20 70 20 70 40" fill="#444"/><text x="50" y="70" font-size="20" fill="#fff" text-anchor="middle">HYPE</text></svg>`, category: 'clothing' },
+            'sneaker01': { name: 'Retro Runners', baseValue: 120, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#eee" stroke="#000" stroke-width="1"/><path d="M55 30 L60 20 L70 20 L75 30" fill="none" stroke="red" stroke-width="2"/></svg>`, category: 'shoes' },
+            'jeans01': { name: 'Distressed Jeans', baseValue: 90, svg: `<svg viewBox="0 0 80 120" class="item-svg"><path d="M10 10 L70 10 L60 110 L20 110 Z" fill="#369" stroke="#000" stroke-width="1"/><path d="M30 50 L35 55" stroke="#fff" stroke-width="1"/><path d="M50 70 L45 75" stroke="#fff" stroke-width="1"/></svg>`, category: 'clothing' },
+            // Rare
+            'jacket01': { name: 'Techwear Bomber', baseValue: 400, svg: `<svg viewBox="0 0 100 90" class="item-svg"><path d="M10 20 L90 20 L80 80 L20 80 Z" fill="#111" stroke="#0f0" stroke-width="1"/><path d="M10 20 L0 5 L30 20" fill="#222"/><path d="M90 20 L100 5 L70 20" fill="#222"/></svg>`, category: 'clothing' },
+            'sneaker02': { name: 'Cosmic Kicks', baseValue: 550, svg: `<svg viewBox="0 0 200 100" class="item-svg"><path d="M20 70 L50 70 L60 50 L100 50 L110 70 L180 70 L170 90 L30 90 Z" fill="none" stroke="#FFD700" stroke-width="3"/><path d="M60 50 L70 30 L90 30 L100 50" fill="none" stroke="#FFD700" stroke-width="3"/><path d="M50 70 Q 40 60 40 50 Q 50 40 60 50" fill="#00FFFF" opacity="0.5"/><path d="M110 70 Q 120 60 120 50 Q 110 40 100 50" fill="#FF00FF" opacity="0.5"/></svg>`, category: 'shoes' },
+            'watch01': { name: 'Carbon Fiber Watch', baseValue: 800, svg: `<svg viewBox="0 0 100 100" class="item-svg"><circle cx="50" cy="50" r="30" fill="#222" stroke="#aaa" stroke-width="2"/><path d="M50 20 L50 10 M50 80 L50 90 M20 50 L10 50 M80 50 L90 50" stroke="#444" stroke-width="4"/><path d="M50 50 L50 30" stroke="#fff" stroke-width="2"/><path d="M50 50 L65 50" stroke="#fff" stroke-width="1"/></svg>`, category: 'accessories' },
+            // Legendary
+            'jacket02': { name: 'Holographic Puffer', baseValue: 2500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><linearGradient id="holo" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff00ff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient></defs><path d="M10 30 L90 30 L80 90 L20 90 Z" fill="url(#holo)"/><path d="M10 30 C10 10 90 10 90 30" fill="url(#holo)"/></svg>`, category: 'clothing' },
+            'sneaker03': { name: 'Self-Lacing Kicks', baseValue: 5000, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#ccc" stroke="#0ff" stroke-width="1"/><path d="M50 30 L55 20 M75 30 L70 20" stroke="#0ff" stroke-width="1.5"/></svg>`, category: 'shoes' },
+        };
+        // Store a deep copy of original values
+        Object.keys(clothingItems).forEach(key => {
+            originalItemValues[key] = { ...clothingItems[key] };
+        });
+        const allItemKeys = Object.keys(clothingItems);
 
-        // --- State Management ---
-        let localStream;
-        let peerConnections = {}; // { remoteUserId: RTCPeerConnection }
-        let signalingListeners = {}; // { remoteUserId: unsubscribeFunction }
-        let callDocListener = null;
-        let videoStateListener = null;
-        let isInCall = false;
-        let currentVideoDeviceId = null;
-        let currentFilter = 'none';
-        let canvasCtx = videoCanvas.getContext('2d');
-        let animationFrameId;
-        let ytPlayer;
-        let isRemoteYTChange = false;
-
-        const servers = {
-            iceServers: [ { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] } ],
+        const hypeShopItems = {
+            'drone01': { name: 'Mini Drone', points: 500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M40 40 L60 40 L60 60 L40 60 Z" fill="#ccc"/><path d="M50 40 L50 10 M50 60 L50 90 M40 50 L10 50 M60 50 L90 50" stroke="#333" stroke-width="2"/><circle cx="10" cy="50" r="5" fill="#555"/><circle cx="90" cy="50" r="5" fill="#555"/><circle cx="50" cy="10" r="5" fill="#555"/><circle cx="50" cy="90" r="5" fill="#555"/></svg>` },
+            'keyboard01': { name: 'RGB Keyboard', points: 1000, svg: `<svg viewBox="0 0 120 50" class="item-svg"><rect x="10" y="10" width="100" height="30" rx="5" fill="#222" stroke="#555"/><rect x="15" y="15" width="10" height="5" fill="red"/><rect x="30" y="15" width="10" height="5" fill="orange"/><rect x="45" y="15" width="10" height="5" fill="yellow"/><rect x="60" y="15" width="10" height="5" fill="green"/><rect x="75" y="15" width="10" height="5" fill="blue"/><rect x="90" y="15" width="10" height="5" fill="purple"/></svg>` },
+            'vr01': { name: 'VR Headset', points: 2500, svg: `<svg viewBox="0 0 100 60" class="item-svg"><path d="M10 10 H 90 V 50 H 10 Z" fill="#111" stroke="#0ff" stroke-width="1"/><path d="M90 20 H 100 V 40 H 90" stroke="#333" stroke-width="3"/><path d="M10 20 H 0 V 40 H 10" stroke="#333" stroke-width="3"/></svg>` },
         };
 
-        // --- Initialization ---
-        async function init() {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-            
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    userId = user.uid;
-                    await startLocalVideo();
-                    await getConnectedDevices('videoinput');
-                } else {
-                    await signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
-                }
+        // --- AUTH & INIT ---
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                currentUserId = user.uid;
+                playerIdEl.textContent = currentUserId.substring(0, 8);
+                initPlayer(currentUserId);
+                listenToMarketplace();
+                listenToLogs();
+                setInterval(runAIBuyerLogic, 45000); // AI buys something every 45s
+                setInterval(triggerRandomEvent, 180000); // Event every 3 minutes
+            } else {
+                signInAnonymously(auth).catch(error => {
+                    console.error("Anonymous sign-in failed:", error);
+                    showMessage("Error connecting. Please enable anonymous sign-in in Firebase.");
+                });
+            }
+        });
+
+        async function initPlayer(userId) {
+            const playerRef = doc(db, "artifacts", appId, "players", userId);
+            const playerSnap = await getDoc(playerRef);
+            if (!playerSnap.exists()) {
+                await setDoc(playerRef, { cash: 1000, hypePoints: 0, inventory: {}, stats: { itemsSold: 0 } });
+                addLog(`A new hustler, ${userId.substring(0,4)}..., just hit the streets.`);
+            }
+            onSnapshot(playerRef, (doc) => {
+                currentPlayer = doc.data();
+                updateUI();
+                loadingScreen.classList.add('hidden');
+                gameContainer.classList.remove('hidden');
             });
         }
 
-        // --- Video and Filter Processing ---
-        function drawVideoOnCanvas() {
-            if (rawVideo.paused || rawVideo.ended || !localStream) {
-                cancelAnimationFrame(animationFrameId);
+        // --- UI & RENDERING ---
+        function updateUI() {
+            if (!currentPlayer) return;
+            playerCashEl.textContent = `$${currentPlayer.cash.toLocaleString()}`;
+            playerHypePointsEl.textContent = currentPlayer.hypePoints.toLocaleString();
+            itemsSoldEl.textContent = currentPlayer.stats.itemsSold;
+            renderInventory();
+            renderHypeShop();
+            const invValue = calculateInventoryValue();
+            inventoryValueEl.textContent = `$${invValue.toLocaleString()}`;
+            netWorthEl.textContent = `$${(currentPlayer.cash + invValue).toLocaleString()}`;
+        }
+
+        function renderInventory() {
+            playerInventoryEl.innerHTML = '';
+            if (Object.keys(currentPlayer.inventory).length === 0) {
+                playerInventoryEl.innerHTML = `<p class="col-span-full text-center text-gray-400">Your closet is empty.</p>`;
                 return;
             }
-            canvasCtx.filter = currentFilter;
-            canvasCtx.drawImage(rawVideo, 0, 0, videoCanvas.width, videoCanvas.height);
-            animationFrameId = requestAnimationFrame(drawVideoOnCanvas);
-        }
-
-        async function startLocalVideo(deviceId = null) {
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
+            for (const itemId in currentPlayer.inventory) {
+                const item = currentPlayer.inventory[itemId];
+                const itemDef = clothingItems[item.type] || hypeShopItems[item.type];
+                const card = document.createElement('div');
+                card.className = 'card p-2 rounded-lg text-center fade-in';
+                card.innerHTML = `
+                    <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
+                    <p class="font-bold text-sm truncate">${itemDef.name}</p>
+                    <p class="text-xs text-gray-400">${itemDef.baseValue ? `Value: $${itemDef.baseValue}` : `Hype Item`}</p>
+                    ${itemDef.baseValue ? `<button class="sell-btn btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold py-1 px-2 rounded" data-item-id="${itemId}">Sell</button>` : `<div class="w-full mt-2 text-purple-400 text-xs font-bold py-1 px-2 rounded">Not for sale</div>`}
+                `;
+                playerInventoryEl.appendChild(card);
             }
-            if(animationFrameId) cancelAnimationFrame(animationFrameId);
-            
-            currentVideoDeviceId = deviceId;
-            const constraints = {
-                video: { deviceId: deviceId ? { exact: deviceId } : undefined, width: { ideal: 640 }, height: { ideal: 480 } },
-                audio: true,
-            };
+            document.querySelectorAll('.sell-btn').forEach(b => b.addEventListener('click', () => openSellModal(b.dataset.itemId)));
+        }
 
-            try {
-                const rawStream = await navigator.mediaDevices.getUserMedia(constraints);
-                rawVideo.srcObject = rawStream;
-                await rawVideo.play();
-
-                const videoTrackSettings = rawStream.getVideoTracks()[0].getSettings();
-                videoCanvas.width = videoTrackSettings.width || 640;
-                videoCanvas.height = videoTrackSettings.height || 480;
-
-                drawVideoOnCanvas();
-                const audioTracks = rawStream.getAudioTracks();
-                const canvasStream = videoCanvas.captureStream();
-                const canvasVideoTrack = canvasStream.getVideoTracks()[0];
-                localStream = new MediaStream([canvasVideoTrack, ...audioTracks]);
-
-                addVideoElement(userId, localStream, true); // Add/update local video
-                joinBtn.disabled = false;
-                statusEl.textContent = "Ready to join the call.";
-                
-                if (isInCall) {
-                    for (const peerId in peerConnections) {
-                        const pc = peerConnections[peerId];
-                        const sender = pc.getSenders().find(s => s.track.kind === 'video');
-                        if (sender) sender.replaceTrack(canvasVideoTrack);
-                    }
-                }
-            } catch (error) {
-                console.error("Error accessing media devices.", error);
-                statusEl.textContent = "Could not access camera. Please allow permissions.";
-                joinBtn.disabled = true;
+        function renderHypeShop() {
+            hypeShopEl.innerHTML = '';
+            for (const itemId in hypeShopItems) {
+                const item = hypeShopItems[itemId];
+                const card = document.createElement('div');
+                card.className = 'card p-3 rounded-lg flex flex-col fade-in';
+                card.innerHTML = `
+                    <div class="w-full h-24 flex items-center justify-center">${item.svg}</div>
+                    <p class="font-bold mt-2 truncate">${item.name}</p>
+                    <p class="text-lg font-bold text-orange-400 my-1">${item.points.toLocaleString()} HP</p>
+                    <button class="buy-hype-btn btn w-full mt-2 bg-orange-500 hover:bg-orange-600" data-item-id="${itemId}">Unlock</button>
+                `;
+                hypeShopEl.appendChild(card);
             }
+            document.querySelectorAll('.buy-hype-btn').forEach(b => b.addEventListener('click', () => buyHypeItem(b.dataset.itemId)));
         }
 
-        // --- Core Call Logic ---
-        async function joinCall() {
-            if (!localStream || isInCall) return;
-            isInCall = true;
-
-            joinBtn.classList.add('hidden');
-            leaveBtn.classList.remove('hidden');
-            shareVideoBtn.classList.remove('hidden');
-            waitingMessage.classList.add('hidden');
-            statusEl.textContent = "Joining call...";
-
-            const callDocRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
-            
-            // Add self to participants list and listen for changes
-            await setDoc(callDocRef, { participants: arrayUnion(userId) }, { merge: true });
-            
-            callDocListener = onSnapshot(callDocRef, (snapshot) => {
-                if (!snapshot.exists()) return;
-                const data = snapshot.data();
-                const participants = data.participants || [];
-                statusEl.textContent = `In call with ${participants.length -1} other(s).`;
-
-                // Connect to new participants based on ID comparison to prevent "glare"
-                participants.forEach(participantId => {
-                    if (participantId !== userId && !peerConnections[participantId] && userId < participantId) {
-                        console.log(`Found new peer ${participantId}. I will initiate the connection.`);
-                        createPeerConnectionAndOffer(participantId);
-                    }
-                });
-
-                // Clean up connections for participants who have left
-                Object.keys(peerConnections).forEach(peerId => {
-                    if (!participants.includes(peerId)) {
-                        console.log(`Peer ${peerId} left. Cleaning up.`);
-                        closePeerConnection(peerId);
-                    }
-                });
-            });
-
-            // Listen for incoming signals (offers/answers/candidates)
-            listenForSignaling();
-            listenForVideoState();
-            initializeYoutubePlayer();
-        }
-
-        async function leaveCall() {
-            if (!isInCall) return;
-            isInCall = false;
-
-            joinBtn.classList.remove('hidden');
-            leaveBtn.classList.add('hidden');
-            shareVideoBtn.classList.add('hidden');
-            statusEl.textContent = "You have left the call.";
-
-            const callDocRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
-            await updateDoc(callDocRef, { participants: arrayRemove(userId) });
-
-            // Clean up all listeners and connections
-            if (callDocListener) callDocListener();
-            if (videoStateListener) videoStateListener();
-            callDocListener = null;
-            videoStateListener = null;
-
-            Object.keys(peerConnections).forEach(peerId => {
-                closePeerConnection(peerId);
-            });
-            peerConnections = {};
-
-            const remoteVideos = videoGrid.querySelectorAll('.remote-video');
-            remoteVideos.forEach(video => video.parentElement.remove());
-            waitingMessage.classList.remove('hidden');
-
-            if (ytPlayer) ytPlayer.destroy();
-            ytPlayer = null;
-            youtubePlayerContainer.classList.add('hidden');
-        }
-
-        // --- WebRTC Signaling & Connection ---
-        function createPeerConnection(remoteUserId) {
-            if (peerConnections[remoteUserId]) return peerConnections[remoteUserId];
-            
-            const pc = new RTCPeerConnection(servers);
-            peerConnections[remoteUserId] = pc;
-
-            localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-
-            pc.ontrack = (event) => {
-                console.log(`Track received from ${remoteUserId}`);
-                addVideoElement(remoteUserId, event.streams[0]);
-            };
-
-            pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    const signal = { to: remoteUserId, from: userId, candidate: event.candidate.toJSON() };
-                    addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), signal);
-                }
-            };
-            
-            pc.onconnectionstatechange = () => {
-                console.log(`Connection state with ${remoteUserId}: ${pc.connectionState}`);
-                if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
-                    closePeerConnection(remoteUserId);
-                }
-            };
-            return pc;
-        }
-
-        async function createPeerConnectionAndOffer(remoteUserId) {
-            const pc = createPeerConnection(remoteUserId);
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            const signal = { to: remoteUserId, from: userId, offer: { type: offer.type, sdp: offer.sdp } };
-            await addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), signal);
-            console.log(`Sent offer to ${remoteUserId}`);
-        }
-
-        function listenForSignaling() {
-            const signalingRef = collection(db, `artifacts/${appId}/public/data/signaling`);
-            const q = query(signalingRef, where("to", "==", userId));
-            
-            signalingListeners['main'] = onSnapshot(q, (snapshot) => {
-                snapshot.docChanges().forEach(async (change) => {
-                    if (change.type === 'added') {
-                        const signal = change.doc.data();
-                        const remoteUserId = signal.from;
-                        const pc = createPeerConnection(remoteUserId);
-
-                        if (signal.offer) {
-                            console.log(`Received offer from ${remoteUserId}`);
-                            await pc.setRemoteDescription(new RTCSessionDescription(signal.offer));
-                            const answer = await pc.createAnswer();
-                            await pc.setLocalDescription(answer);
-                            const response = { to: remoteUserId, from: userId, answer: { type: answer.type, sdp: answer.sdp } };
-                            await addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), response);
-                        } else if (signal.answer) {
-                            console.log(`Received answer from ${remoteUserId}`);
-                            if (pc.signalingState !== 'stable') {
-                                await pc.setRemoteDescription(new RTCSessionDescription(signal.answer));
-                            }
-                        } else if (signal.candidate) {
-                            await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
-                        }
-                        await deleteDoc(change.doc.ref); // Clean up signal
-                    }
-                });
-            });
-        }
-        
-        function closePeerConnection(remoteUserId) {
-            const pc = peerConnections[remoteUserId];
-            if (pc) {
-                pc.close();
-                delete peerConnections[remoteUserId];
-            }
-            removeVideoElement(remoteUserId);
-        }
-
-        // --- UI & Video Element Management ---
-        function addVideoElement(id, stream, isLocal = false) {
-            let videoContainer = document.getElementById(`video-container-${id}`);
-            if (!videoContainer) {
-                videoContainer = document.createElement('div');
-                videoContainer.id = `video-container-${id}`;
-                videoContainer.className = 'video-container aspect-video rounded-lg shadow-lg overflow-hidden';
-                if(!isLocal) videoContainer.classList.add('remote-video');
-
-                const video = document.createElement('video');
-                video.id = `video-${id}`;
-                video.autoplay = true;
-                video.playsInline = true;
-
-                const nameTag = document.createElement('div');
-                nameTag.className = 'video-name';
-                nameTag.textContent = isLocal ? 'You' : `User ${id.substring(0, 6)}`;
-
-                videoContainer.appendChild(video);
-                videoContainer.appendChild(nameTag);
-                videoGrid.appendChild(videoContainer);
-            }
-            
-            const videoEl = document.getElementById(`video-${id}`);
-            videoEl.srcObject = stream;
-            if (isLocal) videoEl.muted = true;
-
-            waitingMessage.classList.add('hidden');
-        }
-
-        function removeVideoElement(id) {
-            const videoContainer = document.getElementById(`video-container-${id}`);
-            if (videoContainer) videoContainer.remove();
-            if (videoGrid.children.length <= 1 && isInCall) {
-                waitingMessage.textContent = 'Waiting for others to join...';
-                waitingMessage.classList.remove('hidden');
-            }
-        }
-
-        // --- YouTube Player ---
-        window.onYouTubeIframeAPIReady = function() {};
-
-        function initializeYoutubePlayer() {
-            if (ytPlayer) return;
-            ytPlayer = new YT.Player('youtube-player', {
-                height: '100%', width: '100%',
-                playerVars: { 'autoplay': 1, 'controls': 1, 'modestbranding': 1, 'rel': 0 },
-                events: { 'onStateChange': onPlayerStateChange }
-            });
-        }
-
-        async function onPlayerStateChange(event) {
-            if (isRemoteYTChange || !isInCall) return;
-            
-            const videoStateRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
-            const updatePayload = {
-                "videoState.playerStatus": event.data,
-                "videoState.currentTime": event.target.getCurrentTime ? event.target.getCurrentTime() : 0,
-                "videoState.timestamp": serverTimestamp()
-            };
-            
-            if (event.data === YT.PlayerState.ENDED) {
-                const docSnap = await getDoc(videoStateRef);
-                const currentQueue = docSnap.data().videoState?.queue || [];
-                currentQueue.shift();
-                
-                updatePayload["videoState.queue"] = currentQueue;
-                updatePayload["videoState.videoId"] = currentQueue.length > 0 ? currentQueue[0] : null;
-            }
-            await updateDoc(videoStateRef, updatePayload);
-        }
-
-        function listenForVideoState() {
-            if (videoStateListener) videoStateListener();
-            const videoStateRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
-            videoStateListener = onSnapshot(videoStateRef, (docSnap) => {
-                const videoState = docSnap.exists() ? docSnap.data().videoState : null;
-                
-                if (!ytPlayer || !videoState || !isInCall) {
-                    youtubePlayerContainer.classList.add('hidden');
+        function listenToMarketplace() {
+            const marketplaceRef = collection(db, "artifacts", appId, "public", "data", "marketplace");
+            onSnapshot(marketplaceRef, (snapshot) => {
+                marketplaceEl.innerHTML = '';
+                if (snapshot.empty) {
+                    marketplaceEl.innerHTML = `<p class="col-span-full text-center text-gray-400">The market is quiet...</p>`;
                     return;
                 }
-
-                isRemoteYTChange = true;
-                const currentVideoId = ytPlayer.getVideoData ? ytPlayer.getVideoData().video_id : null;
-                
-                if (!videoState.videoId) {
-                    youtubePlayerContainer.classList.add('hidden');
-                    if (ytPlayer.stopVideo) ytPlayer.stopVideo();
-                } else {
-                    youtubePlayerContainer.classList.remove('hidden');
-                }
-                
-                if (videoState.videoId && videoState.videoId !== currentVideoId) {
-                    ytPlayer.loadVideoById(videoState.videoId, videoState.currentTime);
-                }
-                
-                if (ytPlayer.getPlayerState() !== videoState.playerStatus) {
-                    if (videoState.playerStatus === YT.PlayerState.PLAYING) {
-                         ytPlayer.seekTo(videoState.currentTime, true);
-                         ytPlayer.playVideo();
-                    } else if (videoState.playerStatus === YT.PlayerState.PAUSED) {
-                        ytPlayer.pauseVideo();
-                        ytPlayer.seekTo(videoState.currentTime, true);
-                    }
-                }
-                
-                updateQueueUI(videoState.queue || []);
-                setTimeout(() => { isRemoteYTChange = false; }, 500);
+                snapshot.forEach(doc => {
+                    const listing = doc.data();
+                    const itemDef = clothingItems[listing.item.type];
+                    if (!itemDef) return; // Skip if item is invalid
+                    const card = document.createElement('div');
+                    card.className = 'card p-3 rounded-lg flex flex-col fade-in';
+                    card.innerHTML = `
+                        <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
+                        <p class="font-bold mt-2 truncate">${itemDef.name}</p>
+                        <p class="text-lg font-bold text-green-400 my-1">$${listing.price.toLocaleString()}</p>
+                        <p class="text-xs text-gray-400 truncate">Seller: ${listing.sellerId.substring(0, 8)}...</p>
+                        ${listing.sellerId !== currentUserId ? `<button class="buy-btn btn w-full mt-2 bg-green-500 hover:bg-green-600" data-listing-id="${doc.id}">Buy</button>` : `<button class="btn w-full mt-2 bg-gray-600" disabled>Your Listing</button>`}
+                    `;
+                    marketplaceEl.appendChild(card);
+                });
+                document.querySelectorAll('.buy-btn').forEach(b => b.addEventListener('click', () => buyItem(b.dataset.listingId)));
             });
         }
-        
-        function updateQueueUI(queue) {
-            videoQueueList.innerHTML = '';
-            if (!queue || queue.length <= 1) {
-                videoQueueList.innerHTML = '<p class="text-sm" style="color:var(--text-secondary)">No other videos in queue.</p>';
-            } else {
-                queue.slice(1).forEach((videoId, index) => {
-                    const p = document.createElement('p');
-                    p.textContent = `${index + 1}. Video ID: ${videoId}`;
-                    p.className = "truncate text-sm";
-                    videoQueueList.appendChild(p);
+
+        function listenToLogs() {
+            const logsRef = collection(db, "artifacts", appId, "public", "data", "logs");
+            onSnapshot(logsRef, (snapshot) => {
+                gameLogEl.innerHTML = '';
+                let allLogs = [];
+                snapshot.forEach(doc => allLogs.push({ ...doc.data(), id: doc.id }));
+                allLogs.sort((a, b) => b.timestamp - a.timestamp);
+                allLogs = allLogs.slice(0, 15);
+                allLogs.forEach(log => {
+                    const logEntry = document.createElement('p');
+                    logEntry.textContent = log.message;
+                    if (log.message.includes('bought') || log.message.includes('won')) logEntry.className = 'text-green-400';
+                    else if (log.message.includes('listed')) logEntry.className = 'text-yellow-400';
+                    else if (log.message.includes('unlocked')) logEntry.className = 'text-orange-400';
+                    else if (log.message.includes('unboxed')) logEntry.className = 'text-purple-400';
+                    else if (log.message.includes('EVENT')) logEntry.className = 'text-yellow-300 font-bold';
+                    else logEntry.className = 'text-cyan-400';
+                    gameLogEl.appendChild(logEntry);
                 });
+            });
+        }
+
+        // --- PLAYER ACTIONS ---
+        getStarterPackBtn.addEventListener('click', async () => {
+            if (Object.keys(currentPlayer.inventory).length > 0) {
+                showMessage("You've already received a starter pack!");
+                return;
             }
-        }
-        
-        function extractVideoID(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
+            const starterItems = {};
+            const commonItems = ['tee01', 'cap01', 'socks01'];
+            for (let i = 0; i < 2; i++) {
+                starterItems[crypto.randomUUID()] = { type: commonItems[Math.floor(Math.random() * commonItems.length)] };
+            }
+            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { inventory: starterItems });
+            showMessage("Starter pack received! Check your closet.");
+            addLog(`${currentUserId.substring(0,4)}... got their first drop.`);
+        });
 
-        async function handleQueueVideo() {
-            const url = youtubeUrlInput.value.trim();
-            const videoId = extractVideoID(url);
-
-            if (!videoId) { alert("Invalid YouTube URL"); return; }
-            if (!isInCall) { alert("You must be in a call to share a video."); return; }
-
-            const videoStateRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
+        buyLootBoxBtn.addEventListener('click', async () => {
+            const cost = 500;
+            if (currentPlayer.cash < cost) return showMessage("Not enough cash for a loot box!");
             
-            const docSnap = await getDoc(videoStateRef);
-            const currentVideoState = docSnap.data()?.videoState || {};
-            const currentQueue = currentVideoState.queue || [];
-            if (currentQueue.includes(videoId)) {
-                youtubeUrlInput.value = '';
-                return; // Don't add duplicates
-            }
-            currentQueue.push(videoId);
-
-            let updateData = {
-                "videoState.queue": currentQueue,
-                "videoState.timestamp": serverTimestamp()
-            };
+            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
+            const randomType = allItemKeys[Math.floor(Math.random() * allItemKeys.length)];
+            const newItem = { [crypto.randomUUID()]: { type: randomType } };
             
-            if (!currentVideoState.videoId || currentVideoState.playerStatus === YT.PlayerState.ENDED) {
-                updateData["videoState.videoId"] = videoId;
-                updateData["videoState.playerStatus"] = YT.PlayerState.PLAYING;
-                updateData["videoState.currentTime"] = 0;
-            }
-            await setDoc(videoStateRef, { videoState: updateData }, { merge: true });
-            youtubeUrlInput.value = '';
+            await updateDoc(playerRef, {
+                cash: increment(-cost),
+                inventory: { ...currentPlayer.inventory, ...newItem }
+            });
+
+            const itemName = clothingItems[randomType].name;
+            showMessage(`You unboxed: ${itemName}!`);
+            addLog(`${currentUserId.substring(0,4)}... unboxed a ${itemName}!`);
+        });
+
+        async function buyHypeItem(itemId) {
+            const item = hypeShopItems[itemId];
+            if (currentPlayer.hypePoints < item.points) return showMessage("Not enough Hype Points!");
+            
+            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
+            const newItem = { [crypto.randomUUID()]: { type: itemId } };
+
+            await updateDoc(playerRef, {
+                hypePoints: increment(-item.points),
+                inventory: { ...currentPlayer.inventory, ...newItem }
+            });
+            showMessage(`You unlocked the ${item.name}!`);
+            addLog(`${currentUserId.substring(0,4)}... unlocked the ${item.name}!`);
         }
 
-        // --- UI Logic & Event Listeners ---
-        async function getConnectedDevices(type) {
-            const listElement = document.getElementById('camera-list');
+        function openSellModal(itemId) {
+            itemToSellId = itemId;
+            const item = currentPlayer.inventory[itemId];
+            const itemDef = clothingItems[item.type];
+            sellItemDisplay.innerHTML = `<div class="card p-4 rounded-lg text-center bg-gray-700"><div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div><p class="font-bold text-lg">${itemDef.name}</p></div>`;
+            sellPriceInput.value = itemDef.baseValue;
+            sellModal.classList.add('flex');
+            sellModal.classList.remove('hidden');
+        }
+
+        cancelSellBtn.addEventListener('click', () => {
+            sellModal.classList.add('hidden');
+            sellModal.classList.remove('flex');
+        });
+
+        confirmSellBtn.addEventListener('click', async () => {
+            const price = parseInt(sellPriceInput.value);
+            if (isNaN(price) || price <= 0) return showMessage("Please enter a valid price.");
+
+            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
+            const itemToList = currentPlayer.inventory[itemToSellId];
+            const newInventory = { ...currentPlayer.inventory };
+            delete newInventory[itemToSellId];
+
+            await updateDoc(playerRef, { inventory: newInventory });
+            await addDoc(collection(db, "artifacts", appId, "public", "data", "marketplace"), {
+                sellerId: currentUserId, item: itemToList, price: price, createdAt: new Date()
+            });
+            
+            addLog(`${currentUserId.substring(0,4)}... listed ${clothingItems[itemToList.type].name} for $${price}.`);
+            sellModal.classList.add('hidden');
+            sellModal.classList.remove('flex');
+        });
+
+        async function buyItem(listingId, buyerId = currentUserId) {
+            const listingRef = doc(db, "artifacts", appId, "public", "data", "marketplace", listingId);
+            const buyerRef = doc(db, "artifacts", appId, "players", buyerId);
+
             try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(device => device.kind === type);
-                listElement.innerHTML = '';
-                videoDevices.forEach((device, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'camera-btn p-2 rounded-lg w-full text-left';
-                    button.style.backgroundColor = 'var(--bg-tertiary)';
-                    button.dataset.deviceId = device.deviceId;
-                    button.textContent = device.label || `Camera ${index + 1}`;
-                    if((!currentVideoDeviceId && index === 0) || currentVideoDeviceId === device.deviceId){
-                        button.classList.add('active');
+                await runTransaction(db, async (transaction) => {
+                    const listingSnap = await transaction.get(listingRef);
+                    if (!listingSnap.exists()) throw "This item is no longer available.";
+                    
+                    const listing = listingSnap.data();
+                    const buyerSnap = await transaction.get(buyerRef);
+                    const buyerData = buyerSnap.data();
+
+                    if (buyerData.cash < listing.price) {
+                        if (buyerId === currentUserId) throw "You don't have enough cash!";
+                        else return; // AI can't afford it, just stop
                     }
-                    listElement.appendChild(button);
+                    
+                    const sellerRef = doc(db, "artifacts", appId, "players", listing.sellerId);
+                    const sellerSnap = await transaction.get(sellerRef);
+                    if (!sellerSnap.exists()) { // Seller might have left
+                        transaction.delete(listingRef);
+                        return;
+                    }
+                    const sellerData = sellerSnap.data();
+
+                    const newInventory = { ...buyerData.inventory, [crypto.randomUUID()]: listing.item };
+                    transaction.update(buyerRef, {
+                        cash: increment(-listing.price), inventory: newInventory
+                    });
+
+                    const pointsEarned = Math.ceil(listing.price / 100);
+                    transaction.update(sellerRef, {
+                        cash: increment(listing.price),
+                        hypePoints: increment(pointsEarned),
+                        'stats.itemsSold': increment(1)
+                    });
+                    
+                    transaction.delete(listingRef);
+                    
+                    const buyerName = buyerId === currentUserId ? currentUserId.substring(0,4) : 'An AI Buyer';
+                    addLog(`${buyerName}... bought ${clothingItems[listing.item.type].name} from ${listing.sellerId.substring(0,4)}... for $${listing.price}.`);
                 });
-            } catch (error) { console.error("Error enumerating devices:", error); }
+                if (buyerId === currentUserId) showMessage("Purchase successful!");
+            } catch (error) {
+                console.error("Buy transaction failed: ", error);
+                if (buyerId === currentUserId) showMessage(typeof error === 'string' ? error : "Transaction failed.");
+            }
         }
 
-        document.getElementById('filtersBtn').addEventListener('click', () => document.getElementById('filter-options').classList.remove('hidden'));
-        document.getElementById('closeFiltersBtn').addEventListener('click', () => document.getElementById('filter-options').classList.add('hidden'));
-        document.getElementById('filter-options').addEventListener('click', (e) => {
-            if (e.target.classList.contains('filter-btn')) {
-                currentFilter = e.target.dataset.filter;
-                document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-                e.target.classList.add('active');
+        // --- AI & EVENTS ---
+        async function runAIBuyerLogic() {
+            const marketplaceRef = collection(db, "artifacts", appId, "public", "data", "marketplace");
+            const listingsSnap = await getDocs(marketplaceRef);
+            if (listingsSnap.empty) return;
+
+            const listings = [];
+            listingsSnap.forEach(doc => listings.push({ id: doc.id, ...doc.data() }));
+            
+            const randomListing = listings[Math.floor(Math.random() * listings.length)];
+            if (randomListing.sellerId === currentUserId) return; // AI won't buy from the current player to avoid easy exploits
+
+            const itemDef = clothingItems[randomListing.item.type];
+            if (!itemDef) return;
+
+            // AI decides if the price is good
+            const perceivedValue = itemDef.baseValue * (1 + (Math.random() - 0.5) * 0.4); // +/- 20%
+            if (randomListing.price <= perceivedValue * 1.1) { // Will pay up to 10% over perceived value
+                // Use a dummy AI player ID for the transaction
+                const aiPlayerId = `ai_buyer_${crypto.randomUUID().substring(0,8)}`;
+                const aiPlayerRef = doc(db, "artifacts", appId, "players", aiPlayerId);
+                await setDoc(aiPlayerRef, { cash: 1000000, hypePoints: 0, inventory: {}, stats: { itemsSold: 0 } });
+                
+                await buyItem(randomListing.id, aiPlayerId);
+            }
+        }
+
+        let currentEvent = null;
+        function triggerRandomEvent() {
+            // Revert previous event first
+            if (currentEvent) {
+                Object.keys(originalItemValues).forEach(key => {
+                    clothingItems[key].baseValue = originalItemValues[key].baseValue;
+                });
+                eventBanner.classList.add('hidden');
+                currentEvent = null;
+            }
+
+            const events = [
+                { name: "SNEAKER FRENZY", category: 'shoes', multiplier: 1.5, description: "Everyone wants new kicks! Shoe prices are inflated." },
+                { name: "ACCESSORY HYPE", category: 'accessories', multiplier: 2.0, description: "A celebrity was spotted wearing a cool watch! Accessories are trending." },
+                { name: "MARKET CRASH", category: 'all', multiplier: 0.7, description: "The economy is down. All item values have dropped." },
+            ];
+            currentEvent = events[Math.floor(Math.random() * events.length)];
+            
+            Object.keys(clothingItems).forEach(key => {
+                if (currentEvent.category === 'all' || clothingItems[key].category === currentEvent.category) {
+                    clothingItems[key].baseValue = Math.round(clothingItems[key].baseValue * currentEvent.multiplier);
+                }
+            });
+
+            eventBanner.textContent = `EVENT: ${currentEvent.name} - ${currentEvent.description}`;
+            eventBanner.classList.remove('hidden');
+            addLog(`EVENT: ${currentEvent.name} has started!`);
+            updateUI(); // Re-render everything with new values
+        }
+
+
+        // --- CASINO LOGIC ---
+        const blackjack = {
+            deck: [],
+            playerHand: [],
+            dealerHand: [],
+            playerScore: 0,
+            dealerScore: 0,
+            bet: 0,
+            inProgress: false,
+        };
+        const bjDealBtn = document.getElementById('blackjack-deal-btn');
+        const bjHitBtn = document.getElementById('blackjack-hit-btn');
+        const bjStandBtn = document.getElementById('blackjack-stand-btn');
+
+        function createDeck() {
+            const suits = ['♥', '♦', '♣', '♠'];
+            const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            blackjack.deck = [];
+            for (const suit of suits) {
+                for (const rank of ranks) {
+                    blackjack.deck.push({ suit, rank });
+                }
+            }
+        }
+        function shuffleDeck() {
+            for (let i = blackjack.deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [blackjack.deck[i], blackjack.deck[j]] = [blackjack.deck[j], blackjack.deck[i]];
+            }
+        }
+        function getCardValue(card) {
+            if (['J', 'Q', 'K'].includes(card.rank)) return 10;
+            if (card.rank === 'A') return 11;
+            return parseInt(card.rank);
+        }
+        function calculateScore(hand) {
+            let score = hand.reduce((sum, card) => sum + getCardValue(card), 0);
+            let aceCount = hand.filter(c => c.rank === 'A').length;
+            while (score > 21 && aceCount > 0) {
+                score -= 10;
+                aceCount--;
+            }
+            return score;
+        }
+        function renderHands(revealDealer = false) {
+            const playerCardsEl = document.getElementById('blackjack-player-cards');
+            const dealerCardsEl = document.getElementById('blackjack-dealer-cards');
+            playerCardsEl.innerHTML = blackjack.playerHand.map(c => createCardElement(c)).join('');
+            document.getElementById('blackjack-player-score').textContent = `(${calculateScore(blackjack.playerHand)})`;
+
+            if (revealDealer) {
+                dealerCardsEl.innerHTML = blackjack.dealerHand.map(c => createCardElement(c)).join('');
+                document.getElementById('blackjack-dealer-score').textContent = `(${calculateScore(blackjack.dealerHand)})`;
+            } else {
+                dealerCardsEl.innerHTML = createCardElement(blackjack.dealerHand[0]) + `<div class="playing-card bg-gray-500"></div>`;
+                document.getElementById('blackjack-dealer-score').textContent = '';
+            }
+        }
+        function createCardElement(card) {
+            const isRed = ['♥', '♦'].includes(card.suit);
+            return `<div class="playing-card ${isRed ? 'red' : ''}"><span>${card.rank}${card.suit}</span><span>${card.rank}${card.suit}</span></div>`;
+        }
+        async function endBlackjack(result, payoutMultiplier) {
+            renderHands(true);
+            const resultEl = document.getElementById('blackjack-result');
+            resultEl.textContent = result;
+            if (payoutMultiplier > 0) {
+                const winnings = Math.round(blackjack.bet * payoutMultiplier);
+                await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { cash: increment(winnings) });
+            }
+            blackjack.inProgress = false;
+            bjDealBtn.disabled = false;
+            bjHitBtn.disabled = true;
+            bjStandBtn.disabled = true;
+        }
+        bjDealBtn.addEventListener('click', async () => {
+            const betAmount = parseInt(document.getElementById('blackjack-bet').value);
+            if (isNaN(betAmount) || betAmount <= 0) return showMessage("Invalid bet amount.");
+            if (currentPlayer.cash < betAmount) return showMessage("Not enough cash.");
+            
+            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { cash: increment(-betAmount) });
+            
+            blackjack.bet = betAmount;
+            blackjack.inProgress = true;
+            createDeck();
+            shuffleDeck();
+            blackjack.playerHand = [blackjack.deck.pop(), blackjack.deck.pop()];
+            blackjack.dealerHand = [blackjack.deck.pop(), blackjack.deck.pop()];
+
+            document.getElementById('blackjack-result').textContent = '';
+            bjDealBtn.disabled = true;
+            bjHitBtn.disabled = false;
+            bjStandBtn.disabled = false;
+            renderHands();
+
+            if (calculateScore(blackjack.playerHand) === 21) {
+                endBlackjack("Blackjack!", 2.5); // Win 1.5x bet + original bet back
             }
         });
-        
-        document.getElementById('themesBtn').addEventListener('click', () => document.getElementById('theme-options').classList.remove('hidden'));
-        document.getElementById('closeThemesBtn').addEventListener('click', () => document.getElementById('theme-options').classList.add('hidden'));
-        document.getElementById('theme-options').addEventListener('click', (e) => {
-            if(e.target.classList.contains('theme-btn')) {
-                document.documentElement.className = e.target.dataset.theme;
-                document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
-                e.target.classList.add('active');
+        bjHitBtn.addEventListener('click', () => {
+            if (!blackjack.inProgress) return;
+            blackjack.playerHand.push(blackjack.deck.pop());
+            renderHands();
+            if (calculateScore(blackjack.playerHand) > 21) {
+                endBlackjack("Bust!", 0); // Lose bet
             }
         });
-        
-        document.getElementById('cameraBtn').addEventListener('click', () => document.getElementById('camera-options').classList.remove('hidden'));
-        document.getElementById('closeCameraBtn').addEventListener('click', () => document.getElementById('camera-options').classList.add('hidden'));
-        document.getElementById('camera-list').addEventListener('click', (e) => {
-             if (e.target.classList.contains('camera-btn')) {
-                const deviceId = e.target.dataset.deviceId;
-                document.querySelectorAll('.camera-btn').forEach(btn => btn.classList.remove('active'));
-                e.target.classList.add('active');
-                startLocalVideo(deviceId);
-                document.getElementById('camera-options').classList.add('hidden');
+        bjStandBtn.addEventListener('click', () => {
+            if (!blackjack.inProgress) return;
+            bjHitBtn.disabled = true;
+            bjStandBtn.disabled = true;
+            
+            let dealerScore = calculateScore(blackjack.dealerHand);
+            while (dealerScore < 17) {
+                blackjack.dealerHand.push(blackjack.deck.pop());
+                dealerScore = calculateScore(blackjack.dealerHand);
+            }
+            renderHands(true);
+
+            const playerScore = calculateScore(blackjack.playerHand);
+            if (dealerScore > 21 || playerScore > dealerScore) {
+                endBlackjack("You Win!", 2); // Win 1x bet + original bet back
+            } else if (dealerScore > playerScore) {
+                endBlackjack("Dealer Wins!", 0);
+            } else {
+                endBlackjack("Push!", 1); // Get bet back
             }
         });
-        
-        shareVideoBtn.addEventListener('click', () => document.getElementById('share-video-modal').classList.remove('hidden'));
-        document.getElementById('closeShareVideoBtn').addEventListener('click', () => document.getElementById('share-video-modal').classList.add('hidden'));
-        queueVideoBtn.addEventListener('click', handleQueueVideo);
 
-        joinBtn.addEventListener('click', joinCall);
-        leaveBtn.addEventListener('click', leaveCall);
+        // Slots
+        const slotsSpinBtn = document.getElementById('slots-spin-btn');
+        slotsSpinBtn.addEventListener('click', async () => {
+            const betAmount = parseInt(document.getElementById('slots-bet').value);
+            if (isNaN(betAmount) || betAmount <= 0) return showMessage("Invalid bet amount.");
+            if (currentPlayer.cash < betAmount) return showMessage("Not enough cash.");
 
-        window.addEventListener('beforeunload', leaveCall);
+            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { cash: increment(-betAmount) });
 
-        init();
+            const symbols = ['👟', '🧢', '👕', '💎', '💰', '🔥'];
+            const reel1 = symbols[Math.floor(Math.random() * symbols.length)];
+            const reel2 = symbols[Math.floor(Math.random() * symbols.length)];
+            const reel3 = symbols[Math.floor(Math.random() * symbols.length)];
+            document.getElementById('slot1').textContent = reel1;
+            document.getElementById('slot2').textContent = reel2;
+            document.getElementById('slot3').textContent = reel3;
+
+            let winnings = 0;
+            let resultText = "Try Again!";
+            if (reel1 === reel2 && reel2 === reel3) {
+                if (reel1 === '🔥') winnings = betAmount * 50;
+                else if (reel1 === '💰') winnings = betAmount * 25;
+                else if (reel1 === '💎') winnings = betAmount * 10;
+                else winnings = betAmount * 5;
+            } else if (reel1 === reel2 || reel2 === reel3 || reel1 === reel3) {
+                winnings = betAmount * 2;
+            }
+
+            if (winnings > 0) {
+                resultText = `You won $${winnings}!`;
+                await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { cash: increment(winnings) });
+            }
+            document.getElementById('slots-result').textContent = resultText;
+        });
+
+
+        // --- HELPER & UI FUNCTIONS ---
+        function calculateInventoryValue() {
+            if (!currentPlayer || !currentPlayer.inventory) return 0;
+            return Object.values(currentPlayer.inventory).reduce((total, item) => {
+                const itemDef = clothingItems[item.type];
+                return total + (itemDef?.baseValue || 0);
+            }, 0);
+        }
+        async function addLog(message) {
+            await addDoc(collection(db, "artifacts", appId, "public", "data", "logs"), { message, timestamp: Date.now() });
+        }
+        function showMessage(text) {
+            messageText.textContent = text;
+            messageModal.classList.add('flex');
+            messageModal.classList.remove('hidden');
+        }
+        closeMessageBtn.addEventListener('click', () => {
+            messageModal.classList.add('hidden');
+            messageModal.classList.remove('flex');
+        });
+        Object.keys(tabs).forEach(key => {
+            tabs[key].addEventListener('click', () => {
+                Object.keys(containers).forEach(cKey => {
+                    containers[cKey].classList.add('hidden');
+                    tabs[cKey].classList.remove('tab-active');
+                    tabs[cKey].classList.add('tab-inactive');
+                });
+                containers[key].classList.remove('hidden');
+                tabs[key].classList.add('tab-active');
+                tabs[key].classList.remove('tab-inactive');
+            });
+        });
 
     </script>
 </body>
