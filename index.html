@@ -66,6 +66,7 @@
         }
         #video-grid .video-container {
             position: relative;
+            background-color: var(--bg-tertiary);
         }
         #video-grid .video-name {
             position: absolute;
@@ -86,7 +87,7 @@
 <body class="flex flex-col items-center min-h-screen antialiased">
 
     <!-- Hidden elements for video processing -->
-    <video id="rawVideo" class="hidden" autoplay muted></video>
+    <video id="rawVideo" class="hidden" autoplay muted playsinline></video>
     <canvas id="videoCanvas" class="hidden"></canvas>
 
     <!-- Main Application Wrapper -->
@@ -100,36 +101,34 @@
         
         <!-- Main Content -->
         <main id="main-content" class="w-full">
-            <!-- User Chat Interface -->
             <div id="chat-interface">
                 
                 <!-- YouTube Player -->
-                <div id="youtube-player-container" class="hidden w-full md:w-3/4 mx-auto mb-4 aspect-video bg-black rounded-xl">
+                <div id="youtube-player-container" class="hidden w-full md:w-3/4 mx-auto mb-4 aspect-video bg-black rounded-xl shadow-lg">
                     <div id="youtube-player"></div>
                 </div>
 
                 <!-- Video Grid -->
                 <div id="video-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    <!-- Videos will be dynamically added here -->
+                    <!-- Local video will be injected here first -->
                 </div>
                 <div id="waiting-message" class="text-center py-10" style="color: var(--text-secondary);">
                     Press 'Join Call' to start.
                 </div>
 
-
                 <!-- Controls -->
                 <div class="mt-6 text-center space-x-2 flex flex-wrap justify-center gap-2">
-                    <button id="joinBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: #16a34a;">Join Call</button>
+                    <button id="joinBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: #16a34a;" disabled>Join Call</button>
                     <button id="leaveBtn" class="text-white font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #dc2626;">Leave Call</button>
                     <button id="shareVideoBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg hidden" style="background-color: #581c87; color: var(--accent-text);">Share Video</button>
                     <button id="cameraBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Camera</button>
                     <button id="filtersBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Filters</button>
                     <button id="themesBtn" class="font-bold py-3 px-8 rounded-full transition duration-300 shadow-lg text-lg" style="background-color: var(--bg-tertiary); color: var(--text-main);">Themes</button>
                 </div>
-                 <p id="status" class="text-center mt-4" style="color: var(--text-secondary);"></p>
+                 <p id="status" class="text-center mt-4 h-6" style="color: var(--text-secondary);"></p>
             </div>
             
-            <!-- Share Video Modal -->
+            <!-- Modals (Share, Camera, Filter, Theme) -->
             <div id="share-video-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
                 <div class="p-6 rounded-xl shadow-2xl w-full max-w-lg" style="background-color: var(--bg-secondary);">
                      <h3 class="text-xl font-bold text-center mb-4">Share a YouTube Video</h3>
@@ -142,8 +141,6 @@
                      <button id="closeShareVideoBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
                 </div>
             </div>
-
-            <!-- Camera Options Modal -->
             <div id="camera-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
                 <div class="p-6 rounded-xl shadow-2xl w-full max-w-md" style="background-color: var(--bg-secondary);">
                      <h3 class="text-xl font-bold text-center mb-4">Select Camera</h3>
@@ -151,8 +148,6 @@
                      <button id="closeCameraBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
                 </div>
             </div>
-
-            <!-- Filter Options Modal -->
             <div id="filter-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
                 <div class="p-6 rounded-xl shadow-2xl" style="background-color: var(--bg-secondary);">
                      <h3 class="text-xl font-bold text-center mb-4">Camera Filters</h3>
@@ -168,8 +163,6 @@
                      <button id="closeFiltersBtn" class="mt-4 w-full font-bold py-2 rounded-lg transition duration-300" style="background-color: var(--bg-tertiary);">Close</button>
                 </div>
             </div>
-
-            <!-- Theme Options Modal -->
             <div id="theme-options" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-40">
                 <div class="p-6 rounded-xl shadow-2xl" style="background-color: var(--bg-secondary);">
                      <h3 class="text-xl font-bold text-center mb-4">Color Themes</h3>
@@ -202,8 +195,8 @@
           measurementId: "G-P65WBJMXX3"
         };
         
-        const appId = 'talkandwatch-app'; // Unique ID for this app's data
-        const GLOBAL_CALL_ID = 'mainCall'; // Single ID for the global call
+        const appId = 'talkandwatch-app-v2'; // Use a new ID to avoid data conflicts
+        const GLOBAL_CALL_ID = 'mainCall';
         
         let app, db, auth;
         let userId;
@@ -216,30 +209,18 @@
         const leaveBtn = document.getElementById('leaveBtn');
         const statusEl = document.getElementById('status');
         const waitingMessage = document.getElementById('waiting-message');
-        const themesBtn = document.getElementById('themesBtn');
-        const themeOptions = document.getElementById('theme-options');
-        const closeThemesBtn = document.getElementById('closeThemesBtn');
-        const filtersBtn = document.getElementById('filtersBtn');
-        const filterOptions = document.getElementById('filter-options');
-        const closeFiltersBtn = document.getElementById('closeFiltersBtn');
-        const cameraBtn = document.getElementById('cameraBtn');
-        const cameraOptions = document.getElementById('camera-options');
-        const cameraList = document.getElementById('camera-list');
-        const closeCameraBtn = document.getElementById('closeCameraBtn');
         const shareVideoBtn = document.getElementById('shareVideoBtn');
-        const shareVideoModal = document.getElementById('share-video-modal');
-        const closeShareVideoBtn = document.getElementById('closeShareVideoBtn');
-        const queueVideoBtn = document.getElementById('queueVideoBtn');
-        const youtubeUrlInput = document.getElementById('youtube-url-input');
         const youtubePlayerContainer = document.getElementById('youtube-player-container');
+        const youtubeUrlInput = document.getElementById('youtube-url-input');
+        const queueVideoBtn = document.getElementById('queueVideoBtn');
         const videoQueueList = document.getElementById('video-queue-list');
-
+        // Add other DOM elements...
 
         // --- State Management ---
         let localStream;
         let peerConnections = {}; // { remoteUserId: RTCPeerConnection }
         let signalingListeners = {}; // { remoteUserId: unsubscribeFunction }
-        let callListener = null;
+        let callDocListener = null;
         let videoStateListener = null;
         let isInCall = false;
         let currentVideoDeviceId = null;
@@ -250,11 +231,7 @@
         let isRemoteYTChange = false;
 
         const servers = {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-            ],
-            iceCandidatePoolSize: 10,
+            iceServers: [ { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] } ],
         };
 
         // --- Initialization ---
@@ -267,27 +244,21 @@
                 if (user) {
                     userId = user.uid;
                     await startLocalVideo();
-                    await getConnectedDevices('videoinput', cameraList);
-                    listenForVideoState();
+                    await getConnectedDevices('videoinput');
                 } else {
-                    await signInAnonymously(auth).catch(error => {
-                        console.error("Anonymous sign-in failed:", error);
-                        statusEl.textContent = "Authentication failed. Please refresh.";
-                    });
+                    await signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
                 }
             });
         }
 
         // --- Video and Filter Processing ---
         function drawVideoOnCanvas() {
-            if (rawVideo.paused || rawVideo.ended) {
+            if (rawVideo.paused || rawVideo.ended || !localStream) {
                 cancelAnimationFrame(animationFrameId);
                 return;
             }
-            
             canvasCtx.filter = currentFilter;
             canvasCtx.drawImage(rawVideo, 0, 0, videoCanvas.width, videoCanvas.height);
-            
             animationFrameId = requestAnimationFrame(drawVideoOnCanvas);
         }
 
@@ -318,29 +289,25 @@
                 const canvasVideoTrack = canvasStream.getVideoTracks()[0];
                 localStream = new MediaStream([canvasVideoTrack, ...audioTracks]);
 
-                addVideoElement(userId, localStream, true); // Add local video to grid
+                addVideoElement(userId, localStream, true); // Add/update local video
                 joinBtn.disabled = false;
                 statusEl.textContent = "Ready to join the call.";
                 
-                // If already in a call, update the track for all peers
                 if (isInCall) {
                     for (const peerId in peerConnections) {
                         const pc = peerConnections[peerId];
                         const sender = pc.getSenders().find(s => s.track.kind === 'video');
-                        if (sender) {
-                            sender.replaceTrack(canvasVideoTrack);
-                        }
+                        if (sender) sender.replaceTrack(canvasVideoTrack);
                     }
                 }
-
             } catch (error) {
                 console.error("Error accessing media devices.", error);
                 statusEl.textContent = "Could not access camera. Please allow permissions.";
                 joinBtn.disabled = true;
             }
         }
-        
-        // --- Core Call Functions ---
+
+        // --- Core Call Logic ---
         async function joinCall() {
             if (!localStream || isInCall) return;
             isInCall = true;
@@ -353,31 +320,35 @@
 
             const callDocRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
             
-            // Listen for changes in participants
-            callListener = onSnapshot(callDocRef, (snapshot) => {
+            // Add self to participants list and listen for changes
+            await setDoc(callDocRef, { participants: arrayUnion(userId) }, { merge: true });
+            
+            callDocListener = onSnapshot(callDocRef, (snapshot) => {
                 if (!snapshot.exists()) return;
-                const participants = snapshot.data().participants || [];
+                const data = snapshot.data();
+                const participants = data.participants || [];
                 statusEl.textContent = `In call with ${participants.length -1} other(s).`;
 
-                // Connect to new participants
+                // Connect to new participants based on ID comparison to prevent "glare"
                 participants.forEach(participantId => {
-                    if (participantId !== userId && !peerConnections[participantId]) {
-                        console.log(`New participant found: ${participantId}. Creating peer connection.`);
-                        createPeerConnection(participantId, true); // We are the caller to the new person
+                    if (participantId !== userId && !peerConnections[participantId] && userId < participantId) {
+                        console.log(`Found new peer ${participantId}. I will initiate the connection.`);
+                        createPeerConnectionAndOffer(participantId);
                     }
                 });
 
-                // Remove disconnected participants
+                // Clean up connections for participants who have left
                 Object.keys(peerConnections).forEach(peerId => {
                     if (!participants.includes(peerId)) {
-                        console.log(`Participant left: ${peerId}. Cleaning up.`);
+                        console.log(`Peer ${peerId} left. Cleaning up.`);
                         closePeerConnection(peerId);
                     }
                 });
             });
 
-            // Add self to participants list
-            await setDoc(callDocRef, { participants: arrayUnion(userId) }, { merge: true });
+            // Listen for incoming signals (offers/answers/candidates)
+            listenForSignaling();
+            listenForVideoState();
             initializeYoutubePlayer();
         }
 
@@ -390,30 +361,33 @@
             shareVideoBtn.classList.add('hidden');
             statusEl.textContent = "You have left the call.";
 
-            // Remove self from participants list
             const callDocRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
             await updateDoc(callDocRef, { participants: arrayRemove(userId) });
 
-            // Clean up all connections and listeners
-            if (callListener) callListener();
-            callListener = null;
+            // Clean up all listeners and connections
+            if (callDocListener) callDocListener();
+            if (videoStateListener) videoStateListener();
+            callDocListener = null;
+            videoStateListener = null;
 
             Object.keys(peerConnections).forEach(peerId => {
                 closePeerConnection(peerId);
             });
-            
-            // Remove all remote videos
+            peerConnections = {};
+
             const remoteVideos = videoGrid.querySelectorAll('.remote-video');
             remoteVideos.forEach(video => video.parentElement.remove());
+            waitingMessage.classList.remove('hidden');
 
             if (ytPlayer) ytPlayer.destroy();
             ytPlayer = null;
             youtubePlayerContainer.classList.add('hidden');
         }
 
-        function createPeerConnection(remoteUserId, isCaller) {
-            if (peerConnections[remoteUserId]) return;
-
+        // --- WebRTC Signaling & Connection ---
+        function createPeerConnection(remoteUserId) {
+            if (peerConnections[remoteUserId]) return peerConnections[remoteUserId];
+            
             const pc = new RTCPeerConnection(servers);
             peerConnections[remoteUserId] = pc;
 
@@ -426,62 +400,59 @@
 
             pc.onicecandidate = (event) => {
                 if (event.candidate) {
-                    const signal = { from: userId, to: remoteUserId, candidate: event.candidate.toJSON() };
+                    const signal = { to: remoteUserId, from: userId, candidate: event.candidate.toJSON() };
                     addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), signal);
                 }
             };
-
-            pc.oniceconnectionstatechange = () => {
-                if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected' || pc.iceConnectionState === 'closed') {
-                    console.log(`ICE connection with ${remoteUserId} failed. Closing.`);
+            
+            pc.onconnectionstatechange = () => {
+                console.log(`Connection state with ${remoteUserId}: ${pc.connectionState}`);
+                if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
                     closePeerConnection(remoteUserId);
                 }
             };
-
-            // Start signaling
-            startSignaling(remoteUserId, isCaller);
+            return pc;
         }
 
-        async function startSignaling(remoteUserId, isCaller) {
+        async function createPeerConnectionAndOffer(remoteUserId) {
+            const pc = createPeerConnection(remoteUserId);
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            const signal = { to: remoteUserId, from: userId, offer: { type: offer.type, sdp: offer.sdp } };
+            await addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), signal);
+            console.log(`Sent offer to ${remoteUserId}`);
+        }
+
+        function listenForSignaling() {
             const signalingRef = collection(db, `artifacts/${appId}/public/data/signaling`);
-            const q = query(signalingRef, where("to", "==", userId), where("from", "==", remoteUserId));
+            const q = query(signalingRef, where("to", "==", userId));
             
-            signalingListeners[remoteUserId] = onSnapshot(q, (snapshot) => {
+            signalingListeners['main'] = onSnapshot(q, (snapshot) => {
                 snapshot.docChanges().forEach(async (change) => {
                     if (change.type === 'added') {
                         const signal = change.doc.data();
-                        const pc = peerConnections[remoteUserId];
-                        if (!pc) return;
+                        const remoteUserId = signal.from;
+                        const pc = createPeerConnection(remoteUserId);
 
                         if (signal.offer) {
                             console.log(`Received offer from ${remoteUserId}`);
                             await pc.setRemoteDescription(new RTCSessionDescription(signal.offer));
                             const answer = await pc.createAnswer();
                             await pc.setLocalDescription(answer);
-                            const response = { from: userId, to: remoteUserId, answer: { type: answer.type, sdp: answer.sdp } };
-                            addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), response);
+                            const response = { to: remoteUserId, from: userId, answer: { type: answer.type, sdp: answer.sdp } };
+                            await addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), response);
                         } else if (signal.answer) {
-                             console.log(`Received answer from ${remoteUserId}`);
-                            if(pc.signalingState !== 'stable') {
+                            console.log(`Received answer from ${remoteUserId}`);
+                            if (pc.signalingState !== 'stable') {
                                 await pc.setRemoteDescription(new RTCSessionDescription(signal.answer));
                             }
                         } else if (signal.candidate) {
                             await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
                         }
-                        // Delete signal doc after processing
-                        deleteDoc(change.doc.ref);
+                        await deleteDoc(change.doc.ref); // Clean up signal
                     }
                 });
             });
-
-            if (isCaller) {
-                const pc = peerConnections[remoteUserId];
-                const offer = await pc.createOffer();
-                await pc.setLocalDescription(offer);
-                const signal = { from: userId, to: remoteUserId, offer: { type: offer.type, sdp: offer.sdp } };
-                addDoc(collection(db, `artifacts/${appId}/public/data/signaling`), signal);
-                 console.log(`Sent offer to ${remoteUserId}`);
-            }
         }
         
         function closePeerConnection(remoteUserId) {
@@ -490,85 +461,57 @@
                 pc.close();
                 delete peerConnections[remoteUserId];
             }
-            if (signalingListeners[remoteUserId]) {
-                signalingListeners[remoteUserId]();
-                delete signalingListeners[remoteUserId];
-            }
             removeVideoElement(remoteUserId);
         }
 
         // --- UI & Video Element Management ---
         function addVideoElement(id, stream, isLocal = false) {
-            if (document.getElementById(`video-container-${id}`)) return; // Already exists
+            let videoContainer = document.getElementById(`video-container-${id}`);
+            if (!videoContainer) {
+                videoContainer = document.createElement('div');
+                videoContainer.id = `video-container-${id}`;
+                videoContainer.className = 'video-container aspect-video rounded-lg shadow-lg overflow-hidden';
+                if(!isLocal) videoContainer.classList.add('remote-video');
 
-            const videoContainer = document.createElement('div');
-            videoContainer.id = `video-container-${id}`;
-            videoContainer.className = 'video-container aspect-video rounded-lg shadow-lg bg-black';
-            if(!isLocal) videoContainer.classList.add('remote-video');
+                const video = document.createElement('video');
+                video.id = `video-${id}`;
+                video.autoplay = true;
+                video.playsInline = true;
 
-            const video = document.createElement('video');
-            video.srcObject = stream;
-            video.autoplay = true;
-            video.playsInline = true;
-            if (isLocal) {
-                video.muted = true;
+                const nameTag = document.createElement('div');
+                nameTag.className = 'video-name';
+                nameTag.textContent = isLocal ? 'You' : `User ${id.substring(0, 6)}`;
+
+                videoContainer.appendChild(video);
+                videoContainer.appendChild(nameTag);
+                videoGrid.appendChild(videoContainer);
             }
+            
+            const videoEl = document.getElementById(`video-${id}`);
+            videoEl.srcObject = stream;
+            if (isLocal) videoEl.muted = true;
 
-            const nameTag = document.createElement('div');
-            nameTag.className = 'video-name';
-            nameTag.textContent = isLocal ? 'You' : `User ${id.substring(0, 6)}`;
-
-            videoContainer.appendChild(video);
-            videoContainer.appendChild(nameTag);
-            videoGrid.appendChild(videoContainer);
             waitingMessage.classList.add('hidden');
         }
 
         function removeVideoElement(id) {
             const videoContainer = document.getElementById(`video-container-${id}`);
-            if (videoContainer) {
-                videoContainer.remove();
-            }
-             if (videoGrid.children.length <= 1) { // Only local video left
-                waitingMessage.classList.remove('hidden');
+            if (videoContainer) videoContainer.remove();
+            if (videoGrid.children.length <= 1 && isInCall) {
                 waitingMessage.textContent = 'Waiting for others to join...';
+                waitingMessage.classList.remove('hidden');
             }
         }
 
-        async function getConnectedDevices(type, listElement) {
-            try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const videoDevices = devices.filter(device => device.kind === type);
-                listElement.innerHTML = '';
-                
-                videoDevices.forEach((device, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'camera-btn p-2 rounded-lg w-full text-left';
-                    button.style.backgroundColor = 'var(--bg-tertiary)';
-                    button.dataset.deviceId = device.deviceId;
-                    button.textContent = device.label || `Camera ${index + 1}`;
-                    if((!currentVideoDeviceId && index === 0) || currentVideoDeviceId === device.deviceId){
-                        button.classList.add('active');
-                    }
-                    listElement.appendChild(button);
-                });
-            } catch (error) {
-                console.error("Error enumerating devices:", error);
-            }
-        }
-        
         // --- YouTube Player ---
         window.onYouTubeIframeAPIReady = function() {};
 
         function initializeYoutubePlayer() {
             if (ytPlayer) return;
             ytPlayer = new YT.Player('youtube-player', {
-                height: '100%',
-                width: '100%',
+                height: '100%', width: '100%',
                 playerVars: { 'autoplay': 1, 'controls': 1, 'modestbranding': 1, 'rel': 0 },
-                events: {
-                    'onStateChange': onPlayerStateChange
-                }
+                events: { 'onStateChange': onPlayerStateChange }
             });
         }
 
@@ -590,7 +533,6 @@
                 updatePayload["videoState.queue"] = currentQueue;
                 updatePayload["videoState.videoId"] = currentQueue.length > 0 ? currentQueue[0] : null;
             }
-
             await updateDoc(videoStateRef, updatePayload);
         }
 
@@ -598,13 +540,14 @@
             if (videoStateListener) videoStateListener();
             const videoStateRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
             videoStateListener = onSnapshot(videoStateRef, (docSnap) => {
-                if (!ytPlayer || !docSnap.exists() || !docSnap.data().videoState) {
-                     youtubePlayerContainer.classList.add('hidden');
-                     return;
+                const videoState = docSnap.exists() ? docSnap.data().videoState : null;
+                
+                if (!ytPlayer || !videoState || !isInCall) {
+                    youtubePlayerContainer.classList.add('hidden');
+                    return;
                 }
 
                 isRemoteYTChange = true;
-                const videoState = docSnap.data().videoState;
                 const currentVideoId = ytPlayer.getVideoData ? ytPlayer.getVideoData().video_id : null;
                 
                 if (!videoState.videoId) {
@@ -635,12 +578,12 @@
         
         function updateQueueUI(queue) {
             videoQueueList.innerHTML = '';
-            if (queue.length <= 1) {
+            if (!queue || queue.length <= 1) {
                 videoQueueList.innerHTML = '<p class="text-sm" style="color:var(--text-secondary)">No other videos in queue.</p>';
             } else {
                 queue.slice(1).forEach((videoId, index) => {
                     const p = document.createElement('p');
-                    p.textContent = ` ${index + 1}. Video ID: ${videoId}`;
+                    p.textContent = `${index + 1}. Video ID: ${videoId}`;
                     p.className = "truncate text-sm";
                     videoQueueList.appendChild(p);
                 });
@@ -661,8 +604,8 @@
             if (!isInCall) { alert("You must be in a call to share a video."); return; }
 
             const videoStateRef = doc(db, `artifacts/${appId}/public/data/calls`, GLOBAL_CALL_ID);
-            const docSnap = await getDoc(videoStateRef);
             
+            const docSnap = await getDoc(videoStateRef);
             const currentVideoState = docSnap.data()?.videoState || {};
             const currentQueue = currentVideoState.queue || [];
             if (currentQueue.includes(videoId)) {
@@ -675,22 +618,40 @@
                 "videoState.queue": currentQueue,
                 "videoState.timestamp": serverTimestamp()
             };
-
-            // If nothing is playing, start this video immediately
-            if (!currentVideoState.videoId) {
+            
+            if (!currentVideoState.videoId || currentVideoState.playerStatus === YT.PlayerState.ENDED) {
                 updateData["videoState.videoId"] = videoId;
                 updateData["videoState.playerStatus"] = YT.PlayerState.PLAYING;
                 updateData["videoState.currentTime"] = 0;
             }
-
             await setDoc(videoStateRef, { videoState: updateData }, { merge: true });
             youtubeUrlInput.value = '';
         }
 
         // --- UI Logic & Event Listeners ---
-        filtersBtn.addEventListener('click', () => filterOptions.classList.remove('hidden'));
-        closeFiltersBtn.addEventListener('click', () => filterOptions.classList.add('hidden'));
-        filterOptions.addEventListener('click', (e) => {
+        async function getConnectedDevices(type) {
+            const listElement = document.getElementById('camera-list');
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const videoDevices = devices.filter(device => device.kind === type);
+                listElement.innerHTML = '';
+                videoDevices.forEach((device, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'camera-btn p-2 rounded-lg w-full text-left';
+                    button.style.backgroundColor = 'var(--bg-tertiary)';
+                    button.dataset.deviceId = device.deviceId;
+                    button.textContent = device.label || `Camera ${index + 1}`;
+                    if((!currentVideoDeviceId && index === 0) || currentVideoDeviceId === device.deviceId){
+                        button.classList.add('active');
+                    }
+                    listElement.appendChild(button);
+                });
+            } catch (error) { console.error("Error enumerating devices:", error); }
+        }
+
+        document.getElementById('filtersBtn').addEventListener('click', () => document.getElementById('filter-options').classList.remove('hidden'));
+        document.getElementById('closeFiltersBtn').addEventListener('click', () => document.getElementById('filter-options').classList.add('hidden'));
+        document.getElementById('filter-options').addEventListener('click', (e) => {
             if (e.target.classList.contains('filter-btn')) {
                 currentFilter = e.target.dataset.filter;
                 document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
@@ -698,9 +659,9 @@
             }
         });
         
-        themesBtn.addEventListener('click', () => themeOptions.classList.remove('hidden'));
-        closeThemesBtn.addEventListener('click', () => themeOptions.classList.add('hidden'));
-        themeOptions.addEventListener('click', (e) => {
+        document.getElementById('themesBtn').addEventListener('click', () => document.getElementById('theme-options').classList.remove('hidden'));
+        document.getElementById('closeThemesBtn').addEventListener('click', () => document.getElementById('theme-options').classList.add('hidden'));
+        document.getElementById('theme-options').addEventListener('click', (e) => {
             if(e.target.classList.contains('theme-btn')) {
                 document.documentElement.className = e.target.dataset.theme;
                 document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.remove('active'));
@@ -708,20 +669,20 @@
             }
         });
         
-        cameraBtn.addEventListener('click', () => cameraOptions.classList.remove('hidden'));
-        closeCameraBtn.addEventListener('click', () => cameraOptions.classList.add('hidden'));
-        cameraList.addEventListener('click', (e) => {
+        document.getElementById('cameraBtn').addEventListener('click', () => document.getElementById('camera-options').classList.remove('hidden'));
+        document.getElementById('closeCameraBtn').addEventListener('click', () => document.getElementById('camera-options').classList.add('hidden'));
+        document.getElementById('camera-list').addEventListener('click', (e) => {
              if (e.target.classList.contains('camera-btn')) {
                 const deviceId = e.target.dataset.deviceId;
                 document.querySelectorAll('.camera-btn').forEach(btn => btn.classList.remove('active'));
                 e.target.classList.add('active');
                 startLocalVideo(deviceId);
-                cameraOptions.classList.add('hidden');
+                document.getElementById('camera-options').classList.add('hidden');
             }
         });
         
-        shareVideoBtn.addEventListener('click', () => shareVideoModal.classList.remove('hidden'));
-        closeShareVideoBtn.addEventListener('click', () => shareVideoModal.classList.add('hidden'));
+        shareVideoBtn.addEventListener('click', () => document.getElementById('share-video-modal').classList.remove('hidden'));
+        document.getElementById('closeShareVideoBtn').addEventListener('click', () => document.getElementById('share-video-modal').classList.add('hidden'));
         queueVideoBtn.addEventListener('click', handleQueueVideo);
 
         joinBtn.addEventListener('click', joinCall);
