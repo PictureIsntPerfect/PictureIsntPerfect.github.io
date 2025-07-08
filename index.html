@@ -96,11 +96,11 @@
         <!-- Header -->
         <header class="mb-6 p-4 rounded-lg bg-gray-800 border border-cyan-400 shadow-lg">
             <div class="flex justify-between items-start">
-                 <div>
+                <div>
                     <h1 class="text-4xl font-orbitron text-cyan-400">HYPEBEAST SIMULATOR</h1>
                     <p class="text-lg">Welcome, <span id="player-display-name" class="font-bold text-yellow-300"></span></p>
-                 </div>
-                 <div class="text-right">
+                </div>
+                <div class="text-right">
                     <button id="admin-login-btn" class="text-xs bg-red-800 hover:bg-red-700 px-2 py-1 rounded-full mb-2">Admin</button>
                     <p class="text-sm">Player ID: <span id="player-id" class="font-mono text-gray-400"></span></p>
                     <p class="text-sm text-gray-400">(Share this ID for admin actions)</p>
@@ -152,9 +152,9 @@
                     <div id="marketplace-container" class="card p-4 rounded-lg"><div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div></div>
                     <div id="pawn-shop-container" class="card p-4 rounded-lg hidden">
                          <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-xl font-orbitron text-yellow-400">Second-Hand Goods</h3>
-                            <button id="refresh-pawn-stock-btn" class="btn bg-yellow-600 text-sm py-1 px-3">Refresh Stock</button>
-                        </div>
+                             <h3 class="text-xl font-orbitron text-yellow-400">Second-Hand Goods</h3>
+                             <button id="refresh-pawn-stock-btn" class="btn bg-yellow-600 text-sm py-1 px-3">Refresh Stock</button>
+                         </div>
                         <div id="pawn-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[650px] overflow-y-auto pr-2"></div>
                     </div>
                     <div id="exotic-wares-container" class="card p-4 rounded-lg hidden">
@@ -170,12 +170,12 @@
 
             <!-- Right Column (Chat & Log) -->
             <div class="lg:col-span-1 space-y-6">
-                 <!-- Game Log -->
+                <!-- Game Log -->
                 <div class="card p-4 rounded-lg">
                     <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">Activity Feed</h2>
                     <div id="game-log" class="text-sm space-y-2 h-64 overflow-y-auto pr-2 font-mono"></div>
                 </div>
-                 <!-- Global Chat -->
+                <!-- Global Chat -->
                 <div class="card p-4 rounded-lg flex flex-col h-[400px]">
                     <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">Global Chat</h2>
                     <div id="chat-box" class="flex-grow flex flex-col space-y-2 overflow-y-auto pr-2 mb-2"></div>
@@ -214,8 +214,9 @@
             </div>
             <div class="border-t border-red-500 pt-3 mt-3 space-y-3">
                 <h3 class="font-bold text-red-500">Danger Zone</h3>
+                <button id="admin-clear-chat-btn" class="btn w-full bg-red-700 mb-2">Clear Global Chat</button>
                 <button id="admin-clear-log-btn" class="btn w-full bg-red-700">Clear Activity Feed</button>
-                <div class="flex gap-2"><input type="text" id="admin-reset-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID to Reset"><button id="admin-reset-btn" class="btn bg-red-800 text-sm px-2">RESET</button></div>
+                <div class="flex gap-2 mt-2"><input type="text" id="admin-reset-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID to Reset"><button id="admin-reset-btn" class="btn bg-red-800 text-sm px-2">RESET</button></div>
             </div>
         </div>
     </div>
@@ -299,6 +300,12 @@
         const adminItemSelect = document.getElementById('admin-item-select');
         const adminBetItemSelect = document.getElementById('admin-bet-item');
         const adminBetControls = document.getElementById('admin-bet-controls');
+        const adminClearChatBtn = document.getElementById('admin-clear-chat-btn');
+        const adminClearLogBtn = document.getElementById('admin-clear-log-btn');
+        const adminResetBtn = document.getElementById('admin-reset-btn');
+
+        // --- CHAT FILTER ---
+        const BANNED_WORDS = [/nigger/i]; // Using regex for case-insensitivity. Add more words here.
 
         // --- ITEM DATABASES ---
         const clothingItems = {
@@ -333,865 +340,637 @@
         };
         const hypeShopItems = {
             'drone01': { name: 'Mini Drone', points: 500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M40 40 L60 40 L60 60 L40 60 Z" fill="#ccc"/><path d="M50 40 L50 10 M50 60 L50 90 M40 50 L10 50 M60 50 L90 50" stroke="#333" stroke-width="2"/><circle cx="10" cy="50" r="5" fill="#555"/><circle cx="90" cy="50" r="5" fill="#555"/><circle cx="50" cy="10" r="5" fill="#555"/><circle cx="50" cy="90" r="5" fill="#555"/></svg>`, category: 'hype' },
-            'keyboard01': { name: 'RGB Keyboard', points: 1000, svg: `<svg viewBox="0 0 120 50" class="item-svg"><rect x="10" y="10" width="100" height="30" rx="5" fill="#222" stroke="#555"/><rect x="15" y="15" width="10" height="5" fill="red"/><rect x="30" y="15" width="10" height="5" fill="orange"/><rect x="45" y="15" width="10" height="5" fill="yellow"/><rect x="60" y="15" width="10" height="5" fill="green"/><rect x="75" y="15" width="10" height="5" fill="blue"/><rect x="90" y="15" width="10" height="5" fill="purple"/></svg>`, category: 'hype' },
-            'vr01': { name: 'VR Headset', points: 2500, svg: `<svg viewBox="0 0 100 60" class="item-svg"><path d="M10 10 H 90 V 50 H 10 Z" fill="#111" stroke="#0ff" stroke-width="1"/><path d="M90 20 H 100 V 40 H 90" stroke="#333" stroke-width="3"/><path d="M10 20 H 0 V 40 H 10" stroke="#333" stroke-width="3"/></svg>`, category: 'hype' },
-            'scooter01': { name: 'Electric Scooter', points: 5000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M30 80 L 80 80 L 80 70 L 60 70 L 60 30 L 50 30 L 50 70 L 30 70 Z" stroke="white" fill="none" stroke-width="3"/><circle cx="30" cy="85" r="5" fill="white"/><circle cx="80" cy="85" r="5" fill="white"/></svg>`, category: 'hype' },
-            'gaming_chair01': { name: 'Gaming Chair', points: 7500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M40 90 L60 90 L60 60 L70 60 L70 20 L30 20 L30 60 L40 60 Z" fill="#C70039"/><path d="M20 60 L80 60" stroke="#900C3F" stroke-width="4"/></svg>`, category: 'hype' },
-            'neonsign01': { name: 'Custom Neon Sign', points: 3000, svg: `<svg viewBox="0 0 150 60" class="item-svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="30" font-family="Orbitron" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" style="filter: drop-shadow(0 0 5px #FF00FF);">HYPE</text></svg>`, category: 'hype' },
+            'scooter01': { name: 'Electric Scooter', points: 1200, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 80 L80 80 M30 80 L30 40 L70 40" stroke="#00bfff" stroke-width="4"/><circle cx="20" cy="80" r="8" fill="#555"/><circle cx="80" cy="80" r="8" fill="#555"/></svg>`, category: 'hype' },
+            'vr01': { name: 'VR Headset', points: 3000, svg: `<svg viewBox="0 0 100 50" class="item-svg"><rect x="10" y="10" width="80" height="30" rx="5" fill="#1A202C"/><rect x="25" y="15" width="20" height="20" fill="#00bfff" rx="2"/><rect x="55" y="15" width="20" height="20" fill="#00bfff" rx="2"/></svg>`, category: 'hype' },
+            'pet_robot01': { name: 'Robot Companion', points: 10000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><rect x="30" y="40" width="40" height="40" rx="5" fill="#A0AEC0"/><circle cx="50" cy="30" r="15" fill="#CBD5E0"/><circle cx="45" cy="30" r="3" fill="black"/><circle cx="55" cy="30" r="3" fill="black"/><path d="M30 60 L20 90 M70 60 L80 90" stroke="#718096" stroke-width="5"/></svg>`, category: 'hype' },
+            'jetpack01': { name: 'Personal Jetpack', points: 50000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><g fill="#FF4500"><rect x="25" y="20" width="20" height="60" rx="10"/><rect x="55" y="20" width="20" height="60" rx="10"/></g><rect x="20" y="50" width="60" height="10" fill="#696969"/><path d="M35 80 L25 100 M65 80 L75 100" stroke="#FFD700" stroke-width="5"/></svg>`, category: 'hype' },
         };
-        // Add 30 more items to clothingItems
-        for(let i = 1; i <= 10; i++) {
-            clothingItems[`tee_new_${i}`] = { name: `Graphic Tee ${i}`, baseValue: 25 + i * 5, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 30 L80 30 L85 80 L15 80 Z" fill="#${Math.floor(Math.random()*16777215).toString(16)}" stroke="#ccc" stroke-width="1"/><text x="50" y="60" text-anchor="middle" font-size="12">ART ${i}</text></svg>`, category: 'clothing' };
-            clothingItems[`cap_new_${i}`] = { name: `Designer Cap ${i}`, baseValue: 40 + i * 6, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 25 C 10 10, 90 10, 90 25 L 10 25 Z" fill="#${Math.floor(Math.random()*16777215).toString(16)}"/><text x="50" y="30" text-anchor="middle" fill="white" font-size="10">D${i}</text></svg>`, category: 'clothing' };
-            clothingItems[`sneaker_new_${i}`] = { name: `Limited Sneaker ${i}`, baseValue: 200 + i * 50, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#${Math.floor(Math.random()*16777215).toString(16)}" stroke="#0ff" stroke-width="1"/><path d="M50 30 L55 20 M75 30 L70 20" stroke="#${Math.floor(Math.random()*16777215).toString(16)}" stroke-width="1.5"/></svg>`, category: 'shoes' };
-        }
-        const allGameItems = { ...clothingItems, ...exoticItems, ...hypeShopItems };
-        
-        Object.keys(clothingItems).forEach(key => {
-            originalItemValues[key] = { ...clothingItems[key] };
-        });
-        const allClothingItemKeys = Object.keys(clothingItems);
-
-        // --- AUTH & INIT ---
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                currentUserId = user.uid;
-                playerIdEl.textContent = currentUserId;
-                initPlayer(currentUserId);
-                listenToMarketplace();
-                listenToPawnShop();
-                listenToLogs();
-                listenToChat();
-                listenToActiveBet();
-                populateAdminItemSelect();
-                setInterval(runAIBuyerLogic, 60000); 
-                setInterval(refreshPawnShopStock, 300000);
-                setInterval(triggerRandomEvent, 180000);
-            } else {
-                signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
-            }
-        });
-
-        async function initPlayer(userId) {
-            const playerRef = doc(db, "artifacts", appId, "players", userId);
-            const playerSnap = await getDoc(playerRef);
-            if (!playerSnap.exists()) {
-                await setDoc(playerRef, { 
-                    displayName: `Player${userId.substring(0,4)}`,
-                    level: 1,
-                    itemsSoldToPlayers: 0,
-                    cash: 1000, 
-                    hypePoints: 0, 
-                    inventory: {}, 
-                    stats: { itemsSold: 0 },
-                    starterPackClaimed: false,
-                    votedBets: []
-                });
-                addLog(`A new hustler, ${userId.substring(0,4)}..., just hit the streets.`);
-            }
-            onSnapshot(playerRef, (doc) => {
-                currentPlayer = doc.data();
-                updateUI();
-                if(loadingScreen.classList.contains('flex')) {
-                    loadingScreen.classList.replace('flex', 'hidden');
-                    gameContainer.classList.remove('hidden');
-                }
-            });
-        }
-
-        // --- UI & RENDERING ---
-        function updateUI() {
-            if (!currentPlayer) return;
-            playerDisplayNameEl.textContent = currentPlayer.displayName || `Player${currentUserId.substring(0,4)}`;
-            playerLevelEl.textContent = currentPlayer.level || 1;
-            playerCashEl.textContent = `$${Math.floor(currentPlayer.cash).toLocaleString()}`;
-            playerHypePointsEl.textContent = currentPlayer.hypePoints.toLocaleString();
-            itemsSoldEl.textContent = currentPlayer.itemsSoldToPlayers || 0;
-            
-            getStarterPackBtn.disabled = currentPlayer.starterPackClaimed;
-            getStarterPackBtn.textContent = currentPlayer.starterPackClaimed ? "Starter Pack Claimed" : "Get Starter Pack";
-
-            renderInventory();
-            renderHypeShop();
-            renderExoticWaresShop();
-            const invValue = calculateInventoryValue();
-            inventoryValueEl.textContent = `$${invValue.toLocaleString()}`;
-            netWorthEl.textContent = `$${(Math.floor(currentPlayer.cash) + invValue).toLocaleString()}`;
-        }
-
-        function renderInventory() {
-            playerInventoryEl.innerHTML = '';
-            if (!currentPlayer.inventory || Object.keys(currentPlayer.inventory).length === 0) {
-                playerInventoryEl.innerHTML = `<p class="col-span-full text-center text-gray-400">Your closet is empty.</p>`;
-                return;
-            }
-            const sortedInventory = Object.entries(currentPlayer.inventory).sort(([,a], [,b]) => {
-                const itemA = allGameItems[a.type];
-                const itemB = allGameItems[b.type];
-                const valueA = itemA?.baseValue || itemA?.cost || itemA?.points || 0;
-                const valueB = itemB?.baseValue || itemB?.cost || itemB?.points || 0;
-                return valueB - valueA;
-            });
-
-            for (const [itemId, item] of sortedInventory) {
-                const itemDef = allGameItems[item.type];
-                if (!itemDef) continue;
-                const card = document.createElement('div');
-                card.className = 'card p-2 rounded-lg text-center fade-in flex flex-col justify-between';
-                let valueText = '';
-                let sellButton = '';
-
-                if (itemDef.category === 'exotic') {
-                    valueText = `<p class="text-xs text-green-400">Cost: $${itemDef.cost.toLocaleString()}</p>`;
-                    sellButton = `<div class="w-full mt-2 text-green-400 text-xs font-bold py-1 px-2 rounded">COLLECTIBLE</div>`;
-                } else if (itemDef.category === 'hype') {
-                    valueText = `<p class="text-xs text-orange-400">Cost: ${itemDef.points.toLocaleString()} HP</p>`;
-                     sellButton = `<div class="w-full mt-2 text-orange-400 text-xs font-bold py-1 px-2 rounded">HYPE REWARD</div>`;
-                } else { // clothing
-                    valueText = `<p class="text-xs text-gray-400">Value: $${itemDef.baseValue.toLocaleString()}</p>`;
-                    sellButton = `<button class="sell-btn btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold py-1 px-2 rounded" data-item-id="${itemId}">Sell</button>`;
-                }
-                
-                card.innerHTML = `<div><div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div><p class="font-bold text-sm truncate">${itemDef.name}</p>${valueText}</div>${sellButton}`;
-                playerInventoryEl.appendChild(card);
-            }
-            document.querySelectorAll('.sell-btn').forEach(b => b.addEventListener('click', () => openSellModal(b.dataset.itemId)));
-        }
-
-        function renderHypeShop() {
-            hypeShopEl.innerHTML = '';
-            for (const itemId in hypeShopItems) {
-                const item = hypeShopItems[itemId];
-                const card = document.createElement('div');
-                card.className = 'card p-3 rounded-lg flex flex-col fade-in';
-                card.innerHTML = `
-                    <div class="w-full h-24 flex items-center justify-center">${item.svg}</div>
-                    <p class="font-bold mt-2 truncate">${item.name}</p>
-                    <p class="text-lg font-bold text-orange-400 my-1">${item.points.toLocaleString()} HP</p>
-                    <button class="buy-hype-btn btn w-full mt-auto bg-orange-500 hover:bg-orange-600" data-item-id="${itemId}">Unlock</button>
-                `;
-                hypeShopEl.appendChild(card);
-            }
-            document.querySelectorAll('.buy-hype-btn').forEach(b => b.addEventListener('click', () => buyHypeItem(b.dataset.itemId)));
-        }
-
-        function renderExoticWaresShop() {
-            exoticWaresEl.innerHTML = '';
-            for (const itemId in exoticItems) {
-                const item = exoticItems[itemId];
-                const card = document.createElement('div');
-                card.className = 'card p-3 rounded-lg flex flex-col fade-in';
-                card.innerHTML = `
-                    <div class="w-full h-24 flex items-center justify-center">${item.svg}</div>
-                    <p class="font-bold mt-2 truncate">${item.name}</p>
-                    <p class="text-lg font-bold text-green-400 my-1">$${item.cost.toLocaleString()}</p>
-                    <button class="buy-exotic-btn btn w-full mt-auto bg-green-600 hover:bg-green-700" data-item-id="${itemId}">Buy</button>
-                `;
-                exoticWaresEl.appendChild(card);
-            }
-            document.querySelectorAll('.buy-exotic-btn').forEach(b => b.addEventListener('click', () => buyExoticItem(b.dataset.itemId)));
-        }
-
-        function listenToMarketplace() {
-            const marketplaceRef = collection(db, "artifacts", appId, "public", "data", "marketplace");
-            onSnapshot(marketplaceRef, (snapshot) => {
-                marketplaceEl.innerHTML = '';
-                if (snapshot.empty) {
-                    marketplaceEl.innerHTML = `<p class="col-span-full text-center text-gray-400">The market is quiet...</p>`;
-                    return;
-                }
-                snapshot.forEach(doc => {
-                    const listing = doc.data();
-                    const itemDef = clothingItems[listing.item.type];
-                    if (!itemDef) return;
-                    const card = document.createElement('div');
-                    card.className = 'card p-3 rounded-lg flex flex-col fade-in';
-                    card.innerHTML = `
-                        <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
-                        <p class="font-bold mt-2 truncate">${itemDef.name}</p>
-                        <p class="text-lg font-bold text-green-400 my-1">$${listing.price.toLocaleString()}</p>
-                        <p class="text-xs text-gray-400 truncate">Seller: ${listing.sellerName || 'Unknown'}</p>
-                        ${listing.sellerId !== currentUserId ? `<button class="buy-btn btn w-full mt-auto bg-green-500 hover:bg-green-600" data-listing-id="${doc.id}">Buy</button>` : `<button class="btn w-full mt-auto bg-gray-600" disabled>Your Listing</button>`}
-                    `;
-                    marketplaceEl.appendChild(card);
-                });
-                document.querySelectorAll('.buy-btn').forEach(b => b.addEventListener('click', () => buyItem(b.dataset.listingId)));
-            });
-        }
-
-        function listenToPawnShop() {
-            const pawnShopRef = collection(db, "artifacts", appId, "public", "data", "pawnshop");
-            onSnapshot(pawnShopRef, (snapshot) => {
-                pawnShopEl.innerHTML = '';
-                 if (snapshot.empty) {
-                    pawnShopEl.innerHTML = `<p class="col-span-full text-center text-gray-400">The pawn shop is empty. Check back later.</p>`;
-                    return;
-                }
-                snapshot.forEach(doc => {
-                    const listing = doc.data();
-                    const itemDef = clothingItems[listing.item.type];
-                    if (!itemDef) return;
-                    const card = document.createElement('div');
-                    card.className = 'card p-3 rounded-lg flex flex-col fade-in';
-                    card.innerHTML = `
-                        <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
-                        <p class="font-bold mt-2 truncate">${itemDef.name}</p>
-                        <p class="text-lg font-bold text-green-400 my-1">$${listing.price.toLocaleString()}</p>
-                        <button class="buy-pawn-btn btn w-full mt-auto bg-yellow-500 hover:bg-yellow-600" data-listing-id="${doc.id}">Buy</button>
-                    `;
-                    pawnShopEl.appendChild(card);
-                });
-                 document.querySelectorAll('.buy-pawn-btn').forEach(b => b.addEventListener('click', () => buyFromPawnShop(b.dataset.listingId)));
-            });
-        }
-
-        function listenToLogs() {
-            const logsQuery = query(collection(db, "artifacts", appId, "public", "data", "logs"), orderBy("timestamp", "desc"), limit(30));
-            onSnapshot(logsQuery, (snapshot) => {
-                gameLogEl.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const log = doc.data();
-                    const logEntry = document.createElement('p');
-                    logEntry.textContent = log.message;
-                    if (log.message.includes('bought') || log.message.includes('Sold')) logEntry.className = 'text-green-400';
-                    else if (log.message.includes('listed')) logEntry.className = 'text-yellow-400';
-                    else if (log.message.includes('unlocked')) logEntry.className = 'text-orange-400';
-                    else if (log.message.includes('unboxed')) logEntry.className = 'text-purple-400';
-                    else if (log.message.includes('leveled up')) logEntry.className = 'text-yellow-300 font-bold';
-                    else if (log.message.includes('EVENT') || log.message.includes('ADMIN') || log.message.includes('BET')) logEntry.className = 'text-red-400 font-bold';
-                    else logEntry.className = 'text-cyan-400';
-                    gameLogEl.appendChild(logEntry);
-                });
-            });
-        }
-        
-        function listenToChat() {
-            const chatQuery = query(collection(db, "artifacts", appId, "public", "data", "chat"), orderBy("timestamp", "desc"), limit(50));
-            onSnapshot(chatQuery, (snapshot) => {
-                const messages = [];
-                snapshot.forEach(doc => messages.push(doc.data()));
-                chatBox.innerHTML = '';
-                messages.reverse().forEach(msg => {
-                    const msgDiv = document.createElement('div');
-                    const senderName = msg.senderName || 'Player';
-                    const isCurrentUser = msg.senderId === currentUserId;
-                    msgDiv.className = `chat-message ${isCurrentUser ? 'bg-blue-800 self-end' : 'bg-gray-700 self-start'}`;
-                    msgDiv.innerHTML = `<span class="font-bold ${isCurrentUser ? 'text-cyan-300' : 'text-yellow-300'}">${senderName}:</span> ${msg.text}`;
-                    chatBox.appendChild(msgDiv);
-                });
-                chatBox.scrollTop = chatBox.scrollHeight;
-            });
-        }
-
-        // --- PLAYER ACTIONS ---
-        getStarterPackBtn.addEventListener('click', async () => {
-            if (currentPlayer.starterPackClaimed) {
-                showMessage("You have already claimed your starter pack.");
-                return;
-            }
-            const starterItems = {};
-            const commonItems = ['tee01', 'cap01', 'socks01'];
-            for (let i = 0; i < 2; i++) {
-                starterItems[crypto.randomUUID()] = { type: commonItems[Math.floor(Math.random() * commonItems.length)] };
-            }
-            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), { 
-                inventory: { ...currentPlayer.inventory, ...starterItems },
-                starterPackClaimed: true
-            });
-            showMessage("Starter pack received! Check your closet.");
-            addLog(`${currentPlayer.displayName} got their first drop.`);
-        });
-
-        buyLootBoxBtn.addEventListener('click', async () => {
-            const cost = 500;
-            if (currentPlayer.cash < cost) return showMessage("Not enough cash for a loot box!");
-            
-            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
-            const randomType = allClothingItemKeys[Math.floor(Math.random() * allClothingItemKeys.length)];
-            const newItem = { [crypto.randomUUID()]: { type: randomType } };
-            
-            await updateDoc(playerRef, {
-                cash: increment(-cost),
-                inventory: { ...currentPlayer.inventory, ...newItem }
-            });
-
-            const itemName = clothingItems[randomType].name;
-            showMessage(`You unboxed: ${itemName}!`);
-            addLog(`${currentPlayer.displayName} unboxed a ${itemName}!`);
-        });
-
-        async function buyHypeItem(itemId) {
-            const item = hypeShopItems[itemId];
-            if (currentPlayer.hypePoints < item.points) return showMessage("Not enough Hype Points!");
-            
-            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
-            const newItem = { [crypto.randomUUID()]: { type: itemId, category: 'hype' } };
-
-            await updateDoc(playerRef, {
-                hypePoints: increment(-item.points),
-                inventory: { ...currentPlayer.inventory, ...newItem }
-            });
-            showMessage(`You unlocked the ${item.name}!`);
-            addLog(`${currentPlayer.displayName} unlocked the ${item.name}!`);
-        }
-
-        async function buyExoticItem(itemId) {
-            const item = exoticItems[itemId];
-            if (currentPlayer.cash < item.cost) return showMessage("Not enough cash for this exotic item!");
-            
-            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
-            const newItem = { [crypto.randomUUID()]: { type: itemId, category: 'exotic' } };
-
-            await updateDoc(playerRef, {
-                cash: increment(-item.cost),
-                inventory: { ...currentPlayer.inventory, ...newItem }
-            });
-            showMessage(`You bought the rare ${item.name}!`);
-            addLog(`${currentPlayer.displayName} bought the exotic ${item.name}!`);
-        }
-
-        function openSellModal(itemId) {
-            itemToSellId = itemId;
-            const item = currentPlayer.inventory[itemId];
-            const itemDef = clothingItems[item.type];
-            sellItemDisplay.innerHTML = `<div class="card p-4 rounded-lg text-center bg-gray-800"><div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div><p class="font-bold text-lg">${itemDef.name}</p></div>`;
-            sellPriceInput.value = itemDef.baseValue;
-            
-            const aiPrice = Math.round(itemDef.baseValue * 0.7);
-            aiSellPriceEl.textContent = `$${aiPrice.toLocaleString()}`;
-            
-            sellModal.classList.replace('hidden', 'flex');
-        }
-
-        cancelSellBtn.addEventListener('click', () => sellModal.classList.replace('flex', 'hidden'));
-
-        confirmSellBtn.addEventListener('click', async () => {
-            const price = parseInt(sellPriceInput.value);
-            if (isNaN(price) || price <= 0) return showMessage("Please enter a valid price.");
-
-            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
-            const itemToList = currentPlayer.inventory[itemToSellId];
-            const newInventory = { ...currentPlayer.inventory };
-            delete newInventory[itemToSellId];
-
-            await updateDoc(playerRef, { inventory: newInventory });
-            await addDoc(collection(db, "artifacts", appId, "public", "data", "marketplace"), {
-                sellerId: currentUserId,
-                sellerName: currentPlayer.displayName,
-                item: itemToList, 
-                price: price, 
-                createdAt: serverTimestamp()
-            });
-            
-            addLog(`${currentPlayer.displayName} listed ${clothingItems[itemToList.type].name} for $${price}.`);
-            sellModal.classList.replace('flex', 'hidden');
-        });
-        
-        sellToAIBtn.addEventListener('click', async () => {
-            const playerRef = doc(db, "artifacts", appId, "players", currentUserId);
-            const itemToPawn = currentPlayer.inventory[itemToSellId];
-            const itemDef = clothingItems[itemToPawn.type];
-            const pawnPrice = Math.round(itemDef.baseValue * 0.7);
-
-            const newInventory = { ...currentPlayer.inventory };
-            delete newInventory[itemToSellId];
-
-            await updateDoc(playerRef, {
-                inventory: newInventory,
-                cash: increment(pawnPrice),
-                'stats.itemsSold': increment(1)
-            });
-
-            addLog(`Sold ${itemDef.name} to a collector for $${pawnPrice}.`);
-            sellModal.classList.replace('flex', 'hidden');
-        });
-
-        async function buyItem(listingId, buyerId = currentUserId) {
-            const listingRef = doc(db, "artifacts", appId, "public", "data", "marketplace", listingId);
-            const buyerRef = doc(db, "artifacts", appId, "players", buyerId);
-
-            try {
-                await runTransaction(db, async (transaction) => {
-                    const listingSnap = await transaction.get(listingRef);
-                    if (!listingSnap.exists()) throw "This item is no longer available.";
-                    
-                    const listing = listingSnap.data();
-                    const buyerSnap = await transaction.get(buyerRef);
-                    if (!buyerSnap.exists()) throw "Buyer does not exist.";
-                    const buyerData = buyerSnap.data();
-
-                    if (buyerData.cash < listing.price) {
-                        if (buyerId === currentUserId) throw "You don't have enough cash!";
-                        else return; 
-                    }
-                    
-                    const sellerRef = doc(db, "artifacts", appId, "players", listing.sellerId);
-                    const sellerSnap = await transaction.get(sellerRef);
-                    if (!sellerSnap.exists()) {
-                        transaction.delete(listingRef);
-                        return;
-                    }
-                    const sellerData = sellerSnap.data();
-
-                    const newInventory = { ...buyerData.inventory, [crypto.randomUUID()]: listing.item };
-                    transaction.update(buyerRef, { cash: increment(-listing.price), inventory: newInventory });
-
-                    const pointsEarned = Math.ceil(listing.price / 100);
-                    const newSoldCount = (sellerData.itemsSoldToPlayers || 0) + 1;
-                    const newLevel = Math.floor(newSoldCount / 10) + 1;
-
-                    transaction.update(sellerRef, {
-                        cash: increment(listing.price),
-                        hypePoints: increment(pointsEarned),
-                        'stats.itemsSold': increment(1),
-                        itemsSoldToPlayers: newSoldCount,
-                        level: newLevel
-                    });
-                    
-                    transaction.delete(listingRef);
-                    
-                    const buyerName = buyerId === currentUserId ? currentPlayer.displayName : 'An AI Buyer';
-                    addLog(`${buyerName} bought ${clothingItems[listing.item.type].name} from ${sellerData.displayName}.`);
-                    if(newLevel > sellerData.level) {
-                        addLog(`${sellerData.displayName} has leveled up to Level ${newLevel}!`);
-                    }
-                });
-                if (buyerId === currentUserId) showMessage("Purchase successful!");
-            } catch (error) {
-                console.error("Buy transaction failed: ", error);
-                if (buyerId === currentUserId) showMessage(typeof error === 'string' ? error : "Transaction failed.");
-            }
-        }
-
-        async function buyFromPawnShop(listingId) {
-             const listingRef = doc(db, "artifacts", appId, "public", "data", "pawnshop", listingId);
-             const buyerRef = doc(db, "artifacts", appId, "players", currentUserId);
-
-             try {
-                await runTransaction(db, async (transaction) => {
-                    const listingSnap = await transaction.get(listingRef);
-                    if (!listingSnap.exists()) throw "This item was just sold!";
-                    
-                    const listing = listingSnap.data();
-                    const buyerSnap = await transaction.get(buyerRef);
-                    const buyerData = buyerSnap.data();
-
-                    if (buyerData.cash < listing.price) throw "You don't have enough cash!";
-                    
-                    const newInventory = { ...buyerData.inventory, [crypto.randomUUID()]: listing.item };
-                    transaction.update(buyerRef, {
-                        cash: increment(-listing.price), inventory: newInventory
-                    });
-                    
-                    transaction.delete(listingRef);
-                    addLog(`${currentPlayer.displayName} bought ${clothingItems[listing.item.type].name} from the pawn shop.`);
-                });
-                showMessage("Purchase successful!");
-             } catch (error) {
-                console.error("Pawn shop buy failed: ", error);
-                showMessage(typeof error === 'string' ? error : "Pawn shop transaction failed.");
-             }
-        }
-        
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = chatInput.value.trim();
-            if (text) {
-                await addDoc(collection(db, "artifacts", appId, "public", "data", "chat"), {
-                    senderId: currentUserId,
-                    senderName: currentPlayer.displayName,
-                    text: text,
-                    timestamp: serverTimestamp()
-                });
-                chatInput.value = '';
-            }
-        });
-
-        // --- AI & EVENTS ---
-        async function runAIBuyerLogic() {
-            const marketplaceRef = collection(db, "artifacts", appId, "public", "data", "marketplace");
-            const listingsSnap = await getDocs(marketplaceRef);
-            if (listingsSnap.empty) return;
-
-            const listings = [];
-            listingsSnap.forEach(doc => listings.push({ id: doc.id, ...doc.data() }));
-            
-            const randomListing = listings[Math.floor(Math.random() * listings.length)];
-            if (randomListing.sellerId === currentUserId) return;
-
-            const itemDef = clothingItems[randomListing.item.type];
-            if (!itemDef) return;
-
-            const perceivedValue = itemDef.baseValue * (1 + (Math.random() - 0.5) * 0.4);
-            if (randomListing.price <= perceivedValue * 1.1) {
-                const aiPlayerId = `ai_buyer_${crypto.randomUUID().substring(0,8)}`;
-                const aiPlayerRef = doc(db, "artifacts", appId, "players", aiPlayerId);
-                await setDoc(aiPlayerRef, { displayName: "AI Buyer", cash: 1000000, hypePoints: 0, inventory: {}, stats: { itemsSold: 0 } });
-                
-                await buyItem(randomListing.id, aiPlayerId);
-            }
-        }
-        
-        async function refreshPawnShopStock() {
-            const pawnShopRef = collection(db, "artifacts", appId, "public", "data", "pawnshop");
-            const batch = writeBatch(db);
-
-            const oldStockSnap = await getDocs(pawnShopRef);
-            oldStockSnap.forEach(doc => batch.delete(doc.ref));
-
-            const stockCount = 5 + Math.floor(Math.random() * 5);
-            for (let i = 0; i < stockCount; i++) {
-                const randomType = allClothingItemKeys[Math.floor(Math.random() * allClothingItemKeys.length)];
-                const itemDef = clothingItems[randomType];
-                const price = Math.round(itemDef.baseValue * (0.8 + Math.random() * 0.4));
-                const newListingRef = doc(pawnShopRef);
-                batch.set(newListingRef, {
-                    item: { type: randomType },
-                    price: price,
-                    createdAt: serverTimestamp()
-                });
-            }
-            await batch.commit();
-            addLog("The pawn shop has restocked its items.");
-        }
-        refreshPawnStockBtn.addEventListener('click', refreshPawnShopStock);
-
-        let currentEvent = null;
-        function triggerRandomEvent(message = null) {
-            if (currentEvent && !message) {
-                Object.keys(originalItemValues).forEach(key => {
-                    clothingItems[key].baseValue = originalItemValues[key].baseValue;
-                });
-                eventBanner.classList.add('hidden');
-                currentEvent = null;
-            }
-
-            if(message) {
-                 eventBanner.textContent = message;
-                 eventBanner.classList.remove('hidden');
-                 setTimeout(() => eventBanner.classList.add('hidden'), 10000); // Hide after 10s
-                 return;
-            }
-
-            const events = [
-                { name: "SNEAKER FRENZY", category: 'shoes', multiplier: 1.5, description: "Everyone wants new kicks! Shoe prices are inflated." },
-                { name: "ACCESSORY HYPE", category: 'accessories', multiplier: 2.0, description: "A celebrity was spotted wearing a cool watch! Accessories are trending." },
-                { name: "MARKET CRASH", category: 'all', multiplier: 0.7, description: "The economy is down. All item values have dropped." },
-            ];
-            currentEvent = events[Math.floor(Math.random() * events.length)];
-            
-            Object.keys(clothingItems).forEach(key => {
-                if (currentEvent.category === 'all' || clothingItems[key].category === currentEvent.category) {
-                    clothingItems[key].baseValue = Math.round(originalItemValues[key].baseValue * currentEvent.multiplier);
-                }
-            });
-
-            eventBanner.textContent = `EVENT: ${currentEvent.name} - ${currentEvent.description}`;
-            eventBanner.classList.remove('hidden');
-            addLog(`EVENT: ${currentEvent.name} has started!`);
-            updateUI();
-        }
-
-        // --- BETTING LOGIC ---
-        function listenToActiveBet() {
-            const betRef = doc(db, "artifacts", appId, "public", "data", "bets", "activeBet");
-            onSnapshot(betRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    const bet = docSnap.data();
-                    betBanner.innerHTML = `
-                        <h3 class="text-xl mb-2">${bet.question}</h3>
-                        <div class="flex justify-center gap-4">
-                            <button class="bet-vote-btn btn bg-green-500" data-option="1">${bet.option1.text}</button>
-                            <button class="bet-vote-btn btn bg-blue-500" data-option="2">${bet.option2.text}</button>
-                        </div>
-                    `;
-                    betBanner.classList.remove('hidden');
-
-                    if (currentPlayer.votedBets && currentPlayer.votedBets.includes(docSnap.id)) {
-                        betBanner.querySelectorAll('.bet-vote-btn').forEach(b => b.disabled = true);
-                        betBanner.innerHTML += `<p class="text-sm mt-2">You have already voted.</p>`;
-                    } else {
-                        document.querySelectorAll('.bet-vote-btn').forEach(b => b.addEventListener('click', () => playerVoteOnBet(docSnap.id, b.dataset.option)));
-                    }
-                } else {
-                    betBanner.classList.add('hidden');
-                }
-            });
-        }
-
-        async function playerVoteOnBet(betId, option) {
-            if (currentPlayer.votedBets && currentPlayer.votedBets.includes(betId)) {
-                return showMessage("You have already voted in this bet.");
-            }
-            const voteRef = doc(db, "artifacts", appId, "public", "data", "bets", "activeBet", "votes", currentUserId);
-            await setDoc(voteRef, { option: parseInt(option) });
-            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), {
-                votedBets: [...(currentPlayer.votedBets || []), betId]
-            });
-            showMessage("Your vote has been cast!");
-        }
-
-        // --- ADMIN LOGIC ---
-        adminLoginBtn.addEventListener('click', () => adminLoginModal.classList.replace('hidden', 'flex'));
-        cancelAdminLoginBtn.addEventListener('click', () => adminLoginModal.classList.replace('flex', 'hidden'));
-        confirmAdminLoginBtn.addEventListener('click', () => {
-             if (document.getElementById('admin-user').value === 'KHEM' && document.getElementById('admin-pass').value === 'SHIT') {
-                isAdmin = true;
-                adminLoginModal.classList.replace('flex', 'hidden');
-                adminPanel.classList.remove('hidden');
-                showMessage("Admin access granted.");
-            } else {
-                showMessage("Incorrect credentials.");
-            }
-        });
-        
-        function populateAdminItemSelect() {
-            adminItemSelect.innerHTML = '';
-            adminBetItemSelect.innerHTML = '';
-            for(const itemId in allGameItems) {
-                const option = document.createElement('option');
-                option.value = itemId;
-                option.textContent = allGameItems[itemId].name;
-                adminItemSelect.appendChild(option);
-                adminBetItemSelect.appendChild(option.cloneNode(true));
-            }
-        }
-
-        document.getElementById('admin-change-name-btn').addEventListener('click', async () => {
-            if(!isAdmin) return;
-            const targetId = document.getElementById('admin-name-id').value.trim();
-            const newName = document.getElementById('admin-new-name').value.trim();
-            if(!targetId || !newName) return showMessage("Invalid ID or name.");
-            
-            await updateDoc(doc(db, "artifacts", appId, "players", targetId), { displayName: newName });
-            addLog(`ADMIN: Changed name for ${targetId.substring(0,4)}... to ${newName}`);
-            showMessage("Name changed.");
-        });
-
-        document.getElementById('admin-set-level-btn').addEventListener('click', async () => {
-            if(!isAdmin) return;
-            const targetId = document.getElementById('admin-level-id').value.trim();
-            const level = parseInt(document.getElementById('admin-level-amount').value);
-            if(!targetId || isNaN(level) || level < 1) return showMessage("Invalid ID or level.");
-            
-            await updateDoc(doc(db, "artifacts", appId, "players", targetId), { level: level, itemsSoldToPlayers: (level - 1) * 10 });
-            addLog(`ADMIN: Set level for ${targetId.substring(0,4)}... to ${level}`);
-            showMessage("Level set.");
-        });
-
-        document.getElementById('admin-give-cash-btn').addEventListener('click', async () => {
-            if(!isAdmin) return;
-            const targetId = document.getElementById('admin-cash-id').value.trim();
-            const amount = parseInt(document.getElementById('admin-cash-amount').value);
-            if(!targetId || isNaN(amount) || amount <= 0) return showMessage("Invalid ID or amount.");
-            
-            const playerRef = doc(db, "artifacts", appId, "players", targetId);
-            await updateDoc(playerRef, { cash: increment(amount) });
-            addLog(`ADMIN: Gave $${amount.toLocaleString()} to ${targetId.substring(0,4)}...`);
-            showMessage("Cash granted.");
-        });
-        
-        document.getElementById('admin-give-hype-btn').addEventListener('click', async () => {
-            if(!isAdmin) return;
-            const targetId = document.getElementById('admin-hype-id').value.trim();
-            const amount = parseInt(document.getElementById('admin-hype-amount').value);
-            if(!targetId || isNaN(amount) || amount <= 0) return showMessage("Invalid ID or amount.");
-            
-            const playerRef = doc(db, "artifacts", appId, "players", targetId);
-            await updateDoc(playerRef, { hypePoints: increment(amount) });
-            addLog(`ADMIN: Gave ${amount.toLocaleString()} Hype Points to ${targetId.substring(0,4)}...`);
-            showMessage("Hype Points granted.");
-        });
-
-        document.getElementById('admin-give-item-btn').addEventListener('click', async () => {
-            if(!isAdmin) return;
-            const targetId = document.getElementById('admin-item-id').value.trim();
-            const itemId = adminItemSelect.value;
-            if(!targetId || !itemId) return showMessage("Invalid ID or item.");
-
-            const playerRef = doc(db, "artifacts", appId, "players", targetId);
-            const playerSnap = await getDoc(playerRef);
-            if(!playerSnap.exists()) return showMessage("Player not found.");
-
-            const newItem = { [crypto.randomUUID()]: { type: itemId, category: allGameItems[itemId].category } };
-            
-            await updateDoc(playerRef, { inventory: { ...playerSnap.data().inventory, ...newItem } });
-            addLog(`ADMIN: Gave ${allGameItems[itemId].name} to ${targetId.substring(0,4)}...`);
-            showMessage("Item granted.");
-        });
-
-        document.getElementById('admin-broadcast-btn').addEventListener('click', () => {
-             if(!isAdmin) return;
-             const msg = document.getElementById('admin-broadcast-msg').value;
-             if(!msg) return showMessage("Message cannot be empty.");
-             triggerRandomEvent(`ADMIN MSG: ${msg}`);
-             addLog(`ADMIN: Broadcasted "${msg}"`);
-        });
-
-        document.getElementById('admin-start-bet-btn').addEventListener('click', async () => {
-            if(!isAdmin) return;
-            const question = document.getElementById('admin-bet-question').value;
-            const opt1 = document.getElementById('admin-bet-opt1').value;
-            const opt2 = document.getElementById('admin-bet-opt2').value;
-            const cashReward = parseInt(document.getElementById('admin-bet-cash').value);
-            const itemReward = document.getElementById('admin-bet-item').value;
-
-            if(!question || !opt1 || !opt2) return showMessage("Bet fields cannot be empty.");
-
-            const betRef = doc(db, "artifacts", appId, "public", "data", "bets", "activeBet");
-            await setDoc(betRef, {
-                question,
-                option1: { text: opt1 },
-                option2: { text: opt2 },
-                rewards: { cash: cashReward, item: itemReward },
-                isOpen: true,
-                createdAt: serverTimestamp()
-            });
-
-            const resolveControls = document.createElement('div');
-            resolveControls.id = 'resolve-controls';
-            resolveControls.innerHTML = `
-                <p class="text-sm text-gray-400 mt-2">Bet is now active. Choose a winner to resolve.</p>
-                <div class="flex gap-2 mt-1">
-                    <button id="resolve-bet-1" class="btn flex-1 bg-green-600">${opt1} Wins</button>
-                    <button id="resolve-bet-2" class="btn flex-1 bg-blue-600">${opt2} Wins</button>
-                </div>
-            `;
-            adminBetControls.appendChild(resolveControls);
-            document.getElementById('resolve-bet-1').addEventListener('click', () => resolveBet(1));
-            document.getElementById('resolve-bet-2').addEventListener('click', () => resolveBet(2));
-            document.getElementById('admin-start-bet-btn').disabled = true;
-
-            addLog(`ADMIN: A new bet has started! "${question}"`);
-            showMessage("Bet is now live for all players!");
-        });
-
-        async function resolveBet(winningOption) {
-            const betRef = doc(db, "artifacts", appId, "public", "data", "bets", "activeBet");
-            const betSnap = await getDoc(betRef);
-            if(!betSnap.exists()) return showMessage("No active bet found.");
-            
-            const betData = betSnap.data();
-            const votesRef = collection(db, "artifacts", appId, "public", "data", "bets", "activeBet", "votes");
-            const q = query(votesRef, where("option", "==", winningOption));
-            const winnersSnap = await getDocs(q);
-
-            const batch = writeBatch(db);
-            winnersSnap.forEach(winnerDoc => {
-                const winnerId = winnerDoc.id;
-                const playerRef = doc(db, "artifacts", appId, "players", winnerId);
-                batch.update(playerRef, {
-                    cash: increment(betData.rewards.cash),
-                    [`inventory.${crypto.randomUUID()}`]: { type: betData.rewards.item, category: allGameItems[betData.rewards.item].category }
-                });
-            });
-            await batch.commit();
-            
-            const allVotesSnap = await getDocs(votesRef);
-            const deleteVotesBatch = writeBatch(db);
-            allVotesSnap.forEach(doc => deleteVotesBatch.delete(doc.ref));
-            await deleteVotesBatch.commit();
-
-            await deleteDoc(betRef);
-            
-            addLog(`ADMIN: The bet "${betData.question}" has ended. Option ${winningOption} was the winner!`);
-            showMessage(`Bet resolved. ${winnersSnap.size} players won.`);
-            document.getElementById('admin-start-bet-btn').disabled = false;
-            document.getElementById('resolve-controls')?.remove();
+        const allItems = {...clothingItems, ...exoticItems, ...hypeShopItems};
+
+        // --- UTILITY FUNCTIONS ---
+        const formatCash = (amount) => `$${Math.floor(amount).toLocaleString()}`;
+        const showMessage = (msg) => {
+            messageText.textContent = msg;
+            messageModal.style.display = 'flex';
         };
-
-        document.getElementById('admin-clear-log-btn').addEventListener('click', () => {
-             if(!isAdmin) return;
-             showConfirmation("Clear Activity Feed?", "This will delete all logs for every player.", async () => {
-                const logsRef = collection(db, "artifacts", appId, "public", "data", "logs");
-                const logsSnap = await getDocs(logsRef);
-                const batch = writeBatch(db);
-                logsSnap.forEach(doc => batch.delete(doc.ref));
-                await batch.commit();
-                showMessage("Activity feed cleared.");
-             });
-        });
-
-        document.getElementById('admin-reset-btn').addEventListener('click', () => {
-            if(!isAdmin) return;
-            const targetId = document.getElementById('admin-reset-id').value.trim();
-            if(!targetId) return showMessage("Invalid ID.");
-             showConfirmation("Reset Player?", `This will completely reset player ${targetId.substring(0,8)}...`, async () => {
-                const playerRef = doc(db, "artifacts", appId, "players", targetId);
-                await setDoc(playerRef, { 
-                    displayName: `Player${targetId.substring(0,4)}`,
-                    level: 1,
-                    itemsSoldToPlayers: 0,
-                    cash: 1000, 
-                    hypePoints: 0, 
-                    inventory: {}, 
-                    stats: { itemsSold: 0 },
-                    starterPackClaimed: false,
-                    votedBets: []
-                });
-                addLog(`ADMIN: Player ${targetId.substring(0,4)}... has been reset.`);
-                showMessage("Player reset successfully.");
-             });
-        });
-
-
-        // --- HELPER & UI FUNCTIONS ---
-        function calculateInventoryValue() {
-            if (!currentPlayer || !currentPlayer.inventory) return 0;
-            return Object.values(currentPlayer.inventory).reduce((total, item) => {
-                const itemDef = clothingItems[item.type];
-                return total + (itemDef?.baseValue || 0);
-            }, 0);
-        }
-        async function addLog(message) {
-            try {
-                await addDoc(collection(db, "artifacts", appId, "public", "data", "logs"), { message, timestamp: serverTimestamp() });
-            } catch (error) {
-                console.error("Failed to add log:", error);
-            }
-        }
-        function showMessage(text) {
-            messageText.textContent = text;
-            messageModal.classList.replace('hidden', 'flex');
-        }
-        closeMessageBtn.addEventListener('click', () => messageModal.classList.replace('flex', 'hidden'));
-        
-        function showConfirmation(title, text, onConfirm) {
+        const showConfirmation = (title, text, callback) => {
             document.getElementById('confirmation-title').textContent = title;
             document.getElementById('confirmation-text').textContent = text;
-            confirmationModal.classList.replace('hidden', 'flex');
-            confirmationCallback = onConfirm;
-        }
-        document.getElementById('cancel-confirmation').addEventListener('click', () => {
-            confirmationModal.classList.replace('flex', 'hidden');
-            confirmationCallback = null;
-        });
-        document.getElementById('confirm-action').addEventListener('click', () => {
-            if(confirmationCallback) {
-                confirmationCallback();
+            confirmationCallback = callback;
+            confirmationModal.style.display = 'flex';
+        };
+        const logToGame = async (message) => {
+            try {
+                await addDoc(collection(db, `apps/${appId}/globalLog`), {
+                    message: message,
+                    timestamp: serverTimestamp()
+                });
+            } catch (error) {
+                console.error("Error writing to global log:", error);
             }
-            confirmationModal.classList.replace('flex', 'hidden');
-            confirmationCallback = null;
-        });
+        };
 
-        Object.keys(tabs).forEach(key => {
-            if(tabs[key]) {
-                tabs[key].addEventListener('click', () => {
-                    Object.keys(containers).forEach(cKey => {
-                        if(containers[cKey]) containers[cKey].classList.add('hidden');
-                        if(tabs[cKey]) {
-                           tabs[cKey].classList.remove('tab-active');
-                           tabs[cKey].classList.add('tab-inactive');
+        // --- RENDER FUNCTIONS ---
+        const renderItem = (item, id, container, buttons) => {
+            const itemData = allItems[item.itemId];
+            if (!itemData) {
+                console.warn(`Item data not found for itemId: ${item.itemId}`);
+                return '';
+            }
+            const value = item.price || itemData.baseValue || item.points;
+            const valueDisplay = container === 'hype-shop' ? `${value.toLocaleString()} HP` : formatCash(value);
+            const sellerInfo = item.sellerName ? `<p class="text-xs text-gray-400 truncate">Seller: ${item.sellerName}</p>` : '';
+
+            return `
+                <div class="card p-3 rounded-lg flex flex-col justify-between fade-in" data-item-id="${id}" data-item-type="${item.itemId}">
+                    <div>
+                        ${itemData.svg}
+                        <h4 class="font-bold text-md truncate mt-2">${itemData.name}</h4>
+                        ${sellerInfo}
+                    </div>
+                    <div class="mt-2">
+                        <p class="text-lg font-orbitron text-cyan-400">${valueDisplay}</p>
+                        ${buttons}
+                    </div>
+                </div>`;
+        };
+        
+        const updatePlayerUI = (playerData) => {
+            if (!playerData) return;
+            currentPlayer = playerData;
+            playerDisplayNameEl.textContent = playerData.displayName;
+            playerLevelEl.textContent = playerData.level || 0;
+            playerCashEl.textContent = formatCash(playerData.cash || 0);
+            playerHypePointsEl.textContent = (playerData.hypePoints || 0).toLocaleString();
+            itemsSoldEl.textContent = (playerData.itemsSold || 0).toLocaleString();
+            
+            const inventoryVal = Object.entries(playerData.inventory || {}).reduce((acc, [_, item]) => {
+                return acc + (allItems[item.itemId]?.baseValue || 0);
+            }, 0);
+            inventoryValueEl.textContent = formatCash(inventoryVal);
+            netWorthEl.textContent = formatCash((playerData.cash || 0) + inventoryVal);
+
+            getStarterPackBtn.disabled = playerData.hasStarterPack;
+            buyLootBoxBtn.disabled = (playerData.cash || 0) < 500;
+
+            playerInventoryEl.innerHTML = Object.entries(playerData.inventory || {})
+                .map(([id, item]) => renderItem(item, id, 'inventory', `<button class="btn sell-btn w-full text-sm mt-1 bg-yellow-600 hover:bg-yellow-700">Sell</button>`))
+                .join('');
+        };
+        
+        const updateMarketplaceUI = (listings) => {
+            marketplaceEl.innerHTML = Object.entries(listings)
+                .map(([id, item]) => {
+                    const buyButton = item.sellerId !== currentUserId
+                        ? `<button class="btn buy-btn w-full text-sm mt-1 bg-green-500 hover:bg-green-600">Buy</button>`
+                        : `<button class="btn delist-btn w-full text-sm mt-1 bg-red-700 hover:bg-red-800">Delist</button>`;
+                    return renderItem(item, id, 'marketplace', buyButton);
+                }).join('');
+        };
+
+        const updateShopUI = (shopId, element, items, buttonClass, buttonText, valueType) => {
+            element.innerHTML = Object.entries(items)
+                .map(([id, itemData]) => {
+                    const value = itemData.cost || itemData.points;
+                    const item = { itemId: id, [valueType]: value };
+                    const buttons = `<button class="btn ${buttonClass} w-full text-sm mt-1 bg-cyan-600 hover:bg-cyan-700">${buttonText}</button>`;
+                    return renderItem(item, id, shopId, buttons);
+                }).join('');
+        };
+        
+        const updateGameLogUI = (logs) => {
+            gameLogEl.innerHTML = logs.map(log => `<div class="fade-in">${log.message}</div>`).join('');
+            gameLogEl.scrollTop = gameLogEl.scrollHeight;
+        };
+
+        const updateChatUI = (messages) => {
+            chatBox.innerHTML = messages.map(msg => {
+                const align = msg.userId === currentUserId ? 'self-end' : 'self-start';
+                const bgColor = msg.userId === currentUserId ? 'bg-cyan-800' : 'bg-gray-700';
+                const nameColor = msg.isAdmin ? 'text-red-400 font-bold' : 'text-yellow-300 font-bold';
+                return `<div class="chat-message ${align} ${bgColor} fade-in">
+                          <span class="${nameColor}">${msg.displayName}:</span>
+                          <span class="text-white">${msg.message}</span>
+                        </div>`;
+            }).join('');
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+
+        // --- DATABASE INTERACTIONS & GAME LOGIC ---
+        async function initializePlayer(user) {
+            currentUserId = user.uid;
+            playerIdEl.textContent = currentUserId;
+            const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
+            let playerSnap = await getDoc(playerRef);
+
+            if (!playerSnap.exists()) {
+                const initialData = {
+                    displayName: `Player-${currentUserId.substring(0, 5)}`,
+                    cash: 100,
+                    level: 1,
+                    hypePoints: 0,
+                    itemsSold: 0,
+                    inventory: {},
+                    hasStarterPack: false,
+                };
+                await setDoc(playerRef, initialData);
+                playerSnap = await getDoc(playerRef);
+                logToGame(`A new player has arrived: ${initialData.displayName}`);
+            }
+            
+            onSnapshot(playerRef, (doc) => updatePlayerUI(doc.data()));
+        }
+        
+        // --- EVENT LISTENERS ---
+        function setupEventListeners() {
+            getStarterPackBtn.addEventListener('click', async () => {
+                if (currentPlayer.hasStarterPack) return;
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
+                        const playerDoc = await transaction.get(playerRef);
+                        if (!playerDoc.exists() || playerDoc.data().hasStarterPack) {
+                            throw "Already has starter pack or player doesn't exist.";
                         }
+                        
+                        const starterItems = {
+                            [`item_${Date.now()}_1`]: { itemId: 'tee01' },
+                            [`item_${Date.now()}_2`]: { itemId: 'cap01' },
+                            [`item_${Date.now()}_3`]: { itemId: 'sneaker01' }
+                        };
+
+                        transaction.update(playerRef, {
+                            hasStarterPack: true,
+                            cash: increment(200),
+                            ...Object.keys(starterItems).reduce((acc, key) => {
+                                acc[`inventory.${key}`] = starterItems[key];
+                                return acc;
+                            }, {})
+                        });
                     });
-                    if(containers[key]) containers[key].classList.remove('hidden');
-                    if(tabs[key]) {
-                        tabs[key].classList.add('tab-active');
-                        tabs[key].classList.remove('tab-inactive');
+                    logToGame(`${currentPlayer.displayName} got a starter pack!`);
+                    showMessage("Starter pack received!");
+                } catch (error) {
+                    console.error("Starter Pack Error: ", error);
+                    showMessage("Could not get starter pack.");
+                }
+            });
+
+            buyLootBoxBtn.addEventListener('click', async () => {
+                if (currentPlayer.cash < 500) return;
+                try {
+                    const lootTable = { ...clothingItems, ...Object.fromEntries(Object.entries(exoticItems).slice(0,2))};
+                    const itemKeys = Object.keys(lootTable);
+                    const randomItemId = itemKeys[Math.floor(Math.random() * itemKeys.length)];
+                    const newItemId = `item_${Date.now()}`;
+                    
+                    await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), {
+                        cash: increment(-500),
+                        [`inventory.${newItemId}`]: { itemId: randomItemId }
+                    });
+
+                    const itemName = allItems[randomItemId].name;
+                    logToGame(`${currentPlayer.displayName} opened a loot box and found a ${itemName}!`);
+                    showMessage(`You found a ${itemName}!`);
+                } catch (error) {
+                    console.error("Loot Box Error: ", error);
+                    showMessage("Failed to open loot box.");
+                }
+            });
+
+            playerInventoryEl.addEventListener('click', (e) => {
+                if (e.target.classList.contains('sell-btn')) {
+                    const itemEl = e.target.closest('[data-item-id]');
+                    itemToSellId = itemEl.dataset.itemId;
+                    const itemType = itemEl.dataset.itemType;
+                    const itemData = allItems[itemType];
+                    
+                    sellItemDisplay.innerHTML = renderItem({itemId: itemType}, itemToSellId, 'sell-modal', '');
+                    const aiPrice = Math.floor(itemData.baseValue * 0.7);
+                    aiSellPriceEl.textContent = formatCash(aiPrice);
+                    sellToAIBtn.dataset.price = aiPrice;
+                    sellPriceInput.value = itemData.baseValue;
+                    sellModal.style.display = 'flex';
+                }
+            });
+
+            cancelSellBtn.addEventListener('click', () => sellModal.style.display = 'none');
+            closeMessageBtn.addEventListener('click', () => messageModal.style.display = 'none');
+
+            confirmSellBtn.addEventListener('click', async () => {
+                const price = parseInt(sellPriceInput.value);
+                if (!itemToSellId || isNaN(price) || price <= 0) {
+                    showMessage("Invalid price.");
+                    return;
+                }
+                
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
+                        const playerDoc = await transaction.get(playerRef);
+                        const inventory = playerDoc.data().inventory;
+                        const itemToSell = inventory[itemToSellId];
+
+                        if (!itemToSell) throw "Item not found in inventory.";
+
+                        const newListingRef = doc(collection(db, `apps/${appId}/marketplace`));
+                        transaction.set(newListingRef, {
+                            ...itemToSell,
+                            price: price,
+                            sellerId: currentUserId,
+                            sellerName: currentPlayer.displayName
+                        });
+                        
+                        const updatedInventory = { ...inventory };
+                        delete updatedInventory[itemToSellId];
+                        transaction.update(playerRef, { inventory: updatedInventory });
+                    });
+
+                    const itemName = allItems[currentPlayer.inventory[itemToSellId].itemId].name;
+                    logToGame(`${currentPlayer.displayName} listed a ${itemName} for ${formatCash(price)}.`);
+                    showMessage("Item listed on the marketplace!");
+                    sellModal.style.display = 'none';
+                } catch (error) {
+                    console.error("Listing Error: ", error);
+                    showMessage(`Failed to list item. ${error}`);
+                }
+            });
+            
+            sellToAIBtn.addEventListener('click', async () => {
+                const price = parseInt(sellToAIBtn.dataset.price);
+                 if (!itemToSellId || isNaN(price) || price <= 0) return;
+
+                try {
+                    await runTransaction(db, async (transaction) => {
+                        const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
+                        const playerDoc = await transaction.get(playerRef);
+                        const inventory = playerDoc.data().inventory;
+                        if (!inventory[itemToSellId]) throw "Item not in inventory";
+                        
+                        const updatedInventory = {...inventory};
+                        delete updatedInventory[itemToSellId];
+
+                        transaction.update(playerRef, {
+                            inventory: updatedInventory,
+                            cash: increment(price)
+                        });
+                    });
+                    const itemName = allItems[currentPlayer.inventory[itemToSellId].itemId].name;
+                    logToGame(`${currentPlayer.displayName} quick-sold a ${itemName} for ${formatCash(price)}.`);
+                    showMessage("Item sold!");
+                    sellModal.style.display = 'none';
+                } catch(e) {
+                     console.error("AI Sell Error: ", e);
+                    showMessage("Failed to sell item.");
+                }
+            });
+
+            marketplaceEl.addEventListener('click', async (e) => {
+                const listingEl = e.target.closest('[data-item-id]');
+                if (!listingEl) return;
+                const listingId = listingEl.dataset.itemId;
+
+                if (e.target.classList.contains('buy-btn')) {
+                    try {
+                        await runTransaction(db, async (transaction) => {
+                            const listingRef = doc(db, `apps/${appId}/marketplace`, listingId);
+                            const listingDoc = await transaction.get(listingRef);
+                            if (!listingDoc.exists()) throw "Listing no longer available.";
+
+                            const listing = listingDoc.data();
+                            const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
+                            const playerDoc = await transaction.get(playerRef);
+                            const playerData = playerDoc.data();
+
+                            if (playerData.cash < listing.price) throw "Not enough cash.";
+                            
+                            const sellerRef = doc(db, `apps/${appId}/players`, listing.sellerId);
+                            const newItemId = `item_${Date.now()}`;
+
+                            // Update buyer
+                            transaction.update(playerRef, {
+                                cash: increment(-listing.price),
+                                [`inventory.${newItemId}`]: { itemId: listing.itemId }
+                            });
+
+                            // Update seller
+                            transaction.update(sellerRef, {
+                                cash: increment(listing.price),
+                                itemsSold: increment(1)
+                            });
+                            
+                            // Delete listing
+                            transaction.delete(listingRef);
+                        });
+                        const itemName = allItems[listingEl.dataset.itemType].name;
+                        logToGame(`${currentPlayer.displayName} bought a ${itemName}.`);
+                        showMessage("Purchase successful!");
+                    } catch (error) {
+                        console.error("Purchase Error:", error);
+                        showMessage(`Purchase failed: ${error}`);
+                    }
+                } else if (e.target.classList.contains('delist-btn')) {
+                     try {
+                        await runTransaction(db, async (transaction) => {
+                            const listingRef = doc(db, `apps/${appId}/marketplace`, listingId);
+                            const listingDoc = await transaction.get(listingRef);
+                            if (!listingDoc.exists()) throw "Listing not found.";
+                            
+                            const listing = listingDoc.data();
+                            if(listing.sellerId !== currentUserId) throw "Not your listing.";
+
+                            const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
+                            const newItemId = `item_${Date.now()}`;
+                            transaction.update(playerRef, {
+                                [`inventory.${newItemId}`]: { itemId: listing.itemId }
+                            });
+                            transaction.delete(listingRef);
+                        });
+                        showMessage("Item delisted and returned to inventory.");
+                    } catch (error) {
+                        console.error("Delist Error:", error);
+                        showMessage(`Failed to delist: ${error}`);
+                    }
+                }
+            });
+
+            // Tab switching
+            Object.keys(tabs).forEach(tabKey => {
+                tabs[tabKey].addEventListener('click', () => {
+                    Object.keys(tabs).forEach(k => {
+                        tabs[k].classList.remove('tab-active');
+                        tabs[k].classList.add('tab-inactive');
+                        containers[k].classList.add('hidden');
+                    });
+                    tabs[tabKey].classList.add('tab-active');
+                    tabs[tabKey].classList.remove('tab-inactive');
+                    containers[tabKey].classList.remove('hidden');
+                });
+            });
+
+            // Shop purchases
+            const setupShopListener = (containerId, buttonClass, shopItems, valueType, costField) => {
+                document.getElementById(containerId).addEventListener('click', async (e) => {
+                    if (!e.target.classList.contains(buttonClass)) return;
+                    
+                    const itemEl = e.target.closest('[data-item-id]');
+                    const itemId = itemEl.dataset.itemType;
+                    const itemData = shopItems[itemId];
+                    const cost = itemData[costField];
+
+                    if (currentPlayer[valueType] < cost) {
+                        showMessage(`Not enough ${valueType === 'cash' ? 'Cash' : 'Hype Points'}.`);
+                        return;
+                    }
+                    
+                    try {
+                        const newItemId = `item_${Date.now()}`;
+                        const updatePayload = {
+                            [valueType]: increment(-cost),
+                            [`inventory.${newItemId}`]: { itemId: itemId }
+                        };
+                        await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), updatePayload);
+                        
+                        showMessage(`You bought a ${itemData.name}!`);
+                        logToGame(`${currentPlayer.displayName} bought a ${itemData.name} from a shop.`);
+                    } catch (error) {
+                        console.error("Shop purchase error:", error);
+                        showMessage("Purchase failed.");
                     }
                 });
-            }
-        });
+            };
+
+            setupShopListener('pawn-shop-container', 'buy-pawn-item-btn', clothingItems, 'cash', 'baseValue');
+            setupShopListener('exotic-wares-container', 'buy-exotic-item-btn', exoticItems, 'cash', 'cost');
+            setupShopListener('hype-shop-container', 'buy-hype-item-btn', hypeShopItems, 'hypePoints', 'points');
+
+            refreshPawnStockBtn.addEventListener('click', () => {
+                // For simplicity, we'll just re-render the existing items. A real game might fetch new ones.
+                updateShopUI('pawn-shop', pawnShopEl, clothingItems, 'buy-pawn-item-btn', 'Buy', 'baseValue');
+                showMessage("Pawn shop stock refreshed.");
+            });
+
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const messageText = chatInput.value.trim();
+                if (messageText === '' || !currentUserId || !currentPlayer) return;
+
+                // Check for banned words
+                for (const pattern of BANNED_WORDS) {
+                    if (pattern.test(messageText)) {
+                        showMessage("Your message contains inappropriate language and was not sent.");
+                        chatInput.value = ''; // Clear the input
+                        return; // Stop the function
+                    }
+                }
+
+                try {
+                    await addDoc(collection(db, `apps/${appId}/globalChat`), {
+                        userId: currentUserId,
+                        displayName: currentPlayer.displayName,
+                        message: messageText,
+                        timestamp: serverTimestamp(),
+                        isAdmin: isAdmin
+                    });
+                    chatInput.value = '';
+                } catch (error) {
+                    console.error("Error sending chat message: ", error);
+                    showMessage(`Error sending message.`);
+                }
+            });
+            
+            // Confirmation Modal Buttons
+            document.getElementById('cancel-confirmation').addEventListener('click', () => {
+                confirmationModal.style.display = 'none';
+                confirmationCallback = null;
+            });
+            document.getElementById('confirm-action').addEventListener('click', () => {
+                if (confirmationCallback) {
+                    confirmationCallback();
+                }
+                confirmationModal.style.display = 'none';
+                confirmationCallback = null;
+            });
+        }
+
+        function setupAdminEventListeners() {
+            adminLoginBtn.addEventListener('click', () => {
+                adminLoginModal.style.display = 'flex';
+            });
+            cancelAdminLoginBtn.addEventListener('click', () => {
+                adminLoginModal.style.display = 'none';
+            });
+            confirmAdminLoginBtn.addEventListener('click', () => {
+                const user = document.getElementById('admin-user').value;
+                const pass = document.getElementById('admin-pass').value;
+
+                if (user === 'DAVE' && pass === 'CATS') {
+                    isAdmin = true;
+                    adminPanel.classList.remove('hidden');
+                    adminLoginModal.style.display = 'none';
+                    logToGame('Admin access granted.');
+                    showMessage('Admin access granted.');
+                } else {
+                    showMessage('Invalid admin credentials.');
+                }
+            });
+
+            // Generic admin action button
+            const setupAdminAction = (buttonId, idInputId, amountInputId, action) => {
+                document.getElementById(buttonId).addEventListener('click', async () => {
+                    const targetId = document.getElementById(idInputId).value.trim();
+                    const amountEl = document.getElementById(amountInputId);
+                    const amount = amountEl ? (amountEl.type === 'number' ? parseInt(amountEl.value) : amountEl.value) : null;
+                    if (!targetId) {
+                        showMessage("Player ID is required.");
+                        return;
+                    }
+                    await action(targetId, amount);
+                });
+            };
+
+            setupAdminAction('admin-change-name-btn', 'admin-name-id', 'admin-new-name', async (id, newName) => {
+                if (!newName) { showMessage("New name is required."); return; }
+                await updateDoc(doc(db, `apps/${appId}/players`, id), { displayName: newName });
+                showMessage(`Player ${id}'s name changed to ${newName}.`);
+            });
+
+            setupAdminAction('admin-set-level-btn', 'admin-level-id', 'admin-level-amount', async (id, level) => {
+                if (isNaN(level)) { showMessage("Valid level is required."); return; }
+                await updateDoc(doc(db, `apps/${appId}/players`, id), { level: level });
+                showMessage(`Player ${id}'s level set to ${level}.`);
+            });
+
+            setupAdminAction('admin-give-cash-btn', 'admin-cash-id', 'admin-cash-amount', async (id, amount) => {
+                if (isNaN(amount)) { showMessage("Valid amount is required."); return; }
+                await updateDoc(doc(db, `apps/${appId}/players`, id), { cash: increment(amount) });
+                showMessage(`Gave ${formatCash(amount)} to player ${id}.`);
+            });
+
+            setupAdminAction('admin-give-hype-btn', 'admin-hype-id', 'admin-hype-amount', async (id, amount) => {
+                if (isNaN(amount)) { showMessage("Valid amount is required."); return; }
+                await updateDoc(doc(db, `apps/${appId}/players`, id), { hypePoints: increment(amount) });
+                showMessage(`Gave ${amount} Hype Points to player ${id}.`);
+            });
+
+            setupAdminAction('admin-give-item-btn', 'admin-item-id', 'admin-item-select', async (id, itemId) => {
+                const newItemId = `item_${Date.now()}`;
+                await updateDoc(doc(db, `apps/${appId}/players`, id), { [`inventory.${newItemId}`]: { itemId: itemId } });
+                showMessage(`Gave ${allItems[itemId].name} to player ${id}.`);
+            });
+
+            setupAdminAction('admin-broadcast-btn', 'admin-broadcast-msg', null, async (msg) => {
+                await logToGame(`[BROADCAST] ${msg}`);
+                eventBanner.textContent = msg;
+                eventBanner.classList.remove('hidden');
+                setTimeout(() => eventBanner.classList.add('hidden'), 10000);
+            });
+
+            adminClearChatBtn.addEventListener('click', () => {
+                showConfirmation("Clear Global Chat?", "This will permanently delete all messages for everyone.", async () => {
+                    if (!isAdmin) { showMessage("You are not authorized."); return; }
+                    try {
+                        const chatCollectionRef = collection(db, `apps/${appId}/globalChat`);
+                        const querySnapshot = await getDocs(chatCollectionRef);
+                        const batch = writeBatch(db);
+                        querySnapshot.forEach((doc) => batch.delete(doc.ref));
+                        await batch.commit();
+                        logToGame("Global chat has been cleared by an admin.");
+                        showMessage("Global chat cleared successfully.");
+                    } catch (error) {
+                        console.error("Error clearing chat: ", error);
+                        showMessage("Failed to clear chat.");
+                    }
+                });
+            });
+
+            adminClearLogBtn.addEventListener('click', () => {
+                 showConfirmation("Clear Activity Feed?", "This will permanently delete all activity log messages.", async () => {
+                    if (!isAdmin) { showMessage("You are not authorized."); return; }
+                    try {
+                        const logCollectionRef = collection(db, `apps/${appId}/globalLog`);
+                        const querySnapshot = await getDocs(logCollectionRef);
+                        const batch = writeBatch(db);
+                        querySnapshot.forEach((doc) => batch.delete(doc.ref));
+                        await batch.commit();
+                        showMessage("Activity feed cleared successfully.");
+                    } catch (error) {
+                        console.error("Error clearing log: ", error);
+                        showMessage("Failed to clear activity feed.");
+                    }
+                });
+            });
+
+            adminResetBtn.addEventListener('click', () => {
+                const targetId = document.getElementById('admin-reset-id').value.trim();
+                if (!targetId) { showMessage("Player ID required to reset."); return; }
+                showConfirmation(`RESET Player ${targetId}?`, "This will wipe their inventory, cash, and stats. This cannot be undone.", async () => {
+                     if (!isAdmin) { showMessage("You are not authorized."); return; }
+                     try {
+                        const initialData = {
+                            displayName: `Player-${targetId.substring(0, 5)}`,
+                            cash: 100,
+                            level: 1,
+                            hypePoints: 0,
+                            itemsSold: 0,
+                            inventory: {},
+                            hasStarterPack: false,
+                        };
+                        await setDoc(doc(db, `apps/${appId}/players`, targetId), initialData);
+                        logToGame(`Player ${targetId} has been reset by an admin.`);
+                        showMessage(`Player ${targetId} was reset.`);
+                     } catch(e) {
+                         console.error("Reset error", e);
+                         showMessage("Failed to reset player.");
+                     }
+                });
+            });
+        }
+
+        // --- INITIALIZATION ---
+        async function main() {
+            // Populate admin item dropdowns
+            const itemOptions = Object.keys(allItems).map(id => `<option value="${id}">${allItems[id].name}</option>`).join('');
+            adminItemSelect.innerHTML = itemOptions;
+            adminBetItemSelect.innerHTML = `<option value="">None</option>` + itemOptions;
+
+            // Setup UI
+            updateShopUI('pawn-shop', pawnShopEl, clothingItems, 'buy-pawn-item-btn', 'Buy', 'baseValue');
+            updateShopUI('exotic-wares', exoticWaresEl, exoticItems, 'buy-exotic-item-btn', 'Buy', 'cost');
+            updateShopUI('hype-shop', hypeShopEl, hypeShopItems, 'buy-hype-item-btn', 'Claim', 'points');
+            
+            // Setup listeners
+            setupEventListeners();
+            setupAdminEventListeners();
+
+            // Setup Firestore listeners
+            onSnapshot(query(collection(db, `apps/${appId}/marketplace`), orderBy("price", "asc")), (snapshot) => {
+                const listings = {};
+                snapshot.forEach(doc => listings[doc.id] = doc.data());
+                updateMarketplaceUI(listings);
+            });
+            onSnapshot(query(collection(db, `apps/${appId}/globalLog`), orderBy("timestamp", "desc"), limit(50)), (snapshot) => {
+                const logs = snapshot.docs.map(doc => doc.data());
+                updateGameLogUI(logs);
+            });
+            onSnapshot(query(collection(db, `apps/${appId}/globalChat`), orderBy("timestamp", "asc"), limit(100)), (snapshot) => {
+                const messages = snapshot.docs.map(doc => doc.data());
+                updateChatUI(messages);
+            });
+            
+            // Authenticate and start
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    await initializePlayer(user);
+                    loadingScreen.style.display = 'none';
+                    gameContainer.classList.remove('hidden');
+                } else {
+                    await signInAnonymously(auth);
+                }
+            });
+        }
+
+        main();
 
     </script>
 </body>
