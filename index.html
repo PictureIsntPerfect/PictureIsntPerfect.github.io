@@ -373,54 +373,7 @@
         let isAdmin = false;
         let confirmationCallback = null;
         let globalImageTimeout = null;
-
-        const ui = {
-            loadingScreen: document.getElementById('loading-screen'),
-            gameContainer: document.getElementById('game-container'),
-            playerId: document.getElementById('player-id'),
-            playerDisplayName: document.getElementById('player-display-name'),
-            playerLevel: document.getElementById('player-level'),
-            playerCash: document.getElementById('player-cash'),
-            playerHypePoints: document.getElementById('player-hype-points'),
-            netWorth: document.getElementById('net-worth'),
-            joinDate: document.getElementById('join-date'),
-            playerInventory: document.getElementById('player-inventory'),
-            marketplace: document.getElementById('marketplace'),
-            gameLog: document.getElementById('game-log'),
-            getStarterPackBtn: document.getElementById('get-starter-pack'),
-            buyLootBoxBtn: document.getElementById('buy-loot-box'),
-            sellModal: document.getElementById('sell-modal'),
-            sellItemDisplay: document.getElementById('sell-item-display'),
-            sellPriceInput: document.getElementById('sell-price'),
-            cancelSellBtn: document.getElementById('cancel-sell'),
-            confirmSellBtn: document.getElementById('confirm-sell'),
-            sellToAIBtn: document.getElementById('sell-to-ai-btn'),
-            aiSellPrice: document.getElementById('ai-sell-price'),
-            messageModal: document.getElementById('message-modal'),
-            messageText: document.getElementById('message-text'),
-            closeMessageBtn: document.getElementById('close-message'),
-            confirmationModal: document.getElementById('confirmation-modal'),
-            eventBanner: document.getElementById('event-banner'),
-            chatBox: document.getElementById('chat-box'),
-            chatForm: document.getElementById('chat-form'),
-            chatInput: document.getElementById('chat-input'),
-            tabs: { marketplace: document.getElementById('tab-marketplace'), pawnShop: document.getElementById('tab-pawn-shop'), exoticWares: document.getElementById('tab-exotic-wares'), hypeShop: document.getElementById('tab-hype-shop') },
-            containers: { marketplace: document.getElementById('marketplace-container'), pawnShop: document.getElementById('pawn-shop-container'), exoticWares: document.getElementById('exotic-wares-container'), hypeShop: document.getElementById('hype-shop-container') },
-            hypeShop: document.getElementById('hype-shop'),
-            exoticWares: document.getElementById('exotic-wares'),
-            pawnShop: document.getElementById('pawn-shop'),
-            refreshPawnStockBtn: document.getElementById('refresh-pawn-stock-btn'),
-            adminLoginBtn: document.getElementById('admin-login-btn'),
-            adminLoginModal: document.getElementById('admin-login-modal'),
-            adminPanel: document.getElementById('admin-panel'),
-            adminItemSelect: document.getElementById('admin-item-select'),
-            adminClearChatBtn: document.getElementById('admin-clear-chat-btn'),
-            adminResetBtn: document.getElementById('admin-reset-btn'),
-            achievementsList: document.getElementById('achievements-list'),
-            playerProfileModal: document.getElementById('player-profile-modal'),
-            playerProfileContent: document.getElementById('player-profile-content'),
-            smiteOverlay: document.getElementById('smite-overlay'),
-        };
+        let ui;
 
         const BANNED_WORDS = [/nigger/i]; 
 
@@ -1115,6 +1068,55 @@
         }
 
         async function main() {
+            // Populate UI object now that DOM is loaded
+            ui = {
+                loadingScreen: document.getElementById('loading-screen'),
+                gameContainer: document.getElementById('game-container'),
+                playerId: document.getElementById('player-id'),
+                playerDisplayName: document.getElementById('player-display-name'),
+                playerLevel: document.getElementById('player-level'),
+                playerCash: document.getElementById('player-cash'),
+                playerHypePoints: document.getElementById('player-hype-points'),
+                netWorth: document.getElementById('net-worth'),
+                joinDate: document.getElementById('join-date'),
+                playerInventory: document.getElementById('player-inventory'),
+                marketplace: document.getElementById('marketplace'),
+                gameLog: document.getElementById('game-log'),
+                getStarterPackBtn: document.getElementById('get-starter-pack'),
+                buyLootBoxBtn: document.getElementById('buy-loot-box'),
+                sellModal: document.getElementById('sell-modal'),
+                sellItemDisplay: document.getElementById('sell-item-display'),
+                sellPriceInput: document.getElementById('sell-price'),
+                cancelSellBtn: document.getElementById('cancel-sell'),
+                confirmSellBtn: document.getElementById('confirm-sell'),
+                sellToAIBtn: document.getElementById('sell-to-ai-btn'),
+                aiSellPrice: document.getElementById('ai-sell-price'),
+                messageModal: document.getElementById('message-modal'),
+                messageText: document.getElementById('message-text'),
+                closeMessageBtn: document.getElementById('close-message'),
+                confirmationModal: document.getElementById('confirmation-modal'),
+                eventBanner: document.getElementById('event-banner'),
+                chatBox: document.getElementById('chat-box'),
+                chatForm: document.getElementById('chat-form'),
+                chatInput: document.getElementById('chat-input'),
+                tabs: { marketplace: document.getElementById('tab-marketplace'), pawnShop: document.getElementById('tab-pawn-shop'), exoticWares: document.getElementById('tab-exotic-wares'), hypeShop: document.getElementById('tab-hype-shop') },
+                containers: { marketplace: document.getElementById('marketplace-container'), pawnShop: document.getElementById('pawn-shop-container'), exoticWares: document.getElementById('exotic-wares-container'), hypeShop: document.getElementById('hype-shop-container') },
+                hypeShop: document.getElementById('hype-shop'),
+                exoticWares: document.getElementById('exotic-wares'),
+                pawnShop: document.getElementById('pawn-shop'),
+                refreshPawnStockBtn: document.getElementById('refresh-pawn-stock-btn'),
+                adminLoginBtn: document.getElementById('admin-login-btn'),
+                adminLoginModal: document.getElementById('admin-login-modal'),
+                adminPanel: document.getElementById('admin-panel'),
+                adminItemSelect: document.getElementById('admin-item-select'),
+                adminClearChatBtn: document.getElementById('admin-clear-chat-btn'),
+                adminResetBtn: document.getElementById('admin-reset-btn'),
+                achievementsList: document.getElementById('achievements-list'),
+                playerProfileModal: document.getElementById('player-profile-modal'),
+                playerProfileContent: document.getElementById('player-profile-content'),
+                smiteOverlay: document.getElementById('smite-overlay'),
+            };
+
             const itemOptions = Object.keys(allItems).map(id => `<option value="${id}">${allItems[id].name}</option>`).join('');
             ui.adminItemSelect.innerHTML = itemOptions;
             
@@ -1168,7 +1170,7 @@
             });
         }
 
-        main();
+        window.addEventListener('DOMContentLoaded', main);
 
     </script>
 </body>
