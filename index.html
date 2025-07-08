@@ -75,6 +75,13 @@
             bottom: 20px;
             right: 20px;
             z-index: 100;
+            width: 450px;
+        }
+        .chat-message {
+            padding: 4px 8px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            max-width: 90%;
         }
     </style>
 </head>
@@ -85,34 +92,39 @@
         <div class="text-lg">Connecting to the server...</div>
     </div>
 
-    <div class="container mx-auto p-4 max-w-7xl hidden" id="game-container">
+    <div class="container mx-auto p-4 max-w-screen-xl hidden" id="game-container">
         <!-- Header -->
         <header class="mb-6 p-4 rounded-lg bg-gray-800 border border-cyan-400 shadow-lg">
             <div class="flex justify-between items-start">
-                 <h1 class="text-4xl font-orbitron text-cyan-400">HYPEBEAST SIMULATOR</h1>
+                 <div>
+                    <h1 class="text-4xl font-orbitron text-cyan-400">HYPEBEAST SIMULATOR</h1>
+                    <p class="text-lg">Welcome, <span id="player-display-name" class="font-bold text-yellow-300"></span></p>
+                 </div>
                  <div class="text-right">
                     <button id="admin-login-btn" class="text-xs bg-red-800 hover:bg-red-700 px-2 py-1 rounded-full mb-2">Admin</button>
-                    <p class="text-lg">Player ID: <span id="player-id" class="font-mono text-yellow-300"></span></p>
-                    <p class="text-sm text-gray-400">(Share this ID to trade or for admin actions)</p>
+                    <p class="text-sm">Player ID: <span id="player-id" class="font-mono text-gray-400"></span></p>
+                    <p class="text-sm text-gray-400">(Share this ID for admin actions)</p>
                 </div>
             </div>
         </header>
         
-        <!-- Random Event Banner -->
+        <!-- Banners -->
         <div id="event-banner" class="hidden mb-4 p-3 rounded-lg bg-yellow-500 text-black font-bold text-center fade-in"></div>
+        <div id="bet-banner" class="hidden mb-4 p-4 rounded-lg bg-purple-800 border border-purple-400 text-white font-bold text-center fade-in"></div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <!-- Left Column -->
             <div class="lg:col-span-1 space-y-6">
                 <!-- Player Stats -->
                 <div class="card p-4 rounded-lg">
                     <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">My Empire</h2>
                     <div class="space-y-3">
+                        <div class="flex justify-between items-center"><span>Level:</span><span id="player-level" class="text-2xl font-bold text-yellow-400">0</span></div>
                         <div class="flex justify-between items-center"><span>Cash:</span><span id="player-cash" class="text-2xl font-bold text-green-400">$0</span></div>
                         <div class="flex justify-between items-center"><span>Hype Points:</span><span id="player-hype-points" class="text-2xl font-bold text-orange-400">0</span></div>
                         <div class="flex justify-between items-center"><span>Inventory Value:</span><span id="inventory-value" class="text-lg font-bold text-purple-400">$0</span></div>
                         <div class="flex justify-between items-center"><span>Net Worth:</span><span id="net-worth" class="text-lg font-bold text-yellow-400">$0</span></div>
-                        <div class="flex justify-between items-center"><span>Items Sold:</span><span id="items-sold" class="text-lg font-bold text-cyan-400">0</span></div>
+                        <div class="flex justify-between items-center"><span>Player Sales:</span><span id="items-sold" class="text-lg font-bold text-cyan-400">0</span></div>
                     </div>
                     <button id="get-starter-pack" class="btn w-full mt-4 bg-green-500 hover:bg-green-600">Get Starter Pack</button>
                     <button id="buy-loot-box" class="btn w-full mt-2 bg-purple-500 hover:bg-purple-600">Buy Loot Box ($500)</button>
@@ -125,7 +137,7 @@
                 </div>
             </div>
 
-            <!-- Right Column -->
+            <!-- Center Column -->
             <div class="lg:col-span-2 space-y-6">
                 <!-- Tabs -->
                 <div class="flex border-b border-gray-600">
@@ -137,124 +149,73 @@
 
                 <!-- Main Content Panes -->
                 <div id="main-content-area">
-                    <!-- Marketplace -->
-                    <div id="marketplace-container" class="card p-4 rounded-lg">
-                        <div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[550px] overflow-y-auto pr-2"></div>
-                    </div>
-                    <!-- Pawn Shop -->
+                    <div id="marketplace-container" class="card p-4 rounded-lg"><div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div></div>
                     <div id="pawn-shop-container" class="card p-4 rounded-lg hidden">
                          <div class="flex justify-between items-center mb-4">
                             <h3 class="text-xl font-orbitron text-yellow-400">Second-Hand Goods</h3>
-                            <button id="refresh-pawn-stock-btn" class="btn bg-yellow-600 text-sm py-1 px-3">Refresh Stock (Manual)</button>
+                            <button id="refresh-pawn-stock-btn" class="btn bg-yellow-600 text-sm py-1 px-3">Refresh Stock</button>
                         </div>
-                        <div id="pawn-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2"></div>
+                        <div id="pawn-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[650px] overflow-y-auto pr-2"></div>
                     </div>
-                     <!-- Exotic Wares -->
                     <div id="exotic-wares-container" class="card p-4 rounded-lg hidden">
                         <h3 class="text-xl font-orbitron text-green-400 mb-4">The Collector's Corner</h3>
-                        <div id="exotic-wares" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[550px] overflow-y-auto pr-2"></div>
+                        <div id="exotic-wares" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div>
                     </div>
-                    <!-- Hype Shop -->
                     <div id="hype-shop-container" class="card p-4 rounded-lg hidden">
                         <h3 class="text-xl font-orbitron text-orange-400 mb-4">Hype Rewards</h3>
-                         <div id="hype-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[550px] overflow-y-auto pr-2"></div>
+                         <div id="hype-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div>
                     </div>
                 </div>
-                
-                <!-- Game Log -->
+            </div>
+
+            <!-- Right Column (Chat & Log) -->
+            <div class="lg:col-span-1 space-y-6">
+                 <!-- Game Log -->
                 <div class="card p-4 rounded-lg">
                     <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">Activity Feed</h2>
-                    <div id="game-log" class="text-sm space-y-2 max-h-40 overflow-y-auto pr-2 font-mono"></div>
+                    <div id="game-log" class="text-sm space-y-2 h-64 overflow-y-auto pr-2 font-mono"></div>
+                </div>
+                 <!-- Global Chat -->
+                <div class="card p-4 rounded-lg flex flex-col h-[400px]">
+                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">Global Chat</h2>
+                    <div id="chat-box" class="flex-grow flex flex-col space-y-2 overflow-y-auto pr-2 mb-2"></div>
+                    <form id="chat-form" class="flex gap-2">
+                        <input type="text" id="chat-input" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="Say something...">
+                        <button type="submit" class="btn bg-cyan-600 px-4">Send</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modals -->
-    <div id="sell-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40">
-        <div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20">
-            <h3 class="text-2xl font-orbitron mb-4 text-cyan-300">Sell Item</h3>
-            <div id="sell-item-display" class="mb-4"></div>
-            <div class="bg-gray-700 p-3 rounded-lg mb-4">
-                <p class="font-bold">Option 1: List on Player Market</p>
-                <p class="text-sm text-gray-400 mb-2">Set your price and wait for another player to buy. High risk, high reward!</p>
-                <input type="number" id="sell-price" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="e.g., 500">
-                 <button id="confirm-sell" class="btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600">List on Market</button>
-            </div>
-             <div class="bg-gray-700 p-3 rounded-lg mb-4">
-                <p class="font-bold">Option 2: Sell to AI Collector</p>
-                <p class="text-sm text-gray-400 mb-2">Sell instantly for a guaranteed price. Quick cash, but less profit.</p>
-                <button id="sell-to-ai-btn" class="btn w-full bg-green-600 hover:bg-green-700">Sell Now for <span id="ai-sell-price"></span></button>
-            </div>
-            <div class="flex justify-end">
-                <button id="cancel-sell" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Cancel</button>
-            </div>
-        </div>
-    </div>
-    <div id="message-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40">
-        <div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20 text-center">
-            <p id="message-text" class="text-lg mb-4"></p>
-            <button id="close-message" class="btn bg-cyan-500 hover:bg-cyan-600 px-6 py-2">OK</button>
-        </div>
-    </div>
-    <div id="admin-login-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50">
-        <div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20">
-            <h3 class="text-2xl font-orbitron mb-4 text-red-500">Admin Login</h3>
-            <input type="text" id="admin-user" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-2" placeholder="Username">
-            <input type="password" id="admin-pass" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-4" placeholder="Password">
-            <div class="flex justify-end gap-4">
-                <button id="cancel-admin-login" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button>
-                <button id="confirm-admin-login" class="btn bg-red-500 hover:bg-red-600">Login</button>
-            </div>
-        </div>
-    </div>
+    <div id="sell-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20"><h3 class="text-2xl font-orbitron mb-4 text-cyan-300">Sell Item</h3><div id="sell-item-display" class="mb-4"></div><div class="bg-gray-700 p-3 rounded-lg mb-4"><p class="font-bold">Option 1: List on Player Market</p><p class="text-sm text-gray-400 mb-2">Set your price and wait for another player to buy. High risk, high reward!</p><input type="number" id="sell-price" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="e.g., 500"><button id="confirm-sell" class="btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600">List on Market</button></div><div class="bg-gray-700 p-3 rounded-lg mb-4"><p class="font-bold">Option 2: Sell to AI Collector</p><p class="text-sm text-gray-400 mb-2">Sell instantly for a guaranteed price. Quick cash, but less profit.</p><button id="sell-to-ai-btn" class="btn w-full bg-green-600 hover:bg-green-700">Sell Now for <span id="ai-sell-price"></span></button></div><div class="flex justify-end"><button id="cancel-sell" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Cancel</button></div></div></div>
+    <div id="message-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20 text-center"><p id="message-text" class="text-lg mb-4"></p><button id="close-message" class="btn bg-cyan-500 hover:bg-cyan-600 px-6 py-2">OK</button></div></div>
+    <div id="admin-login-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 class="text-2xl font-orbitron mb-4 text-red-500">Admin Login</h3><input type="text" id="admin-user" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-2" placeholder="Username"><input type="password" id="admin-pass" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-4" placeholder="Password"><div class="flex justify-end gap-4"><button id="cancel-admin-login" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-admin-login" class="btn bg-red-500 hover:bg-red-600">Login</button></div></div></div>
+    <div id="confirmation-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 id="confirmation-title" class="text-xl font-orbitron mb-4 text-yellow-400">Are you sure?</h3><p id="confirmation-text" class="mb-4">This action cannot be undone.</p><div class="flex justify-end gap-4"><button id="cancel-confirmation" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-action" class="btn bg-red-500 hover:bg-red-600">Confirm</button></div></div></div>
 
     <!-- Admin Panel -->
-    <div id="admin-panel" class="card p-4 rounded-lg w-96 hidden">
+    <div id="admin-panel" class="card p-4 rounded-lg hidden overflow-y-auto max-h-[90vh]">
         <h2 class="text-2xl font-orbitron border-b border-red-500 pb-2 mb-4 text-red-400">Admin Controls</h2>
-        <div class="space-y-4">
-            <!-- Give Cash -->
-            <div>
-                <label class="font-bold">Give Cash</label>
-                <div class="flex gap-2">
-                    <input type="text" id="admin-cash-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID">
-                    <input type="number" id="admin-cash-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount">
-                    <button id="admin-give-cash-btn" class="btn bg-green-600 text-sm px-2">Give</button>
-                </div>
+        <div class="space-y-3">
+            <div><label class="font-bold">Change Username</label><div class="flex gap-2"><input type="text" id="admin-name-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="text" id="admin-new-name" class="w-full bg-gray-800 p-1 rounded" placeholder="New Name"><button id="admin-change-name-btn" class="btn bg-yellow-600 text-sm px-2">Set</button></div></div>
+            <div><label class="font-bold">Set Level</label><div class="flex gap-2"><input type="text" id="admin-level-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-level-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Level"><button id="admin-set-level-btn" class="btn bg-yellow-600 text-sm px-2">Set</button></div></div>
+            <div><label class="font-bold">Give Cash</label><div class="flex gap-2"><input type="text" id="admin-cash-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-cash-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount"><button id="admin-give-cash-btn" class="btn bg-green-600 text-sm px-2">Give</button></div></div>
+            <div><label class="font-bold">Give Hype Points</label><div class="flex gap-2"><input type="text" id="admin-hype-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-hype-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount"><button id="admin-give-hype-btn" class="btn bg-orange-600 text-sm px-2">Give</button></div></div>
+            <div><label class="font-bold">Give Item</label><div class="flex gap-2"><input type="text" id="admin-item-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><select id="admin-item-select" class="w-full bg-gray-800 p-1 rounded"></select><button id="admin-give-item-btn" class="btn bg-purple-600 text-sm px-2">Give</button></div></div>
+            <div><label class="font-bold">Broadcast Message</label><div class="flex gap-2"><input type="text" id="admin-broadcast-msg" class="w-full bg-gray-800 p-1 rounded" placeholder="Message..."><button id="admin-broadcast-btn" class="btn bg-cyan-600 text-sm px-2">Send</button></div></div>
+            <div id="admin-bet-controls" class="border-t border-red-500 pt-3 mt-3 space-y-3">
+                <h3 class="text-lg font-orbitron text-purple-400">Betting</h3>
+                <div><label>Bet Question</label><input type="text" id="admin-bet-question" class="w-full bg-gray-800 p-1 rounded" placeholder="E.g., Will team A win?"></div>
+                <div class="grid grid-cols-2 gap-2"><div><label>Option 1</label><input type="text" id="admin-bet-opt1" class="w-full bg-gray-800 p-1 rounded" placeholder="E.g., Yes"></div><div><label>Option 2</label><input type="text" id="admin-bet-opt2" class="w-full bg-gray-800 p-1 rounded" placeholder="E.g., No"></div></div>
+                <div><label>Cash Reward</label><input type="number" id="admin-bet-cash" class="w-full bg-gray-800 p-1 rounded" value="1000"></div>
+                <div><label>Item Reward</label><select id="admin-bet-item" class="w-full bg-gray-800 p-1 rounded"></select></div>
+                <button id="admin-start-bet-btn" class="btn w-full bg-purple-600">Start Bet</button>
             </div>
-            <!-- Give Hype -->
-            <div>
-                <label class="font-bold">Give Hype Points</label>
-                <div class="flex gap-2">
-                    <input type="text" id="admin-hype-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID">
-                    <input type="number" id="admin-hype-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount">
-                    <button id="admin-give-hype-btn" class="btn bg-orange-600 text-sm px-2">Give</button>
-                </div>
-            </div>
-            <!-- Give Item -->
-            <div>
-                <label class="font-bold">Give Item</label>
-                <div class="flex gap-2">
-                    <input type="text" id="admin-item-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID">
-                    <select id="admin-item-select" class="w-48 bg-gray-800 p-1 rounded"></select>
-                    <button id="admin-give-item-btn" class="btn bg-purple-600 text-sm px-2">Give</button>
-                </div>
-            </div>
-            <!-- Broadcast -->
-            <div>
-                <label class="font-bold">Broadcast Message</label>
-                <div class="flex gap-2">
-                    <input type="text" id="admin-broadcast-msg" class="w-full bg-gray-800 p-1 rounded" placeholder="Message...">
-                    <button id="admin-broadcast-btn" class="btn bg-cyan-600 text-sm px-2">Send</button>
-                </div>
-            </div>
-             <!-- Reset Player -->
-            <div>
-                <label class="font-bold text-red-500">Reset Player (DANGER)</label>
-                <div class="flex gap-2">
-                    <input type="text" id="admin-reset-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID to Reset">
-                    <button id="admin-reset-btn" class="btn bg-red-800 text-sm px-2">RESET</button>
-                </div>
+            <div class="border-t border-red-500 pt-3 mt-3 space-y-3">
+                <h3 class="font-bold text-red-500">Danger Zone</h3>
+                <button id="admin-clear-log-btn" class="btn w-full bg-red-700">Clear Activity Feed</button>
+                <div class="flex gap-2"><input type="text" id="admin-reset-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID to Reset"><button id="admin-reset-btn" class="btn bg-red-800 text-sm px-2">RESET</button></div>
             </div>
         </div>
     </div>
@@ -262,7 +223,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, runTransaction, increment, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, collection, addDoc, deleteDoc, runTransaction, increment, getDocs, writeBatch, serverTimestamp, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         // --- FIREBASE CONFIG ---
@@ -275,7 +236,7 @@
             appId: "1:788150739009:web:9c06e6ae1c5ec15c4c66c0",
             measurementId: "G-T1YL986BMB"
         };
-        const appId = 'hypebeast-simulator-v2'; // Use a unique ID for your app
+        const appId = 'hypebeast-simulator-v2';
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
@@ -285,13 +246,16 @@
         let currentPlayer = null;
         let currentUserId = null;
         let itemToSellId = null;
-        let originalItemValues = {}; // To store base values before events
+        let originalItemValues = {};
         let isAdmin = false;
+        let confirmationCallback = null;
 
         // --- UI ELEMENTS ---
         const loadingScreen = document.getElementById('loading-screen');
         const gameContainer = document.getElementById('game-container');
         const playerIdEl = document.getElementById('player-id');
+        const playerDisplayNameEl = document.getElementById('player-display-name');
+        const playerLevelEl = document.getElementById('player-level');
         const playerCashEl = document.getElementById('player-cash');
         const playerHypePointsEl = document.getElementById('player-hype-points');
         const inventoryValueEl = document.getElementById('inventory-value');
@@ -312,21 +276,15 @@
         const messageModal = document.getElementById('message-modal');
         const messageText = document.getElementById('message-text');
         const closeMessageBtn = document.getElementById('close-message');
+        const confirmationModal = document.getElementById('confirmation-modal');
         const eventBanner = document.getElementById('event-banner');
+        const betBanner = document.getElementById('bet-banner');
+        const chatBox = document.getElementById('chat-box');
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
         
-        // Tabs and Containers
-        const tabs = {
-            marketplace: document.getElementById('tab-marketplace'),
-            pawnShop: document.getElementById('tab-pawn-shop'),
-            exoticWares: document.getElementById('tab-exotic-wares'),
-            hypeShop: document.getElementById('tab-hype-shop'),
-        };
-        const containers = {
-            marketplace: document.getElementById('marketplace-container'),
-            pawnShop: document.getElementById('pawn-shop-container'),
-            exoticWares: document.getElementById('exotic-wares-container'),
-            hypeShop: document.getElementById('hype-shop-container'),
-        };
+        const tabs = { marketplace: document.getElementById('tab-marketplace'), pawnShop: document.getElementById('tab-pawn-shop'), exoticWares: document.getElementById('tab-exotic-wares'), hypeShop: document.getElementById('tab-hype-shop') };
+        const containers = { marketplace: document.getElementById('marketplace-container'), pawnShop: document.getElementById('pawn-shop-container'), exoticWares: document.getElementById('exotic-wares-container'), hypeShop: document.getElementById('hype-shop-container') };
         const hypeShopEl = document.getElementById('hype-shop');
         const exoticWaresEl = document.getElementById('exotic-wares');
         const pawnShopEl = document.getElementById('pawn-shop');
@@ -339,7 +297,8 @@
         const confirmAdminLoginBtn = document.getElementById('confirm-admin-login');
         const adminPanel = document.getElementById('admin-panel');
         const adminItemSelect = document.getElementById('admin-item-select');
-
+        const adminBetItemSelect = document.getElementById('admin-bet-item');
+        const adminBetControls = document.getElementById('admin-bet-controls');
 
         // --- ITEM DATABASES ---
         const clothingItems = {
@@ -354,18 +313,38 @@
             'watch01': { name: 'Carbon Fiber Watch', baseValue: 800, svg: `<svg viewBox="0 0 100 100" class="item-svg"><circle cx="50" cy="50" r="30" fill="#222" stroke="#aaa" stroke-width="2"/><path d="M50 20 L50 10 M50 80 L50 90 M20 50 L10 50 M80 50 L90 50" stroke="#444" stroke-width="4"/><path d="M50 50 L50 30" stroke="#fff" stroke-width="2"/><path d="M50 50 L65 50" stroke="#fff" stroke-width="1"/></svg>`, category: 'accessories' },
             'jacket02': { name: 'Holographic Puffer', baseValue: 2500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><linearGradient id="holo" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff00ff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient></defs><path d="M10 30 L90 30 L80 90 L20 90 Z" fill="url(#holo)"/><path d="M10 30 C10 10 90 10 90 30" fill="url(#holo)"/></svg>`, category: 'clothing' },
             'sneaker03': { name: 'Self-Lacing Kicks', baseValue: 5000, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#ccc" stroke="#0ff" stroke-width="1"/><path d="M50 30 L55 20 M75 30 L70 20" stroke="#0ff" stroke-width="1.5"/></svg>`, category: 'shoes' },
+            'bag01': { name: 'Crossbody Bag', baseValue: 75, svg: `<svg viewBox="0 0 100 100" class="item-svg"><rect x="20" y="30" width="60" height="40" rx="5" fill="#4A5568"/><path d="M10 20 L90 80" stroke="#718096" stroke-width="4"/></svg>`, category: 'accessories' },
+            'sunglasses01': { name: 'Clout Goggles', baseValue: 150, svg: `<svg viewBox="0 0 120 50" class="item-svg"><ellipse cx="40" cy="25" rx="25" ry="15" fill="white" stroke="black" stroke-width="2"/><ellipse cx="80" cy="25" rx="25" ry="15" fill="white" stroke="black" stroke-width="2"/><path d="M65 25 H 55" stroke="black" stroke-width="2"/></svg>`, category: 'accessories' },
+            'bucket_hat01': { name: 'Bucket Hat', baseValue: 45, svg: `<svg viewBox="0 0 100 60" class="item-svg"><path d="M10 50 Q 50 65 90 50 L 80 20 Q 50 10 20 20 Z" fill="#F7FAFC" stroke="#A0AEC0" stroke-width="1"/></svg>`, category: 'clothing' },
+            'chain01': { name: 'Gold Chain', baseValue: 1200, svg: `<svg viewBox="0 0 100 100" class="item-svg"><circle cx="50" cy="50" r="30" fill="none" stroke="gold" stroke-width="5" stroke-dasharray="10 5"/></svg>`, category: 'accessories' },
+            'slides01': { name: 'Designer Slides', baseValue: 250, svg: `<svg viewBox="0 0 100 40" class="item-svg"><path d="M10 35 L 90 35 L 90 30 Q 50 20 10 30 Z" fill="#1A202C"/><path d="M20 28 Q 50 10 80 28" fill="none" stroke="#EDF2F7" stroke-width="3"/></svg>`, category: 'shoes' },
+            'varsity01': { name: 'Varsity Jacket', baseValue: 350, svg: `<svg viewBox="0 0 100 90" class="item-svg"><path d="M10 20 L90 20 L80 80 L20 80 Z" fill="#800000" stroke="#FFD700" stroke-width="2"/><path d="M10 20 L0 5 L30 20" fill="#F7FAFC"/><path d="M90 20 L100 5 L70 20" fill="#F7FAFC"/><text x="50" y="60" font-size="30" fill="#FFD700" text-anchor="middle" font-family="Orbitron">H</text></svg>`, category: 'clothing' },
+            'cargo01': { name: 'Cargo Pants', baseValue: 110, svg: `<svg viewBox="0 0 80 120" class="item-svg"><path d="M10 10 L70 10 L60 110 L20 110 Z" fill="#6B8E23" stroke="#000" stroke-width="1"/><rect x="5" y="50" width="15" height="20" fill="#556B2F"/><rect x="60" y="50" width="15" height="20" fill="#556B2F"/></svg>`, category: 'clothing' },
+            'boots01': { name: 'Combat Boots', baseValue: 280, svg: `<svg viewBox="0 0 100 70" class="item-svg"><path d="M10 60 L 90 60 L 90 30 L 70 30 L 70 10 L 30 10 L 30 30 L 10 30 Z" fill="#2d3748" stroke="#000" stroke-width="1"/><rect x="5" y="60" width="90" height="5" fill="#1a202c"/></svg>`, category: 'shoes' },
         };
         const exoticItems = {
             'mushroom01': { name: 'Glow Shroom', cost: 2000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="rgba(100,255,255,0.8)"/><stop offset="100%" stop-color="rgba(100,255,255,0)"/></radialGradient></defs><path d="M40 90 L60 90 L60 60 L70 60 C 90 60 90 40 70 40 L30 40 C10 40 10 60 30 60 L40 60 Z" fill="#9400D3"/><circle cx="50" cy="50" r="40" fill="url(#glow)"/></svg>`, category: 'exotic' },
             'grass01': { name: 'Emerald Grass', cost: 1500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><g stroke="#00ff7f" stroke-width="3" stroke-linecap="round"><path d="M20 90 C 30 20, 40 20, 50 90"/><path d="M40 90 C 50 30, 60 30, 70 90"/><path d="M60 90 C 70 40, 80 40, 90 90"/></g></svg>`, category: 'exotic' },
             'crystal01': { name: 'Crimson Crystal', cost: 5000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M50 10 L20 40 L30 90 L70 90 L80 40 Z" fill="#DC143C" stroke="#FF6347" stroke-width="3"/><path d="M50 10 L50 90 M20 40 L80 40 M30 90 L50 40 L70 90" stroke="#FF0000" stroke-width="1.5" opacity="0.7"/></svg>`, category: 'exotic' },
             'orb01': { name: 'Floating Orb', cost: 10000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><radialGradient id="orbGlow" cx="50%" cy="50%" r="50%"><stop offset="60%" stop-color="rgba(255,215,0,1)"/><stop offset="100%" stop-color="rgba(255,165,0,0)"/></radialGradient></defs><circle cx="50" cy="50" r="25" fill="gold"/><circle cx="50" cy="50" r="40" fill="url(#orbGlow)"/><path d="M30 75 Q 50 65, 70 75" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/></svg>`, category: 'exotic' },
+            'meteorite01': { name: 'Meteorite Fragment', cost: 15000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 50 C 20 20, 80 20, 80 50 C 80 80, 20 80, 20 50" fill="#4d4d4d" stroke="#262626" stroke-width="3"/><circle cx="40" cy="40" r="5" fill="#333"/><circle cx="65" cy="60" r="8" fill="#333"/><circle cx="50" cy="70" r="3" fill="#333"/></svg>`, category: 'exotic' },
+            'relic01': { name: 'Ancient Relic', cost: 25000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M30 90 L 70 90 L 70 70 L 80 70 L 80 40 L 60 20 L 40 20 L 20 40 L 20 70 L 30 70 Z" fill="#DAA520"/><circle cx="50" cy="50" r="10" fill="#B8860B"/></svg>`, category: 'exotic' },
+            'star_dust01': { name: 'Star Dust Vial', cost: 7500, svg: `<svg viewBox="0 0 60 100" class="item-svg"><path d="M20 90 L40 90 L40 30 Q 30 10 20 30 Z" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="2"/><text font-size="10" x="30" y="60" fill="yellow" text-anchor="middle">✨</text><text font-size="10" x="25" y="40" fill="white" text-anchor="middle">✨</text><text font-size="10" x="35" y="80" fill="lightblue" text-anchor="middle">✨</text></svg>`, category: 'exotic' },
         };
         const hypeShopItems = {
             'drone01': { name: 'Mini Drone', points: 500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M40 40 L60 40 L60 60 L40 60 Z" fill="#ccc"/><path d="M50 40 L50 10 M50 60 L50 90 M40 50 L10 50 M60 50 L90 50" stroke="#333" stroke-width="2"/><circle cx="10" cy="50" r="5" fill="#555"/><circle cx="90" cy="50" r="5" fill="#555"/><circle cx="50" cy="10" r="5" fill="#555"/><circle cx="50" cy="90" r="5" fill="#555"/></svg>`, category: 'hype' },
             'keyboard01': { name: 'RGB Keyboard', points: 1000, svg: `<svg viewBox="0 0 120 50" class="item-svg"><rect x="10" y="10" width="100" height="30" rx="5" fill="#222" stroke="#555"/><rect x="15" y="15" width="10" height="5" fill="red"/><rect x="30" y="15" width="10" height="5" fill="orange"/><rect x="45" y="15" width="10" height="5" fill="yellow"/><rect x="60" y="15" width="10" height="5" fill="green"/><rect x="75" y="15" width="10" height="5" fill="blue"/><rect x="90" y="15" width="10" height="5" fill="purple"/></svg>`, category: 'hype' },
             'vr01': { name: 'VR Headset', points: 2500, svg: `<svg viewBox="0 0 100 60" class="item-svg"><path d="M10 10 H 90 V 50 H 10 Z" fill="#111" stroke="#0ff" stroke-width="1"/><path d="M90 20 H 100 V 40 H 90" stroke="#333" stroke-width="3"/><path d="M10 20 H 0 V 40 H 10" stroke="#333" stroke-width="3"/></svg>`, category: 'hype' },
+            'scooter01': { name: 'Electric Scooter', points: 5000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M30 80 L 80 80 L 80 70 L 60 70 L 60 30 L 50 30 L 50 70 L 30 70 Z" stroke="white" fill="none" stroke-width="3"/><circle cx="30" cy="85" r="5" fill="white"/><circle cx="80" cy="85" r="5" fill="white"/></svg>`, category: 'hype' },
+            'gaming_chair01': { name: 'Gaming Chair', points: 7500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M40 90 L60 90 L60 60 L70 60 L70 20 L30 20 L30 60 L40 60 Z" fill="#C70039"/><path d="M20 60 L80 60" stroke="#900C3F" stroke-width="4"/></svg>`, category: 'hype' },
+            'neonsign01': { name: 'Custom Neon Sign', points: 3000, svg: `<svg viewBox="0 0 150 60" class="item-svg"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="30" font-family="Orbitron" fill="#FF00FF" stroke="#FF00FF" stroke-width="1" style="filter: drop-shadow(0 0 5px #FF00FF);">HYPE</text></svg>`, category: 'hype' },
         };
+        // Add 30 more items to clothingItems
+        for(let i = 1; i <= 10; i++) {
+            clothingItems[`tee_new_${i}`] = { name: `Graphic Tee ${i}`, baseValue: 25 + i * 5, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 30 L80 30 L85 80 L15 80 Z" fill="#${Math.floor(Math.random()*16777215).toString(16)}" stroke="#ccc" stroke-width="1"/><text x="50" y="60" text-anchor="middle" font-size="12">ART ${i}</text></svg>`, category: 'clothing' };
+            clothingItems[`cap_new_${i}`] = { name: `Designer Cap ${i}`, baseValue: 40 + i * 6, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 25 C 10 10, 90 10, 90 25 L 10 25 Z" fill="#${Math.floor(Math.random()*16777215).toString(16)}"/><text x="50" y="30" text-anchor="middle" fill="white" font-size="10">D${i}</text></svg>`, category: 'clothing' };
+            clothingItems[`sneaker_new_${i}`] = { name: `Limited Sneaker ${i}`, baseValue: 200 + i * 50, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#${Math.floor(Math.random()*16777215).toString(16)}" stroke="#0ff" stroke-width="1"/><path d="M50 30 L55 20 M75 30 L70 20" stroke="#${Math.floor(Math.random()*16777215).toString(16)}" stroke-width="1.5"/></svg>`, category: 'shoes' };
+        }
         const allGameItems = { ...clothingItems, ...exoticItems, ...hypeShopItems };
         
         Object.keys(clothingItems).forEach(key => {
@@ -377,20 +356,19 @@
         onAuthStateChanged(auth, user => {
             if (user) {
                 currentUserId = user.uid;
-                playerIdEl.textContent = currentUserId; // Show full ID
+                playerIdEl.textContent = currentUserId;
                 initPlayer(currentUserId);
                 listenToMarketplace();
                 listenToPawnShop();
                 listenToLogs();
+                listenToChat();
+                listenToActiveBet();
                 populateAdminItemSelect();
                 setInterval(runAIBuyerLogic, 60000); 
                 setInterval(refreshPawnShopStock, 300000);
                 setInterval(triggerRandomEvent, 180000);
             } else {
-                signInAnonymously(auth).catch(error => {
-                    console.error("Anonymous sign-in failed:", error);
-                    showMessage("Error connecting. Please enable anonymous sign-in in Firebase.");
-                });
+                signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
             }
         });
 
@@ -399,43 +377,46 @@
             const playerSnap = await getDoc(playerRef);
             if (!playerSnap.exists()) {
                 await setDoc(playerRef, { 
+                    displayName: `Player${userId.substring(0,4)}`,
+                    level: 1,
+                    itemsSoldToPlayers: 0,
                     cash: 1000, 
                     hypePoints: 0, 
                     inventory: {}, 
                     stats: { itemsSold: 0 },
-                    starterPackClaimed: false 
+                    starterPackClaimed: false,
+                    votedBets: []
                 });
                 addLog(`A new hustler, ${userId.substring(0,4)}..., just hit the streets.`);
             }
             onSnapshot(playerRef, (doc) => {
                 currentPlayer = doc.data();
                 updateUI();
-                loadingScreen.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
+                if(loadingScreen.classList.contains('flex')) {
+                    loadingScreen.classList.replace('flex', 'hidden');
+                    gameContainer.classList.remove('hidden');
+                }
             });
         }
 
         // --- UI & RENDERING ---
         function updateUI() {
             if (!currentPlayer) return;
-            playerCashEl.textContent = `$${currentPlayer.cash.toLocaleString()}`;
+            playerDisplayNameEl.textContent = currentPlayer.displayName || `Player${currentUserId.substring(0,4)}`;
+            playerLevelEl.textContent = currentPlayer.level || 1;
+            playerCashEl.textContent = `$${Math.floor(currentPlayer.cash).toLocaleString()}`;
             playerHypePointsEl.textContent = currentPlayer.hypePoints.toLocaleString();
-            itemsSoldEl.textContent = (currentPlayer.stats && currentPlayer.stats.itemsSold) ? currentPlayer.stats.itemsSold : 0;
+            itemsSoldEl.textContent = currentPlayer.itemsSoldToPlayers || 0;
             
-            if (currentPlayer.starterPackClaimed) {
-                getStarterPackBtn.disabled = true;
-                getStarterPackBtn.textContent = "Starter Pack Claimed";
-            } else {
-                 getStarterPackBtn.disabled = false;
-                 getStarterPackBtn.textContent = "Get Starter Pack";
-            }
+            getStarterPackBtn.disabled = currentPlayer.starterPackClaimed;
+            getStarterPackBtn.textContent = currentPlayer.starterPackClaimed ? "Starter Pack Claimed" : "Get Starter Pack";
 
             renderInventory();
             renderHypeShop();
             renderExoticWaresShop();
             const invValue = calculateInventoryValue();
             inventoryValueEl.textContent = `$${invValue.toLocaleString()}`;
-            netWorthEl.textContent = `$${(currentPlayer.cash + invValue).toLocaleString()}`;
+            netWorthEl.textContent = `$${(Math.floor(currentPlayer.cash) + invValue).toLocaleString()}`;
         }
 
         function renderInventory() {
@@ -447,8 +428,8 @@
             const sortedInventory = Object.entries(currentPlayer.inventory).sort(([,a], [,b]) => {
                 const itemA = allGameItems[a.type];
                 const itemB = allGameItems[b.type];
-                const valueA = itemA.baseValue || itemA.cost || itemA.points || 0;
-                const valueB = itemB.baseValue || itemB.cost || itemB.points || 0;
+                const valueA = itemA?.baseValue || itemA?.cost || itemA?.points || 0;
+                const valueB = itemB?.baseValue || itemB?.cost || itemB?.points || 0;
                 return valueB - valueA;
             });
 
@@ -471,14 +452,7 @@
                     sellButton = `<button class="sell-btn btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold py-1 px-2 rounded" data-item-id="${itemId}">Sell</button>`;
                 }
                 
-                card.innerHTML = `
-                    <div>
-                        <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
-                        <p class="font-bold text-sm truncate">${itemDef.name}</p>
-                        ${valueText}
-                    </div>
-                    ${sellButton}
-                `;
+                card.innerHTML = `<div><div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div><p class="font-bold text-sm truncate">${itemDef.name}</p>${valueText}</div>${sellButton}`;
                 playerInventoryEl.appendChild(card);
             }
             document.querySelectorAll('.sell-btn').forEach(b => b.addEventListener('click', () => openSellModal(b.dataset.itemId)));
@@ -536,7 +510,7 @@
                         <div class="w-full h-24 flex items-center justify-center">${itemDef.svg}</div>
                         <p class="font-bold mt-2 truncate">${itemDef.name}</p>
                         <p class="text-lg font-bold text-green-400 my-1">$${listing.price.toLocaleString()}</p>
-                        <p class="text-xs text-gray-400 truncate">Seller: ${listing.sellerId.substring(0, 8)}...</p>
+                        <p class="text-xs text-gray-400 truncate">Seller: ${listing.sellerName || 'Unknown'}</p>
                         ${listing.sellerId !== currentUserId ? `<button class="buy-btn btn w-full mt-auto bg-green-500 hover:bg-green-600" data-listing-id="${doc.id}">Buy</button>` : `<button class="btn w-full mt-auto bg-gray-600" disabled>Your Listing</button>`}
                     `;
                     marketplaceEl.appendChild(card);
@@ -572,24 +546,40 @@
         }
 
         function listenToLogs() {
-            const logsRef = collection(db, "artifacts", appId, "public", "data", "logs");
-            onSnapshot(logsRef, (snapshot) => {
+            const logsQuery = query(collection(db, "artifacts", appId, "public", "data", "logs"), orderBy("timestamp", "desc"), limit(30));
+            onSnapshot(logsQuery, (snapshot) => {
                 gameLogEl.innerHTML = '';
-                let allLogs = [];
-                snapshot.forEach(doc => allLogs.push({ ...doc.data(), id: doc.id }));
-                allLogs.sort((a, b) => b.timestamp - a.timestamp);
-                allLogs = allLogs.slice(0, 20);
-                allLogs.forEach(log => {
+                snapshot.forEach(doc => {
+                    const log = doc.data();
                     const logEntry = document.createElement('p');
                     logEntry.textContent = log.message;
                     if (log.message.includes('bought') || log.message.includes('Sold')) logEntry.className = 'text-green-400';
                     else if (log.message.includes('listed')) logEntry.className = 'text-yellow-400';
                     else if (log.message.includes('unlocked')) logEntry.className = 'text-orange-400';
                     else if (log.message.includes('unboxed')) logEntry.className = 'text-purple-400';
-                    else if (log.message.includes('EVENT') || log.message.includes('ADMIN')) logEntry.className = 'text-red-400 font-bold';
+                    else if (log.message.includes('leveled up')) logEntry.className = 'text-yellow-300 font-bold';
+                    else if (log.message.includes('EVENT') || log.message.includes('ADMIN') || log.message.includes('BET')) logEntry.className = 'text-red-400 font-bold';
                     else logEntry.className = 'text-cyan-400';
                     gameLogEl.appendChild(logEntry);
                 });
+            });
+        }
+        
+        function listenToChat() {
+            const chatQuery = query(collection(db, "artifacts", appId, "public", "data", "chat"), orderBy("timestamp", "desc"), limit(50));
+            onSnapshot(chatQuery, (snapshot) => {
+                const messages = [];
+                snapshot.forEach(doc => messages.push(doc.data()));
+                chatBox.innerHTML = '';
+                messages.reverse().forEach(msg => {
+                    const msgDiv = document.createElement('div');
+                    const senderName = msg.senderName || 'Player';
+                    const isCurrentUser = msg.senderId === currentUserId;
+                    msgDiv.className = `chat-message ${isCurrentUser ? 'bg-blue-800 self-end' : 'bg-gray-700 self-start'}`;
+                    msgDiv.innerHTML = `<span class="font-bold ${isCurrentUser ? 'text-cyan-300' : 'text-yellow-300'}">${senderName}:</span> ${msg.text}`;
+                    chatBox.appendChild(msgDiv);
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
             });
         }
 
@@ -609,7 +599,7 @@
                 starterPackClaimed: true
             });
             showMessage("Starter pack received! Check your closet.");
-            addLog(`${currentUserId.substring(0,4)}... got their first drop.`);
+            addLog(`${currentPlayer.displayName} got their first drop.`);
         });
 
         buyLootBoxBtn.addEventListener('click', async () => {
@@ -627,7 +617,7 @@
 
             const itemName = clothingItems[randomType].name;
             showMessage(`You unboxed: ${itemName}!`);
-            addLog(`${currentUserId.substring(0,4)}... unboxed a ${itemName}!`);
+            addLog(`${currentPlayer.displayName} unboxed a ${itemName}!`);
         });
 
         async function buyHypeItem(itemId) {
@@ -642,7 +632,7 @@
                 inventory: { ...currentPlayer.inventory, ...newItem }
             });
             showMessage(`You unlocked the ${item.name}!`);
-            addLog(`${currentUserId.substring(0,4)}... unlocked the ${item.name}!`);
+            addLog(`${currentPlayer.displayName} unlocked the ${item.name}!`);
         }
 
         async function buyExoticItem(itemId) {
@@ -657,7 +647,7 @@
                 inventory: { ...currentPlayer.inventory, ...newItem }
             });
             showMessage(`You bought the rare ${item.name}!`);
-            addLog(`${currentUserId.substring(0,4)}... bought the exotic ${item.name}!`);
+            addLog(`${currentPlayer.displayName} bought the exotic ${item.name}!`);
         }
 
         function openSellModal(itemId) {
@@ -670,14 +660,10 @@
             const aiPrice = Math.round(itemDef.baseValue * 0.7);
             aiSellPriceEl.textContent = `$${aiPrice.toLocaleString()}`;
             
-            sellModal.classList.add('flex');
-            sellModal.classList.remove('hidden');
+            sellModal.classList.replace('hidden', 'flex');
         }
 
-        cancelSellBtn.addEventListener('click', () => {
-            sellModal.classList.add('hidden');
-            sellModal.classList.remove('flex');
-        });
+        cancelSellBtn.addEventListener('click', () => sellModal.classList.replace('flex', 'hidden'));
 
         confirmSellBtn.addEventListener('click', async () => {
             const price = parseInt(sellPriceInput.value);
@@ -690,12 +676,15 @@
 
             await updateDoc(playerRef, { inventory: newInventory });
             await addDoc(collection(db, "artifacts", appId, "public", "data", "marketplace"), {
-                sellerId: currentUserId, item: itemToList, price: price, createdAt: new Date()
+                sellerId: currentUserId,
+                sellerName: currentPlayer.displayName,
+                item: itemToList, 
+                price: price, 
+                createdAt: serverTimestamp()
             });
             
-            addLog(`${currentUserId.substring(0,4)}... listed ${clothingItems[itemToList.type].name} for $${price}.`);
-            sellModal.classList.add('hidden');
-            sellModal.classList.remove('flex');
+            addLog(`${currentPlayer.displayName} listed ${clothingItems[itemToList.type].name} for $${price}.`);
+            sellModal.classList.replace('flex', 'hidden');
         });
         
         sellToAIBtn.addEventListener('click', async () => {
@@ -714,8 +703,7 @@
             });
 
             addLog(`Sold ${itemDef.name} to a collector for $${pawnPrice}.`);
-            sellModal.classList.add('hidden');
-            sellModal.classList.remove('flex');
+            sellModal.classList.replace('flex', 'hidden');
         });
 
         async function buyItem(listingId, buyerId = currentUserId) {
@@ -743,23 +731,30 @@
                         transaction.delete(listingRef);
                         return;
                     }
+                    const sellerData = sellerSnap.data();
 
                     const newInventory = { ...buyerData.inventory, [crypto.randomUUID()]: listing.item };
-                    transaction.update(buyerRef, {
-                        cash: increment(-listing.price), inventory: newInventory
-                    });
+                    transaction.update(buyerRef, { cash: increment(-listing.price), inventory: newInventory });
 
                     const pointsEarned = Math.ceil(listing.price / 100);
+                    const newSoldCount = (sellerData.itemsSoldToPlayers || 0) + 1;
+                    const newLevel = Math.floor(newSoldCount / 10) + 1;
+
                     transaction.update(sellerRef, {
                         cash: increment(listing.price),
                         hypePoints: increment(pointsEarned),
-                        'stats.itemsSold': increment(1)
+                        'stats.itemsSold': increment(1),
+                        itemsSoldToPlayers: newSoldCount,
+                        level: newLevel
                     });
                     
                     transaction.delete(listingRef);
                     
-                    const buyerName = buyerId === currentUserId ? currentUserId.substring(0,4) : 'An AI Buyer';
-                    addLog(`${buyerName}... bought ${clothingItems[listing.item.type].name} from ${listing.sellerId.substring(0,4)}... for $${listing.price}.`);
+                    const buyerName = buyerId === currentUserId ? currentPlayer.displayName : 'An AI Buyer';
+                    addLog(`${buyerName} bought ${clothingItems[listing.item.type].name} from ${sellerData.displayName}.`);
+                    if(newLevel > sellerData.level) {
+                        addLog(`${sellerData.displayName} has leveled up to Level ${newLevel}!`);
+                    }
                 });
                 if (buyerId === currentUserId) showMessage("Purchase successful!");
             } catch (error) {
@@ -789,7 +784,7 @@
                     });
                     
                     transaction.delete(listingRef);
-                    addLog(`${currentUserId.substring(0,4)}... bought ${clothingItems[listing.item.type].name} from the pawn shop.`);
+                    addLog(`${currentPlayer.displayName} bought ${clothingItems[listing.item.type].name} from the pawn shop.`);
                 });
                 showMessage("Purchase successful!");
              } catch (error) {
@@ -797,6 +792,20 @@
                 showMessage(typeof error === 'string' ? error : "Pawn shop transaction failed.");
              }
         }
+        
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (text) {
+                await addDoc(collection(db, "artifacts", appId, "public", "data", "chat"), {
+                    senderId: currentUserId,
+                    senderName: currentPlayer.displayName,
+                    text: text,
+                    timestamp: serverTimestamp()
+                });
+                chatInput.value = '';
+            }
+        });
 
         // --- AI & EVENTS ---
         async function runAIBuyerLogic() {
@@ -817,7 +826,7 @@
             if (randomListing.price <= perceivedValue * 1.1) {
                 const aiPlayerId = `ai_buyer_${crypto.randomUUID().substring(0,8)}`;
                 const aiPlayerRef = doc(db, "artifacts", appId, "players", aiPlayerId);
-                await setDoc(aiPlayerRef, { cash: 1000000, hypePoints: 0, inventory: {}, stats: { itemsSold: 0 } });
+                await setDoc(aiPlayerRef, { displayName: "AI Buyer", cash: 1000000, hypePoints: 0, inventory: {}, stats: { itemsSold: 0 } });
                 
                 await buyItem(randomListing.id, aiPlayerId);
             }
@@ -839,7 +848,7 @@
                 batch.set(newListingRef, {
                     item: { type: randomType },
                     price: price,
-                    createdAt: new Date()
+                    createdAt: serverTimestamp()
                 });
             }
             await batch.commit();
@@ -883,13 +892,50 @@
             updateUI();
         }
 
+        // --- BETTING LOGIC ---
+        function listenToActiveBet() {
+            const betRef = doc(db, "artifacts", appId, "public", "data", "bets", "activeBet");
+            onSnapshot(betRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const bet = docSnap.data();
+                    betBanner.innerHTML = `
+                        <h3 class="text-xl mb-2">${bet.question}</h3>
+                        <div class="flex justify-center gap-4">
+                            <button class="bet-vote-btn btn bg-green-500" data-option="1">${bet.option1.text}</button>
+                            <button class="bet-vote-btn btn bg-blue-500" data-option="2">${bet.option2.text}</button>
+                        </div>
+                    `;
+                    betBanner.classList.remove('hidden');
+
+                    if (currentPlayer.votedBets && currentPlayer.votedBets.includes(docSnap.id)) {
+                        betBanner.querySelectorAll('.bet-vote-btn').forEach(b => b.disabled = true);
+                        betBanner.innerHTML += `<p class="text-sm mt-2">You have already voted.</p>`;
+                    } else {
+                        document.querySelectorAll('.bet-vote-btn').forEach(b => b.addEventListener('click', () => playerVoteOnBet(docSnap.id, b.dataset.option)));
+                    }
+                } else {
+                    betBanner.classList.add('hidden');
+                }
+            });
+        }
+
+        async function playerVoteOnBet(betId, option) {
+            if (currentPlayer.votedBets && currentPlayer.votedBets.includes(betId)) {
+                return showMessage("You have already voted in this bet.");
+            }
+            const voteRef = doc(db, "artifacts", appId, "public", "data", "bets", "activeBet", "votes", currentUserId);
+            await setDoc(voteRef, { option: parseInt(option) });
+            await updateDoc(doc(db, "artifacts", appId, "players", currentUserId), {
+                votedBets: [...(currentPlayer.votedBets || []), betId]
+            });
+            showMessage("Your vote has been cast!");
+        }
+
         // --- ADMIN LOGIC ---
         adminLoginBtn.addEventListener('click', () => adminLoginModal.classList.replace('hidden', 'flex'));
         cancelAdminLoginBtn.addEventListener('click', () => adminLoginModal.classList.replace('flex', 'hidden'));
         confirmAdminLoginBtn.addEventListener('click', () => {
-            const user = document.getElementById('admin-user').value;
-            const pass = document.getElementById('admin-pass').value;
-            if (user === 'KHEM' && pass === 'SHIT') {
+             if (document.getElementById('admin-user').value === 'KHEM' && document.getElementById('admin-pass').value === 'SHIT') {
                 isAdmin = true;
                 adminLoginModal.classList.replace('flex', 'hidden');
                 adminPanel.classList.remove('hidden');
@@ -901,13 +947,37 @@
         
         function populateAdminItemSelect() {
             adminItemSelect.innerHTML = '';
+            adminBetItemSelect.innerHTML = '';
             for(const itemId in allGameItems) {
                 const option = document.createElement('option');
                 option.value = itemId;
                 option.textContent = allGameItems[itemId].name;
                 adminItemSelect.appendChild(option);
+                adminBetItemSelect.appendChild(option.cloneNode(true));
             }
         }
+
+        document.getElementById('admin-change-name-btn').addEventListener('click', async () => {
+            if(!isAdmin) return;
+            const targetId = document.getElementById('admin-name-id').value.trim();
+            const newName = document.getElementById('admin-new-name').value.trim();
+            if(!targetId || !newName) return showMessage("Invalid ID or name.");
+            
+            await updateDoc(doc(db, "artifacts", appId, "players", targetId), { displayName: newName });
+            addLog(`ADMIN: Changed name for ${targetId.substring(0,4)}... to ${newName}`);
+            showMessage("Name changed.");
+        });
+
+        document.getElementById('admin-set-level-btn').addEventListener('click', async () => {
+            if(!isAdmin) return;
+            const targetId = document.getElementById('admin-level-id').value.trim();
+            const level = parseInt(document.getElementById('admin-level-amount').value);
+            if(!targetId || isNaN(level) || level < 1) return showMessage("Invalid ID or level.");
+            
+            await updateDoc(doc(db, "artifacts", appId, "players", targetId), { level: level, itemsSoldToPlayers: (level - 1) * 10 });
+            addLog(`ADMIN: Set level for ${targetId.substring(0,4)}... to ${level}`);
+            showMessage("Level set.");
+        });
 
         document.getElementById('admin-give-cash-btn').addEventListener('click', async () => {
             if(!isAdmin) return;
@@ -920,7 +990,7 @@
             addLog(`ADMIN: Gave $${amount.toLocaleString()} to ${targetId.substring(0,4)}...`);
             showMessage("Cash granted.");
         });
-
+        
         document.getElementById('admin-give-hype-btn').addEventListener('click', async () => {
             if(!isAdmin) return;
             const targetId = document.getElementById('admin-hype-id').value.trim();
@@ -940,9 +1010,12 @@
             if(!targetId || !itemId) return showMessage("Invalid ID or item.");
 
             const playerRef = doc(db, "artifacts", appId, "players", targetId);
+            const playerSnap = await getDoc(playerRef);
+            if(!playerSnap.exists()) return showMessage("Player not found.");
+
             const newItem = { [crypto.randomUUID()]: { type: itemId, category: allGameItems[itemId].category } };
             
-            await updateDoc(playerRef, { inventory: { ...currentPlayer.inventory, ...newItem } });
+            await updateDoc(playerRef, { inventory: { ...playerSnap.data().inventory, ...newItem } });
             addLog(`ADMIN: Gave ${allGameItems[itemId].name} to ${targetId.substring(0,4)}...`);
             showMessage("Item granted.");
         });
@@ -951,25 +1024,114 @@
              if(!isAdmin) return;
              const msg = document.getElementById('admin-broadcast-msg').value;
              if(!msg) return showMessage("Message cannot be empty.");
-             triggerRandomEvent(`ADMIN MSG: ${msg}`); // Re-using event banner for broadcast
+             triggerRandomEvent(`ADMIN MSG: ${msg}`);
              addLog(`ADMIN: Broadcasted "${msg}"`);
         });
 
-        document.getElementById('admin-reset-btn').addEventListener('click', async () => {
+        document.getElementById('admin-start-bet-btn').addEventListener('click', async () => {
+            if(!isAdmin) return;
+            const question = document.getElementById('admin-bet-question').value;
+            const opt1 = document.getElementById('admin-bet-opt1').value;
+            const opt2 = document.getElementById('admin-bet-opt2').value;
+            const cashReward = parseInt(document.getElementById('admin-bet-cash').value);
+            const itemReward = document.getElementById('admin-bet-item').value;
+
+            if(!question || !opt1 || !opt2) return showMessage("Bet fields cannot be empty.");
+
+            const betRef = doc(db, "artifacts", appId, "public", "data", "bets", "activeBet");
+            await setDoc(betRef, {
+                question,
+                option1: { text: opt1 },
+                option2: { text: opt2 },
+                rewards: { cash: cashReward, item: itemReward },
+                isOpen: true,
+                createdAt: serverTimestamp()
+            });
+
+            const resolveControls = document.createElement('div');
+            resolveControls.id = 'resolve-controls';
+            resolveControls.innerHTML = `
+                <p class="text-sm text-gray-400 mt-2">Bet is now active. Choose a winner to resolve.</p>
+                <div class="flex gap-2 mt-1">
+                    <button id="resolve-bet-1" class="btn flex-1 bg-green-600">${opt1} Wins</button>
+                    <button id="resolve-bet-2" class="btn flex-1 bg-blue-600">${opt2} Wins</button>
+                </div>
+            `;
+            adminBetControls.appendChild(resolveControls);
+            document.getElementById('resolve-bet-1').addEventListener('click', () => resolveBet(1));
+            document.getElementById('resolve-bet-2').addEventListener('click', () => resolveBet(2));
+            document.getElementById('admin-start-bet-btn').disabled = true;
+
+            addLog(`ADMIN: A new bet has started! "${question}"`);
+            showMessage("Bet is now live for all players!");
+        });
+
+        async function resolveBet(winningOption) {
+            const betRef = doc(db, "artifacts", appId, "public", "data", "bets", "activeBet");
+            const betSnap = await getDoc(betRef);
+            if(!betSnap.exists()) return showMessage("No active bet found.");
+            
+            const betData = betSnap.data();
+            const votesRef = collection(db, "artifacts", appId, "public", "data", "bets", "activeBet", "votes");
+            const q = query(votesRef, where("option", "==", winningOption));
+            const winnersSnap = await getDocs(q);
+
+            const batch = writeBatch(db);
+            winnersSnap.forEach(winnerDoc => {
+                const winnerId = winnerDoc.id;
+                const playerRef = doc(db, "artifacts", appId, "players", winnerId);
+                batch.update(playerRef, {
+                    cash: increment(betData.rewards.cash),
+                    [`inventory.${crypto.randomUUID()}`]: { type: betData.rewards.item, category: allGameItems[betData.rewards.item].category }
+                });
+            });
+            await batch.commit();
+            
+            const allVotesSnap = await getDocs(votesRef);
+            const deleteVotesBatch = writeBatch(db);
+            allVotesSnap.forEach(doc => deleteVotesBatch.delete(doc.ref));
+            await deleteVotesBatch.commit();
+
+            await deleteDoc(betRef);
+            
+            addLog(`ADMIN: The bet "${betData.question}" has ended. Option ${winningOption} was the winner!`);
+            showMessage(`Bet resolved. ${winnersSnap.size} players won.`);
+            document.getElementById('admin-start-bet-btn').disabled = false;
+            document.getElementById('resolve-controls')?.remove();
+        };
+
+        document.getElementById('admin-clear-log-btn').addEventListener('click', () => {
+             if(!isAdmin) return;
+             showConfirmation("Clear Activity Feed?", "This will delete all logs for every player.", async () => {
+                const logsRef = collection(db, "artifacts", appId, "public", "data", "logs");
+                const logsSnap = await getDocs(logsRef);
+                const batch = writeBatch(db);
+                logsSnap.forEach(doc => batch.delete(doc.ref));
+                await batch.commit();
+                showMessage("Activity feed cleared.");
+             });
+        });
+
+        document.getElementById('admin-reset-btn').addEventListener('click', () => {
             if(!isAdmin) return;
             const targetId = document.getElementById('admin-reset-id').value.trim();
             if(!targetId) return showMessage("Invalid ID.");
-            
-            const playerRef = doc(db, "artifacts", appId, "players", targetId);
-            await setDoc(playerRef, { 
-                cash: 1000, 
-                hypePoints: 0, 
-                inventory: {}, 
-                stats: { itemsSold: 0 },
-                starterPackClaimed: false 
-            });
-            addLog(`ADMIN: Player ${targetId.substring(0,4)}... has been reset.`);
-            showMessage("Player reset successfully.");
+             showConfirmation("Reset Player?", `This will completely reset player ${targetId.substring(0,8)}...`, async () => {
+                const playerRef = doc(db, "artifacts", appId, "players", targetId);
+                await setDoc(playerRef, { 
+                    displayName: `Player${targetId.substring(0,4)}`,
+                    level: 1,
+                    itemsSoldToPlayers: 0,
+                    cash: 1000, 
+                    hypePoints: 0, 
+                    inventory: {}, 
+                    stats: { itemsSold: 0 },
+                    starterPackClaimed: false,
+                    votedBets: []
+                });
+                addLog(`ADMIN: Player ${targetId.substring(0,4)}... has been reset.`);
+                showMessage("Player reset successfully.");
+             });
         });
 
 
@@ -983,20 +1145,35 @@
         }
         async function addLog(message) {
             try {
-                await addDoc(collection(db, "artifacts", appId, "public", "data", "logs"), { message, timestamp: Date.now() });
+                await addDoc(collection(db, "artifacts", appId, "public", "data", "logs"), { message, timestamp: serverTimestamp() });
             } catch (error) {
                 console.error("Failed to add log:", error);
             }
         }
         function showMessage(text) {
             messageText.textContent = text;
-            messageModal.classList.add('flex');
-            messageModal.classList.remove('hidden');
+            messageModal.classList.replace('hidden', 'flex');
         }
-        closeMessageBtn.addEventListener('click', () => {
-            messageModal.classList.add('hidden');
-            messageModal.classList.remove('flex');
+        closeMessageBtn.addEventListener('click', () => messageModal.classList.replace('flex', 'hidden'));
+        
+        function showConfirmation(title, text, onConfirm) {
+            document.getElementById('confirmation-title').textContent = title;
+            document.getElementById('confirmation-text').textContent = text;
+            confirmationModal.classList.replace('hidden', 'flex');
+            confirmationCallback = onConfirm;
+        }
+        document.getElementById('cancel-confirmation').addEventListener('click', () => {
+            confirmationModal.classList.replace('flex', 'hidden');
+            confirmationCallback = null;
         });
+        document.getElementById('confirm-action').addEventListener('click', () => {
+            if(confirmationCallback) {
+                confirmationCallback();
+            }
+            confirmationModal.classList.replace('flex', 'hidden');
+            confirmationCallback = null;
+        });
+
         Object.keys(tabs).forEach(key => {
             if(tabs[key]) {
                 tabs[key].addEventListener('click', () => {
