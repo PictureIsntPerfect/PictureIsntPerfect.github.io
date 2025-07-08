@@ -255,6 +255,7 @@
     <div id="admin-login-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 class="text-2xl font-orbitron mb-4 text-red-500">Admin Login</h3><input type="text" id="admin-user" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-2" placeholder="Username"><input type="password" id="admin-pass" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-4" placeholder="Password"><div class="flex justify-end gap-4"><button id="cancel-admin-login" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-admin-login" class="btn bg-red-500 hover:bg-red-600">Login</button></div></div></div>
     <div id="confirmation-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 id="confirmation-title" class="text-xl font-orbitron mb-4 text-yellow-400">Are you sure?</h3><p id="confirmation-text" class="mb-4">This action cannot be undone.</p><div class="flex justify-end gap-4"><button id="cancel-confirmation" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-action" class="btn bg-red-500 hover:bg-red-600">Confirm</button></div></div></div>
     <div id="player-profile-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div id="player-profile-content" class="card p-6 rounded-lg w-11/12 md:w-2/3 max-w-4xl mx-auto mt-20 max-h-[80vh] flex flex-col"></div></div>
+    <div id="activity-log-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-2/3 max-w-4xl mx-auto mt-20 max-h-[80vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-orbitron text-cyan-300">Player Activity Log</h3><button id="close-activity-log-btn" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Close</button></div><div id="activity-log-content" class="flex-grow bg-gray-800 p-3 rounded overflow-y-auto font-mono text-sm"></div></div></div>
 
     <!-- Admin Panel -->
     <div id="admin-panel" class="card p-4 rounded-lg hidden overflow-y-auto max-h-[90vh]">
@@ -266,6 +267,8 @@
                     <div><label class="font-bold">Change Username</label><div class="flex gap-2"><input type="text" id="admin-name-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="text" id="admin-new-name" class="w-full bg-gray-800 p-1 rounded" placeholder="New Name"><button id="admin-change-name-btn" class="btn bg-yellow-600 text-sm px-2">Set</button></div></div>
                     <div><label class="font-bold">Give Cash</label><div class="flex gap-2"><input type="text" id="admin-cash-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-cash-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount"><button id="admin-give-cash-btn" class="btn bg-green-600 text-sm px-2">Give</button></div></div>
                     <div><label class="font-bold">Give Item</label><div class="flex gap-2"><input type="text" id="admin-item-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><select id="admin-item-select" class="w-full bg-gray-800 p-1 rounded"></select><button id="admin-give-item-btn" class="btn bg-purple-600 text-sm px-2">Give</button></div></div>
+                    <hr class="border-gray-600">
+                    <div><label class="font-bold">View Player Activity Log</label><div class="flex gap-2"><input type="text" id="admin-activity-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-view-activity-btn" class="btn bg-blue-600 text-sm px-2">View</button></div></div>
                 </div>
             </details>
             <details class="bg-gray-700 rounded-lg p-2">
@@ -448,6 +451,16 @@
             try { await addDoc(collection(db, `apps/${appId}/globalLog`), { message, timestamp: serverTimestamp() }); }
             catch (error) { console.error("Error writing to global log:", error); }
         };
+        // New function to log player-specific actions
+        const logToPlayerActivity = async (userId, message) => {
+            if (!userId) return;
+            try {
+                const activityRef = collection(db, `apps/${appId}/players/${userId}/activityLog`);
+                await addDoc(activityRef, { message, timestamp: serverTimestamp() });
+            } catch (error) {
+                console.error(`Error writing to activity log for ${userId}:`, error);
+            }
+        };
 
         const applyNameStyle = (element, nameStyle) => {
             element.className = 'chat-name';
@@ -469,8 +482,10 @@
                         [`achievements.${achievementId}`]: true
                     });
                     const achievement = achievements[achievementId];
+                    const message = `Unlocked achievement: ${achievement.name}`;
                     showMessage(`🏆 Achievement Unlocked: ${achievement.name}!`);
-                    logToGame(`${currentPlayer.displayName} unlocked the achievement: ${achievement.name}`);
+                    logToGame(`${currentPlayer.displayName} ${message.toLowerCase()}`);
+                    logToPlayerActivity(currentUserId, message);
                     sound.achievement();
                 } catch (error) { console.error("Error granting achievement:", error); }
             }
@@ -626,6 +641,7 @@
                     };
                     await setDoc(playerRef, initialData);
                     logToGame(`A new player has arrived: ${initialData.displayName}`);
+                    logToPlayerActivity(currentUserId, "Initial player profile created.");
                 } else {
                     const playerData = playerSnap.data();
                     if (playerData.lastLogin && typeof playerData.lastLogin.toDate === 'function') {
@@ -639,11 +655,14 @@
                                 cash: increment(cashBonus),
                                 hypePoints: increment(hypeBonus)
                             });
+                            const message = `Received daily login bonus of ${formatCash(cashBonus)} and ${hypeBonus} HP.`;
                             showMessage(`Welcome back! You received a daily login bonus of ${formatCash(cashBonus)} and ${hypeBonus} Hype Points!`);
+                            logToPlayerActivity(currentUserId, message);
                         }
                     } else {
                         await updateDoc(playerRef, { lastLogin: serverTimestamp() });
                     }
+                    logToPlayerActivity(currentUserId, "Player logged in.");
                 }
                 
                 onSnapshot(playerRef, (doc) => updatePlayerUI(doc.data()));
@@ -666,7 +685,9 @@
                         [`inventory.item_${Date.now()}_1`]: { itemId: 'tee01' },
                         [`inventory.item_${Date.now()}_2`]: { itemId: 'cap01' },
                     });
+                    const message = "Received starter pack (+200 Cash, White Tee, Dad Cap).";
                     logToGame(`${currentPlayer.displayName} got a starter pack!`);
+                    logToPlayerActivity(currentUserId, message);
                     showMessage("Starter pack received!");
                     sound.buy();
                 } catch (error) { console.error("Starter Pack Error: ", error); showMessage("Could not get starter pack."); sound.error(); }
@@ -680,7 +701,9 @@
                     const randomItemId = itemKeys[Math.floor(Math.random() * itemKeys.length)];
                     await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), { cash: increment(-500), [`inventory.item_${Date.now()}`]: { itemId: randomItemId } });
                     const itemName = allItems[randomItemId].name;
-                    logToGame(`${currentPlayer.displayName} opened a loot box and found a ${itemName}!`);
+                    const message = `Opened a loot box (-$500) and found a ${itemName}.`;
+                    logToGame(`${currentPlayer.displayName} ${message.toLowerCase()}`);
+                    logToPlayerActivity(currentUserId, message);
                     showMessage(`You found a ${itemName}!`);
                     sound.lootbox();
                 } catch (error) { console.error("Loot Box Error: ", error); showMessage("Failed to open loot box."); sound.error(); }
@@ -713,6 +736,8 @@
                 if (!itemToSellId || isNaN(price) || price <= 0) { showMessage("Invalid price."); return; }
                 
                 try {
+                    const itemData = currentPlayer.inventory[itemToSellId];
+                    const itemName = (allItems[itemData.itemId] || itemData).name;
                     await runTransaction(db, async (transaction) => {
                         const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
                         const playerDoc = await transaction.get(playerRef);
@@ -722,14 +747,14 @@
                         if ((allItems[itemToSell.itemId] || itemToSell).isCursed) throw "Cannot sell a cursed item.";
 
                         const newListingRef = doc(collection(db, `apps/${appId}/marketplace`));
-                        const listingData = allItems[itemToSell.itemId] ? { ...itemToSell } : { ...itemToSell };
-                        
-                        transaction.set(newListingRef, { ...listingData, price, sellerId: currentUserId, sellerName: currentPlayer.displayName });
+                        transaction.set(newListingRef, { ...itemToSell, price, sellerId: currentUserId, sellerName: currentPlayer.displayName });
                         delete inventory[itemToSellId];
                         transaction.update(playerRef, { inventory });
                     });
-                    const itemName = (allItems[currentPlayer.inventory[itemToSellId]?.itemId] || currentPlayer.inventory[itemToSellId])?.name;
-                    logToGame(`${currentPlayer.displayName} listed an item for ${formatCash(price)}.`);
+                    
+                    const message = `Listed a ${itemName} on the marketplace for ${formatCash(price)}.`;
+                    logToGame(`${currentPlayer.displayName} ${message.toLowerCase()}`);
+                    logToPlayerActivity(currentUserId, message);
                     showMessage("Item listed!");
                     ui.sellModal.style.display = 'none';
                     sound.sell();
@@ -755,7 +780,9 @@
                         delete inventory[itemToSellId];
                         transaction.update(playerRef, { inventory, cash: increment(price) });
                     });
-                    logToGame(`${currentPlayer.displayName} quick-sold a ${itemName} for ${formatCash(price)}.`);
+                    const message = `Quick-sold a ${itemName} for ${formatCash(price)}.`;
+                    logToGame(`${currentPlayer.displayName} ${message.toLowerCase()}`);
+                    logToPlayerActivity(currentUserId, message);
                     showMessage("Item sold!");
                     ui.sellModal.style.display = 'none';
                     sound.sell();
@@ -786,9 +813,14 @@
                             transaction.update(playerRef, { cash: increment(-listing.price), [`inventory.item_${Date.now()}`]: itemData });
                             transaction.update(sellerRef, { cash: increment(listing.price) });
                             transaction.delete(listingRef);
+                            
+                            const itemName = (allItems[itemData.itemId] || itemData).name;
+                            const message = `Bought a ${itemName} from ${sellerName} for ${formatCash(price)}.`;
+                            logToPlayerActivity(currentUserId, message);
+                            logToPlayerActivity(sellerId, `Sold a ${itemName} to ${currentPlayer.displayName} for ${formatCash(price)}.`);
+                            logToGame(`${currentPlayer.displayName} bought a ${itemName}.`);
                         });
-                        const itemName = listingEl.querySelector('h4').textContent;
-                        logToGame(`${currentPlayer.displayName} bought a ${itemName}.`);
+                        
                         showMessage("Purchase successful!");
                         sound.buy();
                     } catch (error) { console.error("Purchase Error:", error); showMessage(`Purchase failed: ${error}`); sound.error(); }
@@ -806,6 +838,9 @@
                             const { price, sellerId, sellerName, ...itemData } = listing;
                             transaction.update(playerRef, { [`inventory.item_${Date.now()}`]: itemData });
                             transaction.delete(listingRef);
+
+                            const itemName = (allItems[itemData.itemId] || itemData).name;
+                            logToPlayerActivity(currentUserId, `Delisted a ${itemName}.`);
                         });
                         showMessage("Item delisted.");
                     } catch (error) { console.error("Delist Error:", error); showMessage(`Failed to delist: ${error}`); sound.error(); }
@@ -831,8 +866,10 @@
                     if (currentPlayer[valueType] < cost) { showMessage(`Not enough ${valueType === 'cash' ? 'Cash' : 'Hype Points'}.`); sound.error(); return; }
                     try {
                         await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), { [valueType]: increment(-cost), [`inventory.item_${Date.now()}`]: { itemId } });
+                        const message = `Bought a ${itemData.name} from a shop.`;
                         showMessage(`You bought a ${itemData.name}!`);
-                        logToGame(`${currentPlayer.displayName} bought a ${itemData.name} from a shop.`);
+                        logToGame(`${currentPlayer.displayName} ${message.toLowerCase()}`);
+                        logToPlayerActivity(currentUserId, message);
                         sound.buy();
                     } catch (error) { console.error("Shop purchase error:", error); showMessage("Purchase failed."); sound.error(); }
                 });
@@ -932,16 +969,22 @@
 
             setupAdminAction('admin-change-name-btn', 'admin-name-id', 'admin-new-name', async (id, newName) => {
                 if (!newName) { showMessage("New name is required."); return; }
+                const message = `Admin changed username to ${newName}.`;
                 await updateDoc(doc(db, `apps/${appId}/players`, id), { displayName: newName });
+                logToPlayerActivity(id, message);
                 showMessage(`Player ${id}'s name changed.`);
             });
             setupAdminAction('admin-give-cash-btn', 'admin-cash-id', 'admin-cash-amount', async (id, amount) => {
                 if (isNaN(amount)) { showMessage("Valid amount is required."); return; }
+                const message = `Admin gave ${formatCash(amount)}.`;
                 await updateDoc(doc(db, `apps/${appId}/players`, id), { cash: increment(amount) });
+                logToPlayerActivity(id, message);
                 showMessage(`Gave ${formatCash(amount)} to player ${id}.`);
             });
             setupAdminAction('admin-give-item-btn', 'admin-item-id', 'admin-item-select', async (id, itemId) => {
+                const message = `Admin gave item: ${allItems[itemId].name}.`;
                 await updateDoc(doc(db, `apps/${appId}/players`, id), { [`inventory.item_${Date.now()}`]: { itemId } });
+                logToPlayerActivity(id, message);
                 showMessage(`Gave ${allItems[itemId].name} to player ${id}.`);
             });
 
@@ -954,6 +997,7 @@
                 const nameStyle = { animation: animation || null, color: color || null, gradientTo: gradientTo || null };
                 try {
                     await updateDoc(doc(db, `apps/${appId}/players`, targetId), { nameStyle });
+                    logToPlayerActivity(targetId, `Admin updated name style.`);
                     showMessage(`Style updated for player ${targetId}.`);
                 } catch (error) { console.error("Error setting name style:", error); showMessage("Failed to set style."); }
             });
@@ -1037,22 +1081,21 @@
                         
                         transaction.update(playerRef, { inventory });
                     });
+                    const message = `Admin fused items to create: ${newName}.`;
                     logToGame(`An admin created a new fused item: ${newName} for player ${targetId}`);
+                    logToPlayerActivity(targetId, message);
                     showMessage("Fusion successful!");
                 } catch (error) { console.error("Fusion Error:", error); showMessage(`Fusion failed: ${error.message}`); }
             });
             
             // Troll menu actions
-            document.getElementById('admin-troll-msg-btn').addEventListener('click', () => {
+            document.getElementById('admin-troll-msg-btn').addEventListener('click', async () => {
                 const targetId = document.getElementById('admin-troll-id').value.trim();
                 const msg = document.getElementById('admin-troll-msg').value.trim();
                 if(!targetId || !msg) { showMessage("Player ID and message required."); return; }
-                if(targetId === currentUserId) {
-                    showMessage(msg, true);
-                    logToGame(`Admin sent a fake message to themself: "${msg}"`);
-                } else {
-                    showMessage(`This feature only works on yourself for now, but imagine it worked on ${targetId}!`);
-                }
+                
+                await logToPlayerActivity(targetId, `Admin sent a fake message: "${msg}"`);
+                showMessage(`This feature only works on yourself for now, but imagine it worked on ${targetId}!`);
             });
 
             document.getElementById('admin-troll-curse-btn').addEventListener('click', async () => {
@@ -1066,6 +1109,8 @@
                 };
                 try {
                     await updateDoc(doc(db, `apps/${appId}/players`, targetId), { [`inventory.cursed_${Date.now()}`]: cursedItem });
+                    const message = `Admin gave Cursed Potato.`;
+                    logToPlayerActivity(targetId, message);
                     showMessage(`Player ${targetId} has been cursed with a potato!`);
                     logToGame(`An admin cursed ${targetId} with a potato.`);
                 } catch(e) { showMessage("Failed to curse player."); }
@@ -1076,8 +1121,41 @@
                 if(!targetId) { showMessage("Player ID required."); return; }
                 try {
                     await setDoc(doc(db, `apps/${appId}/globalState`, 'main'), { smiteTarget: { id: targetId, timestamp: Date.now() } }, { merge: true });
+                    logToPlayerActivity(targetId, `Admin used "Smite".`);
                     showMessage(`Player ${targetId} has been smitten!`);
                 } catch(e) { showMessage("Failed to smite player."); }
+            });
+
+            document.getElementById('admin-view-activity-btn').addEventListener('click', async () => {
+                const targetId = document.getElementById('admin-activity-id').value.trim();
+                if (!targetId) { showMessage("Player ID required."); return; }
+
+                const logContent = ui.activityLogContent;
+                logContent.innerHTML = 'Loading logs...';
+                ui.activityLogModal.style.display = 'flex';
+
+                try {
+                    const activityRef = collection(db, `apps/${appId}/players/${targetId}/activityLog`);
+                    const q = query(activityRef, orderBy("timestamp", "desc"), limit(100));
+                    const querySnapshot = await getDocs(q);
+
+                    if (querySnapshot.empty) {
+                        logContent.innerHTML = 'No activity found for this player.';
+                        return;
+                    }
+
+                    let logHTML = '';
+                    querySnapshot.forEach(doc => {
+                        const data = doc.data();
+                        const timestamp = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'N/A';
+                        logHTML += `<div class="p-1 border-b border-gray-700"><span class="text-cyan-400">${timestamp}:</span> ${data.message}</div>`;
+                    });
+                    logContent.innerHTML = logHTML;
+
+                } catch (error) {
+                    console.error("Error fetching activity log:", error);
+                    logContent.innerHTML = 'Error loading logs.';
+                }
             });
 
             // IP Logger Button
@@ -1132,6 +1210,7 @@
                      };
                      await setDoc(doc(db, `apps/${appId}/players`, targetId), initialData);
                      logToGame(`Player ${targetId} was reset by an admin.`);
+                     logToPlayerActivity(targetId, "PLAYER RESET BY ADMIN.");
                      showMessage(`Player ${targetId} was reset.`);
                 });
             });
@@ -1185,7 +1264,11 @@
                 playerProfileModal: document.getElementById('player-profile-modal'),
                 playerProfileContent: document.getElementById('player-profile-content'),
                 smiteOverlay: document.getElementById('smite-overlay'),
+                activityLogModal: document.getElementById('activity-log-modal'),
+                activityLogContent: document.getElementById('activity-log-content'),
             };
+
+            document.getElementById('close-activity-log-btn').addEventListener('click', () => ui.activityLogModal.style.display = 'none');
 
             const itemOptions = Object.keys(allItems).map(id => `<option value="${id}">${allItems[id].name}</option>`).join('');
             ui.adminItemSelect.innerHTML = itemOptions;
