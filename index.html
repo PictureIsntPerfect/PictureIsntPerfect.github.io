@@ -6,50 +6,69 @@
     <title>Hypebeast Simulator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Roboto+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-color: #111111;
+            --card-bg-color: #1a1a1a;
+            --border-color: #333;
+            --text-color: #e0e0e0;
+            --accent-color: #00ff9d;
+            --accent-glow: rgba(0, 255, 157, 0.5);
+            --accent-hover: #00e68e;
+            --red-color: #ff3b3b;
+            --yellow-color: #ffcc00;
+        }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #1a1a1a;
-            color: #f0f0f0;
+            font-family: 'Roboto Mono', monospace;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             transition: background 0.5s ease;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXVדההדדההדדההדדההדדההדדההדדההדדההדדההדדההדדההd3d1dXV3d3d2d2d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3-');
+        }
+        .font-grunge {
+            font-family: 'Permanent Marker', cursive;
         }
         .font-orbitron {
             font-family: 'Orbitron', sans-serif;
         }
         .card {
-            background-color: #2a2a2a;
-            border: 1px solid #444;
+            background-color: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5), inset 0 0 5px rgba(255,255,255,0.05);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 255, 255, 0.2);
+            box-shadow: 0 5px 25px var(--accent-glow);
         }
         .btn {
+            font-family: 'Orbitron', sans-serif;
+            background-color: var(--accent-color);
+            color: #111;
+            font-weight: bold;
+            border: none;
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
-        .btn:after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: -100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s ease;
-        }
-        .btn:hover:after {
-            left: 100%;
+        .btn:hover {
+            background-color: var(--accent-hover);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px var(--accent-glow);
         }
         .btn:disabled {
             background-color: #4a5568;
+            color: #888;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
         .modal-bg {
-            background-color: rgba(0,0,0,0.8);
+            background-color: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
         }
         .item-svg {
             width: 100%;
@@ -63,14 +82,14 @@
             animation: fadeIn 0.5s ease-out forwards;
         }
         .tab-active {
-            background-color: #06b6d4;
-            color: white;
-            border-bottom: 2px solid #06b6d4;
+            background-color: var(--accent-color);
+            color: #111;
+            border-bottom: 2px solid var(--accent-color);
         }
         .tab-inactive {
             background-color: transparent;
             color: #a0aec0;
-            border-bottom: 2px solid #444;
+            border-bottom: 2px solid var(--border-color);
         }
         #admin-panel {
             position: fixed;
@@ -90,122 +109,87 @@
             cursor: pointer;
         }
         /* Animated Name Styles */
-        @keyframes rainbow-text {
-            0% { color: #ff0000; } 15% { color: #ff7f00; } 30% { color: #ffff00; } 45% { color: #00ff00; } 60% { color: #0000ff; } 75% { color: #4b0082; } 90% { color: #9400d3; } 100% { color: #ff0000; }
-        }
+        @keyframes rainbow-text { 0% { color: #ff0000; } 15% { color: #ff7f00; } 30% { color: #ffff00; } 45% { color: #00ff00; } 60% { color: #0000ff; } 75% { color: #4b0082; } 90% { color: #9400d3; } 100% { color: #ff0000; } }
         .animate-rainbow { animation: rainbow-text 4s linear infinite; }
-
-        @keyframes glow-text {
-            0%, 100% { text-shadow: 0 0 5px var(--glow-color, #fff), 0 0 10px var(--glow-color, #fff); }
-            50% { text-shadow: 0 0 10px var(--glow-color, #fff), 0 0 20px var(--glow-color, #fff); }
-        }
+        @keyframes glow-text { 0%, 100% { text-shadow: 0 0 5px var(--glow-color, #fff), 0 0 10px var(--glow-color, #fff); } 50% { text-shadow: 0 0 10px var(--glow-color, #fff), 0 0 20px var(--glow-color, #fff); } }
         .animate-glow { animation: glow-text 2s ease-in-out infinite; }
-
-        @keyframes pulse-text {
-            0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); }
-        }
+        @keyframes pulse-text { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         .animate-pulse-text { display: inline-block; animation: pulse-text 1.5s ease-in-out infinite; }
+        .gradient-text { background-clip: text; -webkit-background-clip: text; color: transparent; }
         
-        .gradient-text {
-             background-clip: text;
-            -webkit-background-clip: text;
-             color: transparent;
-        }
+        /* Trippy/Troll Effects */
+        @keyframes screen-shake { 0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-2px, -3px); } 20% { transform: translate(3px, 2px); } 30% { transform: translate(-3px, 3px); } 40% { transform: translate(2px, -2px); } 50% { transform: translate(-3px, 2px); } 60% { transform: translate(3px, 3px); } 70% { transform: translate(-2px, -3px); } 80% { transform: translate(3px, -2px); } 90% { transform: translate(-2px, 3px); } }
+        .screen-shake { animation: screen-shake 0.5s linear; }
+        .invert-colors { filter: invert(1); }
 
-        /* Trippy Background Effects */
-        @keyframes matrix-scroll { 0% { background-position: 0 0; } 100% { background-position: 0 -1000px; } }
-        .bg-matrix {
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><text x="0" y="15" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">01</text><text x="10" y="35" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">10</text><text x="20" y="95" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">00</text><text x="30" y="55" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">11</text><text x="40" y="75" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">10</text><text x="50" y="25" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">01</text><text x="60" y="85" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">11</text><text x="70" y="45" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">01</text><text x="80" y="5" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">10</text><text x="90" y="65" font-family="monospace" font-size="12" fill="rgba(0,255,0,0.7)">00</text></svg>');
-            animation: matrix-scroll 20s linear infinite;
-        }
-        @keyframes psychedelic-bg { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        .bg-psychedelic {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: psychedelic-bg 15s ease infinite;
-        }
-        @keyframes vortex-bg { 0% { transform: scale(1) rotate(0deg); } 100% { transform: scale(1.5) rotate(360deg); } }
-        .bg-vortex {
-            background-image: radial-gradient(circle, #4a00e0, #8e2de2, transparent 70%);
-            animation: vortex-bg 30s linear infinite alternate;
-        }
-        @keyframes circuit-bg { 0% { background-position: 0 0; } 100% { background-position: -256px 0; } }
-        .bg-circuit {
-            background-image: url('data:image/svg+xml;utf8,<svg width="64" height="64" xmlns="http://www.w3.org/2000/svg"><path d="M0 32h16m16 0h32M16 0v16m0 32v16m16-48v16m0 32v16m16-48v16m0 32v16" stroke="rgba(0, 255, 255, 0.2)" stroke-width="1"/><circle cx="16" cy="16" r="2" fill="rgba(0,255,255,0.5)"/><circle cx="32" cy="16" r="2" fill="rgba(0,255,255,0.5)"/><circle cx="48" cy="16" r="2" fill="rgba(0,255,255,0.5)"/><circle cx="16" cy="48" r="2" fill="rgba(0,255,255,0.5)"/><circle cx="32" cy="48" r="2" fill="rgba(0,255,255,0.5)"/><circle cx="48" cy="48" r="2" fill="rgba(0,255,255,0.5)"/></svg>');
-            animation: circuit-bg 5s linear infinite;
-        }
-        
         @keyframes smite-effect { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 1; } }
-        #smite-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white;
-            z-index: 9999;
-            pointer-events: none;
-            animation: smite-effect 0.3s linear;
-        }
+        #smite-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; pointer-events: none; animation: smite-effect 0.3s linear; }
+    
+        h1, h2, h3 { font-family: 'Permanent Marker', cursive; text-shadow: 0 0 10px var(--accent-glow); }
+        #game-container > header h1 { font-size: 3.5rem; }
     </style>
 </head>
 <body class="text-white">
     <div id="smite-overlay" class="hidden"></div>
     <div id="loading-screen" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex flex-col justify-center items-center z-50">
-        <div class="font-orbitron text-4xl text-cyan-400 mb-4 animate-pulse">HYPEBEAST SIMULATOR</div>
-        <div id="loading-text" class="text-lg">Connecting to the server...</div>
+        <div class="font-grunge text-6xl text-cyan-400 mb-4 animate-pulse">HYPEBEAST SIMULATOR</div>
+        <div id="loading-text" class="text-lg font-mono">Connecting to the server...</div>
     </div>
     
     <div id="global-image-container" class="hidden fixed inset-0 bg-black bg-opacity-75 z-[200] flex items-center justify-center p-4">
-        <img id="global-image-element" src="" alt="Global Broadcast" class="max-w-full max-h-full rounded-lg shadow-2xl border-4 border-cyan-400">
+        <img id="global-image-element" src="" alt="Global Broadcast" class="max-w-full max-h-full rounded-lg shadow-2xl border-4" style="border-color: var(--accent-color);">
     </div>
 
     <div class="container mx-auto p-4 max-w-screen-xl hidden" id="game-container">
         <!-- Header -->
-        <header class="mb-6 p-4 rounded-lg bg-gray-800 border border-cyan-400 shadow-lg">
+        <header class="mb-6 p-4 rounded-lg bg-transparent border-b-4" style="border-color: var(--accent-color);">
             <div class="flex justify-between items-start">
                 <div>
-                    <h1 class="text-4xl font-orbitron text-cyan-400">HYPEBEAST SIMULATOR</h1>
-                    <p class="text-lg">Welcome, <span id="player-display-name" class="font-bold text-yellow-300"></span></p>
+                    <h1 class="text-white">HYPEBEAST SIMULATOR</h1>
+                    <p class="text-lg">Welcome, <span id="player-display-name" class="font-bold" style="color: var(--yellow-color);"></span></p>
                 </div>
                 <div class="text-right">
-                    <button id="admin-login-btn" class="text-xs bg-red-800 hover:bg-red-700 px-2 py-1 rounded-full mb-2">Admin</button>
+                    <button id="admin-login-btn" class="text-xs px-2 py-1 rounded-full mb-2" style="background-color: var(--red-color); color: white;">Admin</button>
                     <p class="text-sm">Player ID: <span id="player-id" class="font-mono text-gray-400"></span></p>
                     <p class="text-sm text-gray-400">(Share this ID for admin actions)</p>
                 </div>
             </div>
         </header>
         
-        <div id="event-banner" class="hidden mb-4 p-3 rounded-lg bg-yellow-500 text-black font-bold text-center fade-in"></div>
+        <div id="event-banner" class="hidden mb-4 p-3 rounded-lg font-bold text-center fade-in text-2xl font-grunge" style="background-color: var(--accent-color); color: #111;"></div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <!-- Left Column -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="card p-4 rounded-lg">
-                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">My Empire</h2>
+                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">My Empire</h2>
                     <div class="space-y-3">
-                        <div class="flex justify-between items-center"><span>Level:</span><span id="player-level" class="text-2xl font-bold text-yellow-400">0</span></div>
+                        <div class="flex justify-between items-center"><span>Level:</span><span id="player-level" class="text-2xl font-bold" style="color: var(--yellow-color);">0</span></div>
                         <div class="flex justify-between items-center"><span>Cash:</span><span id="player-cash" class="text-2xl font-bold text-green-400">$0</span></div>
                         <div class="flex justify-between items-center"><span>Hype Points:</span><span id="player-hype-points" class="text-2xl font-bold text-orange-400">0</span></div>
-                        <div class="flex justify-between items-center"><span>Net Worth:</span><span id="net-worth" class="text-lg font-bold text-yellow-400">$0</span></div>
+                        <div class="flex justify-between items-center"><span>Net Worth:</span><span id="net-worth" class="text-lg font-bold" style="color: var(--yellow-color);">$0</span></div>
                         <div class="flex justify-between items-center"><span>Joined:</span><span id="join-date" class="text-sm text-gray-400"></span></div>
                     </div>
-                    <button id="get-starter-pack" class="btn w-full mt-4 bg-green-500 hover:bg-green-600">Get Starter Pack</button>
-                    <button id="buy-loot-box" class="btn w-full mt-2 bg-purple-500 hover:bg-purple-600">Buy Loot Box ($500)</button>
+                    <button id="get-starter-pack" class="btn w-full mt-4">Get Starter Pack</button>
+                    <button id="buy-loot-box" class="btn w-full mt-2">Buy Loot Box ($500)</button>
                 </div>
 
                 <div class="card p-4 rounded-lg">
-                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">My Closet</h2>
+                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">My Closet</h2>
                     <div id="player-inventory" class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2"></div>
                 </div>
                 
                 <div class="card p-4 rounded-lg">
-                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">Achievements</h2>
+                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">Achievements</h2>
                     <div id="achievements-list" class="space-y-2 max-h-48 overflow-y-auto pr-2"></div>
                 </div>
             </div>
 
             <!-- Center Column -->
             <div class="lg:col-span-2 space-y-6">
-                <div class="flex border-b border-gray-600">
+                <div class="flex border-b" style="border-color: var(--border-color);">
                     <button id="tab-marketplace" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-active">Marketplace</button>
+                    <button id="tab-accessories" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Accessories</button>
                     <button id="tab-pawn-shop" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Pawn Shop</button>
                     <button id="tab-exotic-wares" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Exotic Wares</button>
                     <button id="tab-hype-shop" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Hype Shop</button>
@@ -213,19 +197,20 @@
 
                 <div id="main-content-area">
                     <div id="marketplace-container" class="card p-4 rounded-lg"><div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div></div>
+                    <div id="accessories-container" class="card p-4 rounded-lg hidden"><div id="accessories-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div></div>
                     <div id="pawn-shop-container" class="card p-4 rounded-lg hidden">
                          <div class="flex justify-between items-center mb-4">
-                              <h3 class="text-xl font-orbitron text-yellow-400">Second-Hand Goods</h3>
-                              <button id="refresh-pawn-stock-btn" class="btn bg-yellow-600 text-sm py-1 px-3">Refresh Stock</button>
+                              <h3 class="text-xl" style="color: var(--yellow-color);">Second-Hand Goods</h3>
+                              <button id="refresh-pawn-stock-btn" class="btn text-sm py-1 px-3">Refresh Stock</button>
                          </div>
                         <div id="pawn-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[650px] overflow-y-auto pr-2"></div>
                     </div>
                     <div id="exotic-wares-container" class="card p-4 rounded-lg hidden">
-                        <h3 class="text-xl font-orbitron text-green-400 mb-4">The Collector's Corner</h3>
+                        <h3 class="text-xl text-green-400 mb-4">The Collector's Corner</h3>
                         <div id="exotic-wares" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div>
                     </div>
                     <div id="hype-shop-container" class="card p-4 rounded-lg hidden">
-                        <h3 class="text-xl font-orbitron text-orange-400 mb-4">Hype Rewards</h3>
+                        <h3 class="text-xl text-orange-400 mb-4">Hype Rewards</h3>
                          <div id="hype-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div>
                     </div>
                 </div>
@@ -234,15 +219,15 @@
             <!-- Right Column (Chat & Log) -->
             <div class="lg:col-span-1 space-y-6">
                 <div class="card p-4 rounded-lg">
-                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">Activity Feed</h2>
-                    <div id="game-log" class="text-sm space-y-2 h-64 overflow-y-auto pr-2 font-mono"></div>
+                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">Activity Feed</h2>
+                    <div id="game-log" class="text-sm space-y-2 h-64 overflow-y-auto pr-2"></div>
                 </div>
                 <div class="card p-4 rounded-lg flex flex-col h-[400px]">
-                    <h2 class="text-2xl font-orbitron border-b border-gray-600 pb-2 mb-4 text-cyan-300">Global Chat</h2>
+                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">Global Chat</h2>
                     <div id="chat-box" class="flex-grow flex flex-col space-y-2 overflow-y-auto pr-2 mb-2"></div>
                     <form id="chat-form" class="flex gap-2">
                         <input type="text" id="chat-input" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="Say something...">
-                        <button type="submit" class="btn bg-cyan-600 px-4">Send</button>
+                        <button type="submit" class="btn px-4">Send</button>
                     </form>
                 </div>
             </div>
@@ -250,25 +235,26 @@
     </div>
 
     <!-- Modals -->
-    <div id="sell-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20"><h3 class="text-2xl font-orbitron mb-4 text-cyan-300">Sell Item</h3><div id="sell-item-display" class="mb-4"></div><div class="bg-gray-700 p-3 rounded-lg mb-4"><p class="font-bold">Option 1: List on Player Market</p><p class="text-sm text-gray-400 mb-2">Set your price and wait for another player to buy. High risk, high reward!</p><input type="number" id="sell-price" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="e.g., 500"><button id="confirm-sell" class="btn w-full mt-2 bg-cyan-500 hover:bg-cyan-600">List on Market</button></div><div class="bg-gray-700 p-3 rounded-lg mb-4"><p class="font-bold">Option 2: Sell to AI Collector</p><p class="text-sm text-gray-400 mb-2">Sell instantly for a guaranteed price. Quick cash, but less profit.</p><button id="sell-to-ai-btn" class="btn w-full bg-green-600 hover:bg-green-700">Sell Now for <span id="ai-sell-price"></span></button></div><div class="flex justify-end"><button id="cancel-sell" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Cancel</button></div></div></div>
-    <div id="message-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20 text-center"><p id="message-text" class="text-lg mb-4"></p><button id="close-message" class="btn bg-cyan-500 hover:bg-cyan-600 px-6 py-2">OK</button></div></div>
-    <div id="admin-login-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 class="text-2xl font-orbitron mb-4 text-red-500">Admin Login</h3><input type="text" id="admin-user" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-2" placeholder="Username"><input type="password" id="admin-pass" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-4" placeholder="Password"><div class="flex justify-end gap-4"><button id="cancel-admin-login" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-admin-login" class="btn bg-red-500 hover:bg-red-600">Login</button></div></div></div>
-    <div id="confirmation-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 id="confirmation-title" class="text-xl font-orbitron mb-4 text-yellow-400">Are you sure?</h3><p id="confirmation-text" class="mb-4">This action cannot be undone.</p><div class="flex justify-end gap-4"><button id="cancel-confirmation" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-action" class="btn bg-red-500 hover:bg-red-600">Confirm</button></div></div></div>
+    <div id="sell-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20"><h3 class="text-2xl mb-4" style="color: var(--accent-color);">Sell Item</h3><div id="sell-item-display" class="mb-4"></div><div class="bg-gray-700 p-3 rounded-lg mb-4"><p class="font-bold">Option 1: List on Player Market</p><p class="text-sm text-gray-400 mb-2">Set your price and wait for another player to buy. High risk, high reward!</p><input type="number" id="sell-price" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="e.g., 500"><button id="confirm-sell" class="btn w-full mt-2">List on Market</button></div><div class="bg-gray-700 p-3 rounded-lg mb-4"><p class="font-bold">Option 2: Sell to AI Collector</p><p class="text-sm text-gray-400 mb-2">Sell instantly for a guaranteed price. Quick cash, but less profit.</p><button id="sell-to-ai-btn" class="btn w-full">Sell Now for <span id="ai-sell-price"></span></button></div><div class="flex justify-end"><button id="cancel-sell" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Cancel</button></div></div></div>
+    <div id="message-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20 text-center"><p id="message-text" class="text-lg mb-4"></p><button id="close-message" class="btn px-6 py-2">OK</button></div></div>
+    <div id="admin-login-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 class="text-2xl mb-4" style="color: var(--red-color);">Admin Login</h3><input type="text" id="admin-user" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-2" placeholder="Username"><input type="password" id="admin-pass" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-4" placeholder="Password"><div class="flex justify-end gap-4"><button id="cancel-admin-login" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-admin-login" class="btn" style="background-color: var(--red-color); color: white;">Login</button></div></div></div>
+    <div id="confirmation-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 id="confirmation-title" class="text-xl mb-4" style="color: var(--yellow-color);">Are you sure?</h3><p id="confirmation-text" class="mb-4">This action cannot be undone.</p><div class="flex justify-end gap-4"><button id="cancel-confirmation" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-action" class="btn" style="background-color: var(--red-color); color: white;">Confirm</button></div></div></div>
     <div id="player-profile-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div id="player-profile-content" class="card p-6 rounded-lg w-11/12 md:w-2/3 max-w-4xl mx-auto mt-20 max-h-[80vh] flex flex-col"></div></div>
-    <div id="activity-log-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-2/3 max-w-4xl mx-auto mt-20 max-h-[80vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-orbitron text-cyan-300">Player Activity Log</h3><button id="close-activity-log-btn" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Close</button></div><div id="activity-log-content" class="flex-grow bg-gray-800 p-3 rounded overflow-y-auto font-mono text-sm"></div></div></div>
+    <div id="activity-log-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-2/3 max-w-4xl mx-auto mt-20 max-h-[80vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-2xl" style="color: var(--accent-color);">Player Activity Log</h3><button id="close-activity-log-btn" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Close</button></div><div id="activity-log-content" class="flex-grow bg-gray-800 p-3 rounded overflow-y-auto font-mono text-sm"></div></div></div>
+    <div id="rickroll-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-[999]"><div class="card p-4 rounded-lg"><img src="https://media.tenor.com/x8v1oNUOmg4AAAAC/rickroll-roll.gif" class="rounded"><button id="close-rickroll-btn" class="btn w-full mt-2">CLOSE</button></div></div>
 
     <!-- Admin Panel -->
     <div id="admin-panel" class="card p-4 rounded-lg hidden overflow-y-auto max-h-[90vh]">
-        <h2 class="text-2xl font-orbitron border-b border-red-500 pb-2 mb-4 text-red-400">Admin Controls</h2>
+        <h2 class="text-2xl border-b pb-2 mb-4" style="border-color: var(--red-color); color: var(--red-color);">Admin Controls</h2>
         <div class="space-y-2">
             <details class="bg-gray-700 rounded-lg p-2">
-                <summary class="font-orbitron text-lg text-yellow-400 cursor-pointer">Player Management</summary>
+                <summary class="font-orbitron text-lg cursor-pointer" style="color: var(--yellow-color);">Player Management</summary>
                 <div class="space-y-3 mt-2">
-                    <div><label class="font-bold">Change Username</label><div class="flex gap-2"><input type="text" id="admin-name-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="text" id="admin-new-name" class="w-full bg-gray-800 p-1 rounded" placeholder="New Name"><button id="admin-change-name-btn" class="btn bg-yellow-600 text-sm px-2">Set</button></div></div>
-                    <div><label class="font-bold">Give Cash</label><div class="flex gap-2"><input type="text" id="admin-cash-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-cash-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount"><button id="admin-give-cash-btn" class="btn bg-green-600 text-sm px-2">Give</button></div></div>
-                    <div><label class="font-bold">Give Item</label><div class="flex gap-2"><input type="text" id="admin-item-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><select id="admin-item-select" class="w-full bg-gray-800 p-1 rounded"></select><button id="admin-give-item-btn" class="btn bg-purple-600 text-sm px-2">Give</button></div></div>
+                    <div><label class="font-bold">Change Username</label><div class="flex gap-2"><input type="text" id="admin-name-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="text" id="admin-new-name" class="w-full bg-gray-800 p-1 rounded" placeholder="New Name"><button id="admin-change-name-btn" class="btn text-sm px-2">Set</button></div></div>
+                    <div><label class="font-bold">Give Cash</label><div class="flex gap-2"><input type="text" id="admin-cash-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-cash-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount"><button id="admin-give-cash-btn" class="btn text-sm px-2">Give</button></div></div>
+                    <div><label class="font-bold">Give Item</label><div class="flex gap-2"><input type="text" id="admin-item-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><select id="admin-item-select" class="w-full bg-gray-800 p-1 rounded"></select><button id="admin-give-item-btn" class="btn text-sm px-2">Give</button></div></div>
                     <hr class="border-gray-600">
-                    <div><label class="font-bold">View Player Activity Log</label><div class="flex gap-2"><input type="text" id="admin-activity-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-view-activity-btn" class="btn bg-blue-600 text-sm px-2">View</button></div></div>
+                    <div><label class="font-bold">View Player Activity Log</label><div class="flex gap-2"><input type="text" id="admin-activity-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-view-activity-btn" class="btn text-sm px-2">View</button></div></div>
                 </div>
             </details>
             <details class="bg-gray-700 rounded-lg p-2">
@@ -288,7 +274,7 @@
                             <input type="text" id="admin-name-color" class="bg-gray-800 p-1 rounded" placeholder="Color/Gradient From">
                         </div>
                          <input type="text" id="admin-gradient-to" class="w-full bg-gray-800 p-1 rounded mt-1" placeholder="Gradient To (optional)">
-                         <button id="admin-set-name-style-btn" class="btn bg-cyan-600 text-sm px-2 w-full mt-1">Set Name Style</button>
+                         <button id="admin-set-name-style-btn" class="btn text-sm px-2 w-full mt-1">Set Name Style</button>
                     </div>
                 </div>
             </details>
@@ -304,14 +290,24 @@
                             <option value="bg-vortex">Vortex</option>
                             <option value="bg-circuit">Circuit</option>
                         </select>
-                        <button id="admin-set-bg-effect-btn" class="btn bg-purple-600 text-sm px-2 w-full mt-1">Set BG Effect</button>
+                        <button id="admin-set-bg-effect-btn" class="btn text-sm px-2 w-full mt-1">Set BG Effect</button>
                     </div>
                      <div>
                         <label class="font-bold">Broadcast Global Image</label>
                         <input type="text" id="admin-image-url" class="w-full bg-gray-800 p-1 rounded mb-1" placeholder="Image URL">
                         <div class="flex gap-2">
-                            <input type="number" id="admin-image-duration" class="w-full bg-gray-800 p-1 rounded" placeholder="Duration (seconds)">
-                            <button id="admin-broadcast-image-btn" class="btn bg-cyan-600 text-sm px-2">Show</button>
+                            <input type="number" id="admin-image-duration" class="w-full bg-gray-800 p-1 rounded" placeholder="Duration (s)">
+                            <button id="admin-broadcast-image-btn" class="btn text-sm px-2">Show</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="font-bold">Start Global Event</label>
+                        <div class="flex gap-2">
+                            <select id="admin-event-type" class="w-full bg-gray-800 p-1 rounded">
+                                <option value="cashRain">Cash Rain (+$1k)</option>
+                                <option value="hypeStorm">Hype Storm (+100 HP)</option>
+                            </select>
+                            <button id="admin-start-event-btn" class="btn text-sm px-2">Start</button>
                         </div>
                     </div>
                  </div>
@@ -323,40 +319,42 @@
                         <label class="font-bold">Fuse Items for Player</label>
                         <div class="flex gap-2">
                             <input type="text" id="admin-fusion-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID">
-                            <button id="admin-load-inventory-btn" class="btn bg-yellow-600 text-sm px-2">Load</button>
+                            <button id="admin-load-inventory-btn" class="btn text-sm px-2">Load</button>
                         </div>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <select id="admin-fuse-item1" class="w-full bg-gray-800 p-1 rounded" disabled><option>Load Player First</option></select>
                         <select id="admin-fuse-item2" class="w-full bg-gray-800 p-1 rounded" disabled><option>Load Player First</option></select>
                     </div>
-                    <button id="admin-fuse-items-btn" class="btn w-full bg-purple-700 hover:bg-purple-800" disabled>Fuse Items</button>
+                    <button id="admin-fuse-items-btn" class="btn w-full" disabled>Fuse Items</button>
                 </div>
             </details>
              <details class="bg-gray-700 rounded-lg p-2">
                 <summary class="font-orbitron text-lg text-orange-400 cursor-pointer">Troll Menu</summary>
                 <div class="space-y-3 mt-2">
-                    <div><label class="font-bold">Fake Message Player</label><div class="flex gap-2"><input type="text" id="admin-troll-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="text" id="admin-troll-msg" class="w-full bg-gray-800 p-1 rounded" placeholder="Fake Message"><button id="admin-troll-msg-btn" class="btn bg-orange-600 text-sm px-2">Send</button></div></div>
-                    <div><label class="font-bold">Give Cursed Item</label><div class="flex gap-2"><input type="text" id="admin-troll-curse-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-troll-curse-btn" class="btn bg-orange-600 text-sm px-2">Curse</button></div></div>
-                    <div><label class="font-bold">"Smite" Player</label><div class="flex gap-2"><input type="text" id="admin-troll-smite-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-troll-smite-btn" class="btn bg-orange-600 text-sm px-2">Smite</button></div></div>
+                    <div><label class="font-bold">"Smite" Player</label><div class="flex gap-2"><input type="text" id="admin-troll-smite-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-troll-smite-btn" class="btn text-sm px-2">Smite</button></div></div>
+                    <div><label class="font-bold">Screen Shake</label><div class="flex gap-2"><input type="text" id="admin-troll-shake-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-troll-shake-btn" class="btn text-sm px-2">Shake</button></div></div>
+                    <div><label class="font-bold">Invert Colors</label><div class="flex gap-2"><input type="text" id="admin-troll-invert-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-troll-invert-btn" class="btn text-sm px-2">Invert</button></div></div>
+                    <div><label class="font-bold">Rickroll Player</label><div class="flex gap-2"><input type="text" id="admin-troll-rickroll-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-troll-rickroll-btn" class="btn text-sm px-2">Roll</button></div></div>
+                    <div><label class="font-bold">Give Cursed Item</label><div class="flex gap-2"><input type="text" id="admin-troll-curse-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-troll-curse-btn" class="btn text-sm px-2">Curse</button></div></div>
                 </div>
             </details>
             <!-- IP Logger Section -->
             <details class="bg-gray-700 rounded-lg p-2">
                 <summary class="font-orbitron text-lg text-blue-400 cursor-pointer">IP Log</summary>
                 <div class="space-y-3 mt-2">
-                    <p class="text-xs text-gray-400">This logs the public IP of each player. It cannot see local network IPs.</p>
-                    <button id="admin-fetch-ips-btn" class="btn w-full bg-blue-600 text-sm px-2">Fetch IP Logs</button>
-                    <div id="admin-ip-log-output" class="text-xs font-mono max-h-48 overflow-y-auto bg-gray-800 p-2 rounded">
+                    <p class="text-xs text-gray-400">This logs the public IP of each player.</p>
+                    <button id="admin-fetch-ips-btn" class="btn w-full text-sm px-2">Fetch IP Logs</button>
+                    <div id="admin-ip-log-output" class="text-xs max-h-48 overflow-y-auto bg-gray-800 p-2 rounded">
                         Click the button to load logs...
                     </div>
                 </div>
             </details>
             <details class="bg-gray-700 rounded-lg p-2">
-                <summary class="font-orbitron text-lg text-red-500 cursor-pointer">Danger Zone</summary>
+                <summary class="font-orbitron text-lg cursor-pointer" style="color: var(--red-color);">Danger Zone</summary>
                 <div class="space-y-3 mt-2">
-                    <button id="admin-clear-chat-btn" class="btn w-full bg-red-700 mb-2">Clear Global Chat</button>
-                    <div class="flex gap-2 mt-2"><input type="text" id="admin-reset-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID to Reset"><button id="admin-reset-btn" class="btn bg-red-800 text-sm px-2">RESET</button></div>
+                    <button id="admin-clear-chat-btn" class="btn w-full mb-2" style="background-color: var(--red-color); color: white;">Clear Global Chat</button>
+                    <div class="flex gap-2 mt-2"><input type="text" id="admin-reset-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID to Reset"><button id="admin-reset-btn" class="btn text-sm px-2" style="background-color: var(--red-color); color: white;">RESET</button></div>
                 </div>
             </details>
         </div>
@@ -389,31 +387,38 @@
         let globalImageTimeout = null;
         let ui;
 
-        const BANNED_WORDS = [/nigger/i]; 
+        const BANNED_WORDS = [/nigger/i, /faggot/i, /retard/i]; 
 
         const clothingItems = {
             'tee01': { name: 'Plain White Tee', baseValue: 15, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 30 L80 30 L85 80 L15 80 Z" fill="#fff" stroke="#ccc" stroke-width="1"/><path d="M40 30 C40 15 60 15 60 30" fill="none" stroke="#ccc" stroke-width="1"/></svg>`, category: 'clothing' },
-            'cap01': { name: 'Basic Dad Cap', baseValue: 20, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 25 C 10 10, 90 10, 90 25 L 10 25 Z" fill="#333"/><path d="M10 25 L 90 25 L 100 25 L 0 25 Z" fill="#333" stroke="#000" stroke-width="1"/></svg>`, category: 'clothing' },
-            'hoodie01': { name: 'Graphic Hoodie', baseValue: 80, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 40 L80 40 L80 90 L20 90 Z" fill="#555"/><path d="M30 40 C30 20 70 20 70 40" fill="#444"/><text x="50" y="70" font-size="20" fill="#fff" text-anchor="middle">HYPE</text></svg>`, category: 'clothing' },
-            'sneaker01': { name: 'Retro Runners', baseValue: 120, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#eee" stroke="#000" stroke-width="1"/><path d="M55 30 L60 20 L70 20 L75 30" fill="none" stroke="red" stroke-width="2"/></svg>`, category: 'shoes' },
+            'hoodie01': { name: 'Graphic Hoodie', baseValue: 80, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M20 40 L80 40 L80 90 L20 90 Z" fill="#555"/><path d="M30 40 C30 20 70 20 70 40" fill="#444"/><text x="50" y="70" font-size="20" fill="#fff" text-anchor="middle" font-family="Orbitron">HYPE</text></svg>`, category: 'clothing' },
             'jacket01': { name: 'Techwear Bomber', baseValue: 400, svg: `<svg viewBox="0 0 100 90" class="item-svg"><path d="M10 20 L90 20 L80 80 L20 80 Z" fill="#111" stroke="#0f0" stroke-width="1"/><path d="M10 20 L0 5 L30 20" fill="#222"/><path d="M90 20 L100 5 L70 20" fill="#222"/></svg>`, category: 'clothing' },
-            'sneaker02': { name: 'Cosmic Kicks', baseValue: 550, svg: `<svg viewBox="0 0 200 100" class="item-svg"><path d="M20 70 L50 70 L60 50 L100 50 L110 70 L180 70 L170 90 L30 90 Z" fill="none" stroke="#FFD700" stroke-width="3"/><path d="M60 50 L70 30 L90 30 L100 50" fill="none" stroke="#FFD700" stroke-width="3"/><path d="M50 70 Q 40 60 40 50 Q 50 40 60 50" fill="#00FFFF" opacity="0.5"/><path d="M110 70 Q 120 60 120 50 Q 110 40 100 50" fill="#FF00FF" opacity="0.5"/></svg>`, category: 'shoes' },
             'jacket02': { name: 'Holographic Puffer', baseValue: 2500, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><linearGradient id="holo" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ff00ff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient></defs><path d="M10 30 L90 30 L80 90 L20 90 Z" fill="url(#holo)"/><path d="M10 30 C10 10 90 10 90 30" fill="url(#holo)"/></svg>`, category: 'clothing' },
+            'sneaker01': { name: 'Retro Runners', baseValue: 120, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 40 L40 40 L50 30 L80 30 L90 40 L95 45 L5 45 Z" fill="#eee" stroke="#000" stroke-width="1"/><path d="M55 30 L60 20 L70 20 L75 30" fill="none" stroke="red" stroke-width="2"/></svg>`, category: 'shoes' },
+            'sneaker02': { name: 'Cosmic Kicks', baseValue: 550, svg: `<svg viewBox="0 0 200 100" class="item-svg"><path d="M20 70 L50 70 L60 50 L100 50 L110 70 L180 70 L170 90 L30 90 Z" fill="none" stroke="#FFD700" stroke-width="3"/><path d="M60 50 L70 30 L90 30 L100 50" fill="none" stroke="#FFD700" stroke-width="3"/><path d="M50 70 Q 40 60 40 50 Q 50 40 60 50" fill="#00FFFF" opacity="0.5"/><path d="M110 70 Q 120 60 120 50 Q 110 40 100 50" fill="#FF00FF" opacity="0.5"/></svg>`, category: 'shoes' },
+        };
+        const accessoryItems = {
+            'cap01': { name: 'Basic Dad Cap', baseValue: 20, svg: `<svg viewBox="0 0 100 50" class="item-svg"><path d="M10 25 C 10 10, 90 10, 90 25 L 10 25 Z" fill="#333"/><path d="M10 25 L 90 25 L 100 25 L 0 25 Z" fill="#333" stroke="#000" stroke-width="1"/></svg>`, category: 'accessory' },
+            'chain01': { name: 'Gold Chain', baseValue: 800, svg: `<svg viewBox="0 0 100 100" class="item-svg"><g fill="none" stroke="gold" stroke-width="5"><circle cx="50" cy="50" r="40"/><circle cx="50" cy="50" r="30"/><circle cx="50" cy="50" r="20"/></g></svg>`, category: 'accessory' },
+            'watch01': { name: 'Iced-Out Watch', baseValue: 5000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><circle cx="50" cy="50" r="30" fill="#eee" stroke="#aaa" stroke-width="2"/><rect x="40" y="5" width="20" height="90" fill="#ccc" rx="5"/><text x="50" y="55" font-size="12" text-anchor="middle" fill="black">💎</text></svg>`, category: 'accessory' },
         };
         const exoticItems = {
             'crystal01': { name: 'Crimson Crystal', cost: 5000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M50 10 L20 40 L30 90 L70 90 L80 40 Z" fill="#DC143C" stroke="#FF6347" stroke-width="3"/><path d="M50 10 L50 90 M20 40 L80 40 M30 90 L50 40 L70 90" stroke="#FF0000" stroke-width="1.5" opacity="0.7"/></svg>`, category: 'exotic' },
             'orb01': { name: 'Floating Orb', cost: 10000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><radialGradient id="orbGlow" cx="50%" cy="50%" r="50%"><stop offset="60%" stop-color="rgba(255,215,0,1)"/><stop offset="100%" stop-color="rgba(255,165,0,0)"/></radialGradient></defs><circle cx="50" cy="50" r="25" fill="gold"/><circle cx="50" cy="50" r="40" fill="url(#orbGlow)"/><path d="M30 75 Q 50 65, 70 75" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"/></svg>`, category: 'exotic' },
+            'datamosh01': { name: 'Datamosh Glitch', cost: 25000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><filter id="glitch"><feTurbulence type="fractalNoise" baseFrequency="0.1 0.4" numOctaves="1" result="warp" /><feDisplacementMap xChannelSelector="R" yChannelSelector="G" scale="30" in="SourceGraphic" in2="warp" /></filter></defs><text x="50" y="60" font-size="40" text-anchor="middle" fill="#0f0" filter="url(#glitch)">DATA</text></svg>`, category: 'exotic' },
         };
         const hypeShopItems = {
             'jetpack01': { name: 'Personal Jetpack', points: 50000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><g fill="#FF4500"><rect x="25" y="20" width="20" height="60" rx="10"/><rect x="55" y="20" width="20" height="60" rx="10"/></g><rect x="20" y="50" width="60" height="10" fill="#696969"/><path d="M35 80 L25 100 M65 80 L75 100" stroke="#FFD700" stroke-width="5"/></svg>`, category: 'hype' },
+            'namecolor01': { name: 'Custom Name Color', points: 10000, svg: `<svg viewBox="0 0 100 100" class="item-svg"><defs><linearGradient id="name-grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff00ff"/><stop offset="50%" stop-color="#ffff00"/><stop offset="100%" stop-color="#00ffff"/></linearGradient></defs><text x="50" y="60" font-size="24" text-anchor="middle" fill="url(#name-grad)" font-family="Permanent Marker">Style</text></svg>`, category: 'hype' },
         };
-        const allItems = {...clothingItems, ...exoticItems, ...hypeShopItems};
+        const allItems = {...clothingItems, ...accessoryItems, ...exoticItems, ...hypeShopItems};
         
         const achievements = {
             'first_sale': { name: 'First Sale', description: 'Sell your first item on the marketplace.' },
             'net_worth_10k': { name: 'Baller', description: 'Reach a net worth of $10,000.' },
             'net_worth_100k': { name: 'High Roller', description: 'Reach a net worth of $100,000.' },
             'fused_item': { name: 'Mad Scientist', description: 'Own a fused item.' },
+            'exotic_owner': { name: 'Collector', description: 'Own an exotic item.' },
         };
 
         const sound = {
@@ -421,66 +426,30 @@
             buy: () => sound.synth.triggerAttackRelease("C5", "8n"),
             sell: () => sound.synth.triggerAttackRelease("G5", "8n"),
             error: () => sound.synth.triggerAttackRelease("C3", "8n"),
-            lootbox: () => {
-                const notes = ["C4", "E4", "G4", "C5"];
-                const now = Tone.now();
-                notes.forEach((note, i) => sound.synth.triggerAttackRelease(note, "16n", now + i * 0.1));
-            },
-            achievement: () => {
-                const notes = ["C5", "G5", "C6"];
-                const now = Tone.now();
-                notes.forEach((note, i) => sound.synth.triggerAttackRelease(note, "8n", now + i * 0.1));
-            },
+            lootbox: () => { const notes = ["C4", "E4", "G4", "C5"]; const now = Tone.now(); notes.forEach((note, i) => sound.synth.triggerAttackRelease(note, "16n", now + i * 0.1)); },
+            achievement: () => { const notes = ["C5", "G5", "C6"]; const now = Tone.now(); notes.forEach((note, i) => sound.synth.triggerAttackRelease(note, "8n", now + i * 0.1)); },
             smite: () => new Tone.NoiseSynth().toDestination().triggerAttackRelease("2n"),
         };
 
         const formatCash = (amount) => `$${Math.floor(amount).toLocaleString()}`;
-        const showMessage = (msg, isTroll = false) => {
-            ui.messageText.textContent = msg;
-            ui.messageModal.style.display = 'flex';
-            if(isTroll) ui.messageText.classList.add('text-red-400');
-            else ui.messageText.classList.remove('text-red-400');
-        };
-        const showConfirmation = (title, text, callback) => {
-            document.getElementById('confirmation-title').textContent = title;
-            document.getElementById('confirmation-text').textContent = text;
-            confirmationCallback = callback;
-            ui.confirmationModal.style.display = 'flex';
-        };
-        const logToGame = async (message) => {
-            try { await addDoc(collection(db, `apps/${appId}/globalLog`), { message, timestamp: serverTimestamp() }); }
-            catch (error) { console.error("Error writing to global log:", error); }
-        };
-        // New function to log player-specific actions
-        const logToPlayerActivity = async (userId, message) => {
-            if (!userId) return;
-            try {
-                const activityRef = collection(db, `apps/${appId}/players/${userId}/activityLog`);
-                await addDoc(activityRef, { message, timestamp: serverTimestamp() });
-            } catch (error) {
-                console.error(`Error writing to activity log for ${userId}:`, error);
-            }
-        };
+        const showMessage = (msg, isTroll = false) => { ui.messageText.textContent = msg; ui.messageModal.style.display = 'flex'; if(isTroll) ui.messageText.classList.add('text-red-400'); else ui.messageText.classList.remove('text-red-400'); };
+        const showConfirmation = (title, text, callback) => { document.getElementById('confirmation-title').textContent = title; document.getElementById('confirmation-text').textContent = text; confirmationCallback = callback; ui.confirmationModal.style.display = 'flex'; };
+        const logToGame = async (message) => { try { await addDoc(collection(db, `apps/${appId}/globalLog`), { message, timestamp: serverTimestamp() }); } catch (error) { console.error("Error writing to global log:", error); } };
+        const logToPlayerActivity = async (userId, message) => { if (!userId) return; try { const activityRef = collection(db, `apps/${appId}/players/${userId}/activityLog`); await addDoc(activityRef, { message, timestamp: serverTimestamp() }); } catch (error) { console.error(`Error writing to activity log for ${userId}:`, error); } };
 
         const applyNameStyle = (element, nameStyle) => {
-            element.className = 'chat-name';
+            element.className = 'font-bold';
             element.style.cssText = '';
-            if (!nameStyle) return;
+            if (!nameStyle) { element.style.color = 'var(--yellow-color)'; return; }
             if (nameStyle.animation) element.classList.add(nameStyle.animation);
-            if (nameStyle.animation === 'gradient-text' && nameStyle.color && nameStyle.gradientTo) {
-                 element.style.backgroundImage = `linear-gradient(to right, ${nameStyle.color}, ${nameStyle.gradientTo})`;
-            } else if (nameStyle.color) {
-                 if (nameStyle.animation === 'animate-glow') element.style.setProperty('--glow-color', nameStyle.color);
-                 element.style.color = nameStyle.color;
-            }
+            if (nameStyle.animation === 'gradient-text' && nameStyle.color && nameStyle.gradientTo) { element.style.backgroundImage = `linear-gradient(to right, ${nameStyle.color}, ${nameStyle.gradientTo})`; } 
+            else if (nameStyle.color) { if (nameStyle.animation === 'animate-glow') element.style.setProperty('--glow-color', nameStyle.color); element.style.color = nameStyle.color; }
         };
         
         const grantAchievement = async (achievementId) => {
             if (!currentPlayer.achievements || !currentPlayer.achievements[achievementId]) {
                 try {
-                    await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), {
-                        [`achievements.${achievementId}`]: true
-                    });
+                    await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), { [`achievements.${achievementId}`]: true });
                     const achievement = achievements[achievementId];
                     const message = `Unlocked achievement: ${achievement.name}`;
                     showMessage(`🏆 Achievement Unlocked: ${achievement.name}!`);
@@ -499,18 +468,7 @@
             const sellerInfo = item.sellerName ? `<p class="text-xs text-gray-400 truncate">Seller: ${item.sellerName}</p>` : '';
             const categoryInfo = itemData.isCursed ? `<p class="text-xs text-red-500 font-bold">CURSED</p>` : itemData.category === 'fused' ? `<p class="text-xs text-purple-400 font-bold">FUSED</p>` : '';
 
-            return `
-                <div class="card p-3 rounded-lg flex flex-col justify-between fade-in" data-item-id="${id}" data-item-type="${item.itemId || 'custom'}">
-                    <div>
-                        ${itemData.svg}
-                        <h4 class="font-bold text-md truncate mt-2">${itemData.name}</h4>
-                        ${sellerInfo} ${categoryInfo}
-                    </div>
-                    <div class="mt-2">
-                        <p class="text-lg font-orbitron text-cyan-400">${valueDisplay}</p>
-                        ${buttons}
-                    </div>
-                </div>`;
+            return `<div class="card p-3 rounded-lg flex flex-col justify-between fade-in" data-item-id="${id}" data-item-type="${item.itemId || 'custom'}"><div>${itemData.svg}<h4 class="font-bold text-md truncate mt-2">${itemData.name}</h4>${sellerInfo} ${categoryInfo}</div><div class="mt-2"><p class="text-lg font-orbitron" style="color: var(--accent-color);">${valueDisplay}</p>${buttons}</div></div>`;
         };
         
         const updatePlayerUI = (playerData) => {
@@ -519,91 +477,53 @@
 
             ui.playerDisplayName.textContent = playerData.displayName;
             applyNameStyle(ui.playerDisplayName, playerData.nameStyle);
-            if (!playerData.nameStyle) ui.playerDisplayName.className = 'font-bold text-yellow-300';
             
             ui.playerLevel.textContent = playerData.level || 0;
             ui.playerCash.textContent = formatCash(playerData.cash || 0);
             ui.playerHypePoints.textContent = (playerData.hypePoints || 0).toLocaleString();
             ui.joinDate.textContent = playerData.createdAt?.seconds ? new Date(playerData.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
             
-            const inventoryVal = Object.values(playerData.inventory || {}).reduce((acc, item) => {
-                const itemData = allItems[item.itemId] || item; return acc + (itemData.baseValue || 0);
-            }, 0);
+            const inventoryVal = Object.values(playerData.inventory || {}).reduce((acc, item) => { const itemData = allItems[item.itemId] || item; return acc + (itemData.baseValue || 0); }, 0);
             const netWorth = (playerData.cash || 0) + inventoryVal;
             ui.netWorth.textContent = formatCash(netWorth);
 
             ui.getStarterPackBtn.disabled = playerData.hasStarterPack;
             ui.buyLootBoxBtn.disabled = (playerData.cash || 0) < 500;
 
-            ui.playerInventory.innerHTML = Object.entries(playerData.inventory || {})
-                .map(([id, item]) => renderItem(item, id, 'inventory', `<button class="btn sell-btn w-full text-sm mt-1 bg-yellow-600 hover:bg-yellow-700">Sell</button>`))
-                .join('');
+            ui.playerInventory.innerHTML = Object.entries(playerData.inventory || {}).map(([id, item]) => renderItem(item, id, 'inventory', `<button class="btn sell-btn w-full text-sm mt-1">Sell</button>`)).join('');
                 
             ui.achievementsList.innerHTML = Object.keys(achievements).map(id => {
                 const achieved = playerData.achievements && playerData.achievements[id];
                 const ach = achievements[id];
-                return `<div class="flex items-center ${achieved ? 'text-green-400' : 'text-gray-500'}">
-                    <span class="mr-2">${achieved ? '🏆' : '🔒'}</span>
-                    <div>
-                        <p class="font-bold">${ach.name}</p>
-                        <p class="text-xs">${ach.description}</p>
-                    </div>
-                </div>`;
+                return `<div class="flex items-center ${achieved ? 'text-green-400' : 'text-gray-500'}"><span class="mr-2">${achieved ? '🏆' : '🔒'}</span><div><p class="font-bold">${ach.name}</p><p class="text-xs">${ach.description}</p></div></div>`;
             }).join('');
 
             // Check achievements
             if (netWorth >= 10000) grantAchievement('net_worth_10k');
             if (netWorth >= 100000) grantAchievement('net_worth_100k');
-            if (Object.values(playerData.inventory || {}).some(item => (allItems[item.itemId] || item).category === 'fused')) {
-                grantAchievement('fused_item');
-            }
+            if (Object.values(playerData.inventory || {}).some(item => (allItems[item.itemId] || item).category === 'fused')) grantAchievement('fused_item');
+            if (Object.values(playerData.inventory || {}).some(item => (allItems[item.itemId] || item).category === 'exotic')) grantAchievement('exotic_owner');
         };
         
-        const updateMarketplaceUI = (listings) => {
-            ui.marketplace.innerHTML = Object.entries(listings)
-                .map(([id, item]) => {
-                    const buyButton = item.sellerId !== currentUserId
-                        ? `<button class="btn buy-btn w-full text-sm mt-1 bg-green-500 hover:bg-green-600">Buy</button>`
-                        : `<button class="btn delist-btn w-full text-sm mt-1 bg-red-700 hover:bg-red-800">Delist</button>`;
-                    return renderItem(item, id, 'marketplace', buyButton);
-                }).join('');
-        };
-
-        const updateShopUI = (shopId, element, items, buttonClass, buttonText, valueType) => {
-            element.innerHTML = Object.entries(items)
-                .map(([id, itemData]) => {
-                    const value = itemData.cost || itemData.points || itemData.baseValue;
-                    const item = { itemId: id, [valueType]: value };
-                    const buttons = `<button class="btn ${buttonClass} w-full text-sm mt-1 bg-cyan-600 hover:bg-cyan-700">${buttonText}</button>`;
-                    return renderItem(item, id, shopId, buttons);
-                }).join('');
-        };
-        
-        const updateGameLogUI = (logs) => {
-            ui.gameLog.innerHTML = logs.map(log => `<div class="fade-in">${log.message}</div>`).join('');
-            ui.gameLog.scrollTop = ui.gameLog.scrollHeight;
-        };
-
+        const updateMarketplaceUI = (listings) => { ui.marketplace.innerHTML = Object.entries(listings).map(([id, item]) => { const buyButton = item.sellerId !== currentUserId ? `<button class="btn buy-btn w-full text-sm mt-1">Buy</button>` : `<button class="btn delist-btn w-full text-sm mt-1" style="background-color: var(--red-color); color: white;">Delist</button>`; return renderItem(item, id, 'marketplace', buyButton); }).join(''); };
+        const updateShopUI = (shopId, element, items, buttonClass, buttonText, valueType) => { element.innerHTML = Object.entries(items).map(([id, itemData]) => { const value = itemData.cost || itemData.points || itemData.baseValue; const item = { itemId: id, [valueType]: value }; const buttons = `<button class="btn ${buttonClass} w-full text-sm mt-1">${buttonText}</button>`; return renderItem(item, id, shopId, buttons); }).join(''); };
+        const updateGameLogUI = (logs) => { ui.gameLog.innerHTML = logs.map(log => `<div class="fade-in">${log.message}</div>`).join(''); ui.gameLog.scrollTop = ui.gameLog.scrollHeight; };
         const updateChatUI = (messages) => {
             ui.chatBox.innerHTML = messages.map(msg => {
                 const align = msg.userId === currentUserId ? 'self-end' : 'self-start';
-                const bgColor = msg.userId === currentUserId ? 'bg-cyan-800' : 'bg-gray-700';
-                
+                const bgColor = msg.userId === currentUserId ? 'bg-green-900' : 'bg-gray-700';
                 const nameSpan = document.createElement('span');
                 nameSpan.textContent = `${msg.displayName}: `;
                 nameSpan.dataset.userId = msg.userId;
                 if (msg.nameStyle) applyNameStyle(nameSpan, msg.nameStyle);
-                else nameSpan.className = `chat-name ${msg.isAdmin ? 'text-red-400 font-bold' : 'text-yellow-300 font-bold'}`;
-
+                else nameSpan.className = `chat-name font-bold ${msg.isAdmin ? 'text-red-400' : 'text-yellow-300'}`;
                 const messageSpan = document.createElement('span');
                 messageSpan.className = 'text-white';
                 messageSpan.textContent = msg.message;
-
                 const messageDiv = document.createElement('div');
                 messageDiv.className = `chat-message ${align} ${bgColor} fade-in`;
                 messageDiv.appendChild(nameSpan);
                 messageDiv.appendChild(messageSpan);
-                
                 return messageDiv.outerHTML;
             }).join('');
             ui.chatBox.scrollTop = ui.chatBox.scrollHeight;
@@ -616,29 +536,16 @@
                 const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
                 let playerSnap = await getDoc(playerRef);
 
-                // --- IP Logging ---
                 try {
                     const response = await fetch('https://api.ipify.org?format=json');
                     const data = await response.json();
                     const ip = data.ip;
                     const ipLogRef = doc(db, `apps/${appId}/ipLogs`, currentUserId);
-                    await setDoc(ipLogRef, { 
-                        ip: ip, 
-                        lastSeen: serverTimestamp(),
-                        userId: currentUserId,
-                        displayName: playerSnap.exists() ? playerSnap.data().displayName : `Player-${currentUserId.substring(0, 5)}`
-                    }, { merge: true });
-                } catch (ipError) {
-                    console.error("Could not log IP address:", ipError);
-                }
-                // --- End IP Logging ---
+                    await setDoc(ipLogRef, { ip: ip, lastSeen: serverTimestamp(), userId: currentUserId, displayName: playerSnap.exists() ? playerSnap.data().displayName : `Player-${currentUserId.substring(0, 5)}` }, { merge: true });
+                } catch (ipError) { console.error("Could not log IP address:", ipError); }
 
                 if (!playerSnap.exists()) {
-                    const initialData = {
-                        displayName: `Player-${currentUserId.substring(0, 5)}`, cash: 100, level: 1, hypePoints: 0,
-                        itemsSold: 0, inventory: {}, hasStarterPack: false, nameStyle: null, achievements: {},
-                        createdAt: serverTimestamp(), lastLogin: serverTimestamp()
-                    };
+                    const initialData = { displayName: `Player-${currentUserId.substring(0, 5)}`, cash: 100, level: 1, hypePoints: 0, itemsSold: 0, inventory: {}, hasStarterPack: false, nameStyle: null, achievements: {}, createdAt: serverTimestamp(), lastLogin: serverTimestamp() };
                     await setDoc(playerRef, initialData);
                     logToGame(`A new player has arrived: ${initialData.displayName}`);
                     logToPlayerActivity(currentUserId, "Initial player profile created.");
@@ -650,18 +557,12 @@
                         if (now.getDate() !== lastLogin.getDate() || now.getMonth() !== lastLogin.getMonth() || now.getFullYear() !== lastLogin.getFullYear()) {
                             const cashBonus = 500;
                             const hypeBonus = 50;
-                            await updateDoc(playerRef, {
-                                lastLogin: serverTimestamp(),
-                                cash: increment(cashBonus),
-                                hypePoints: increment(hypeBonus)
-                            });
+                            await updateDoc(playerRef, { lastLogin: serverTimestamp(), cash: increment(cashBonus), hypePoints: increment(hypeBonus) });
                             const message = `Received daily login bonus of ${formatCash(cashBonus)} and ${hypeBonus} HP.`;
                             showMessage(`Welcome back! You received a daily login bonus of ${formatCash(cashBonus)} and ${hypeBonus} Hype Points!`);
                             logToPlayerActivity(currentUserId, message);
                         }
-                    } else {
-                        await updateDoc(playerRef, { lastLogin: serverTimestamp() });
-                    }
+                    } else { await updateDoc(playerRef, { lastLogin: serverTimestamp() }); }
                     logToPlayerActivity(currentUserId, "Player logged in.");
                 }
                 
@@ -669,10 +570,7 @@
             } catch (error) {
                 console.error("Critical error during player initialization:", error);
                 const loadingText = document.getElementById("loading-text");
-                if (loadingText) {
-                    loadingText.textContent = "Error loading your profile. Please refresh and try again.";
-                    loadingText.classList.add('text-red-500');
-                }
+                if (loadingText) { loadingText.textContent = "Error loading your profile. Please refresh and try again."; loadingText.classList.add('text-red-500'); }
             }
         }
         
@@ -680,11 +578,7 @@
             ui.getStarterPackBtn.addEventListener('click', async () => {
                 if (currentPlayer.hasStarterPack) return;
                 try {
-                    await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), {
-                        hasStarterPack: true, cash: increment(200),
-                        [`inventory.item_${Date.now()}_1`]: { itemId: 'tee01' },
-                        [`inventory.item_${Date.now()}_2`]: { itemId: 'cap01' },
-                    });
+                    await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), { hasStarterPack: true, cash: increment(200), [`inventory.item_${Date.now()}_1`]: { itemId: 'tee01' }, [`inventory.item_${Date.now()}_2`]: { itemId: 'cap01' }, });
                     const message = "Received starter pack (+200 Cash, White Tee, Dad Cap).";
                     logToGame(`${currentPlayer.displayName} got a starter pack!`);
                     logToPlayerActivity(currentUserId, message);
@@ -696,7 +590,7 @@
             ui.buyLootBoxBtn.addEventListener('click', async () => {
                 if (currentPlayer.cash < 500) return;
                 try {
-                    const lootTable = { ...clothingItems, ...exoticItems };
+                    const lootTable = { ...clothingItems, ...accessoryItems, ...exoticItems };
                     const itemKeys = Object.keys(lootTable);
                     const randomItemId = itemKeys[Math.floor(Math.random() * itemKeys.length)];
                     await updateDoc(doc(db, `apps/${appId}/players`, currentUserId), { cash: increment(-500), [`inventory.item_${Date.now()}`]: { itemId: randomItemId } });
@@ -714,11 +608,7 @@
                     const itemEl = e.target.closest('[data-item-id]');
                     itemToSellId = itemEl.dataset.itemId;
                     const itemData = allItems[itemEl.dataset.itemType] || currentPlayer.inventory[itemToSellId];
-                    if (itemData.isCursed) {
-                        showMessage("You cannot sell a cursed item!");
-                        sound.error();
-                        return;
-                    }
+                    if (itemData.isCursed) { showMessage("You cannot sell a cursed item!"); sound.error(); return; }
                     ui.sellItemDisplay.innerHTML = renderItem(itemData, itemToSellId, 'sell-modal', '');
                     const aiPrice = Math.floor((itemData.baseValue || 0) * 0.7);
                     ui.aiSellPrice.textContent = formatCash(aiPrice);
@@ -734,7 +624,6 @@
             ui.confirmSellBtn.addEventListener('click', async () => {
                 const price = parseInt(ui.sellPriceInput.value);
                 if (!itemToSellId || isNaN(price) || price <= 0) { showMessage("Invalid price."); return; }
-                
                 try {
                     const itemData = currentPlayer.inventory[itemToSellId];
                     const itemName = (allItems[itemData.itemId] || itemData).name;
@@ -745,13 +634,11 @@
                         const itemToSell = inventory[itemToSellId];
                         if (!itemToSell) throw "Item not found.";
                         if ((allItems[itemToSell.itemId] || itemToSell).isCursed) throw "Cannot sell a cursed item.";
-
                         const newListingRef = doc(collection(db, `apps/${appId}/marketplace`));
                         transaction.set(newListingRef, { ...itemToSell, price, sellerId: currentUserId, sellerName: currentPlayer.displayName });
                         delete inventory[itemToSellId];
                         transaction.update(playerRef, { inventory });
                     });
-                    
                     const message = `Listed a ${itemName} on the marketplace for ${formatCash(price)}.`;
                     logToGame(`${currentPlayer.displayName} ${message.toLowerCase()}`);
                     logToPlayerActivity(currentUserId, message);
@@ -765,18 +652,15 @@
             ui.sellToAIBtn.addEventListener('click', async () => {
                 const price = parseInt(ui.sellToAIBtn.dataset.price);
                  if (!itemToSellId || isNaN(price) || price < 0) return;
-
                 try {
                     const itemData = currentPlayer.inventory[itemToSellId];
                     if (!itemData) throw new Error("Item not in inventory");
                     const itemName = (allItems[itemData.itemId] || itemData).name;
-
                     await runTransaction(db, async (transaction) => {
                         const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
                         const playerDoc = await transaction.get(playerRef);
                         const inventory = playerDoc.data().inventory;
                         if (!inventory[itemToSellId]) throw "Item not in inventory";
-                        
                         delete inventory[itemToSellId];
                         transaction.update(playerRef, { inventory, cash: increment(price) });
                     });
@@ -794,33 +678,27 @@
                 const listingEl = e.target.closest('[data-item-id]');
                 if (!listingEl) return;
                 const listingId = listingEl.dataset.itemId;
-
                 if (e.target.classList.contains('buy-btn')) {
                     try {
                         await runTransaction(db, async (transaction) => {
                             const listingRef = doc(db, `apps/${appId}/marketplace`, listingId);
                             const listingDoc = await transaction.get(listingRef);
                             if (!listingDoc.exists()) throw "Listing no longer available.";
-
                             const listing = listingDoc.data();
                             const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
                             const playerDoc = await transaction.get(playerRef);
                             if (playerDoc.data().cash < listing.price) throw "Not enough cash.";
-                            
                             const sellerRef = doc(db, `apps/${appId}/players`, listing.sellerId);
                             const { price, sellerId, sellerName, ...itemData } = listing;
-
                             transaction.update(playerRef, { cash: increment(-listing.price), [`inventory.item_${Date.now()}`]: itemData });
                             transaction.update(sellerRef, { cash: increment(listing.price) });
                             transaction.delete(listingRef);
-                            
                             const itemName = (allItems[itemData.itemId] || itemData).name;
                             const message = `Bought a ${itemName} from ${sellerName} for ${formatCash(price)}.`;
                             logToPlayerActivity(currentUserId, message);
                             logToPlayerActivity(sellerId, `Sold a ${itemName} to ${currentPlayer.displayName} for ${formatCash(price)}.`);
                             logToGame(`${currentPlayer.displayName} bought a ${itemName}.`);
                         });
-                        
                         showMessage("Purchase successful!");
                         sound.buy();
                     } catch (error) { console.error("Purchase Error:", error); showMessage(`Purchase failed: ${error}`); sound.error(); }
@@ -830,15 +708,12 @@
                             const listingRef = doc(db, `apps/${appId}/marketplace`, listingId);
                             const listingDoc = await transaction.get(listingRef);
                             if (!listingDoc.exists()) throw "Listing not found.";
-                            
                             const listing = listingDoc.data();
                             if(listing.sellerId !== currentUserId) throw "Not your listing.";
-
                             const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
                             const { price, sellerId, sellerName, ...itemData } = listing;
                             transaction.update(playerRef, { [`inventory.item_${Date.now()}`]: itemData });
                             transaction.delete(listingRef);
-
                             const itemName = (allItems[itemData.itemId] || itemData).name;
                             logToPlayerActivity(currentUserId, `Delisted a ${itemName}.`);
                         });
@@ -875,36 +750,26 @@
                 });
             };
 
+            setupShopListener('accessories-container', 'buy-accessory-item-btn', accessoryItems, 'cash', 'baseValue');
             setupShopListener('pawn-shop-container', 'buy-pawn-item-btn', clothingItems, 'cash', 'baseValue');
             setupShopListener('exotic-wares-container', 'buy-exotic-item-btn', exoticItems, 'cash', 'cost');
             setupShopListener('hype-shop-container', 'buy-hype-item-btn', hypeShopItems, 'hypePoints', 'points');
 
-            ui.refreshPawnStockBtn.addEventListener('click', () => {
-                updateShopUI('pawn-shop', ui.pawnShop, clothingItems, 'buy-pawn-item-btn', 'Buy', 'baseValue');
-                showMessage("Pawn shop stock refreshed.");
-            });
+            ui.refreshPawnStockBtn.addEventListener('click', () => { updateShopUI('pawn-shop', ui.pawnShop, clothingItems, 'buy-pawn-item-btn', 'Buy', 'baseValue'); showMessage("Pawn shop stock refreshed."); });
 
             ui.chatForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const messageText = ui.chatInput.value.trim();
                 if (messageText === '' || !currentUserId || !currentPlayer) return;
-                for (const pattern of BANNED_WORDS) {
-                    if (pattern.test(messageText)) { showMessage("Your message contains inappropriate language."); ui.chatInput.value = ''; return; }
-                }
+                for (const pattern of BANNED_WORDS) { if (pattern.test(messageText)) { showMessage("Your message contains inappropriate language."); ui.chatInput.value = ''; return; } }
                 try {
-                    await addDoc(collection(db, `apps/${appId}/globalChat`), {
-                        userId: currentUserId, displayName: currentPlayer.displayName, message: messageText,
-                        timestamp: serverTimestamp(), isAdmin, nameStyle: currentPlayer.nameStyle || null
-                    });
+                    await addDoc(collection(db, `apps/${appId}/globalChat`), { userId: currentUserId, displayName: currentPlayer.displayName, message: messageText, timestamp: serverTimestamp(), isAdmin, nameStyle: currentPlayer.nameStyle || null });
                     ui.chatInput.value = '';
                 } catch (error) { console.error("Error sending chat message: ", error); showMessage(`Error sending message.`); }
             });
             
             document.getElementById('cancel-confirmation').addEventListener('click', () => { ui.confirmationModal.style.display = 'none'; confirmationCallback = null; });
-            document.getElementById('confirm-action').addEventListener('click', () => {
-                if (confirmationCallback) confirmationCallback();
-                ui.confirmationModal.style.display = 'none'; confirmationCallback = null;
-            });
+            document.getElementById('confirm-action').addEventListener('click', () => { if (confirmationCallback) confirmationCallback(); ui.confirmationModal.style.display = 'none'; confirmationCallback = null; });
             
             ui.chatBox.addEventListener('click', async (e) => {
                 if(e.target.classList.contains('chat-name')) {
@@ -912,32 +777,14 @@
                     if (!targetId) return;
                     try {
                         const playerSnap = await getDoc(doc(db, `apps/${appId}/players`, targetId));
-                        if (!playerSnap.exists()) {
-                            showMessage("Could not find player profile.");
-                            return;
-                        }
+                        if (!playerSnap.exists()) { showMessage("Could not find player profile."); return; }
                         const pData = playerSnap.data();
                         const invVal = Object.values(pData.inventory || {}).reduce((acc, item) => acc + (allItems[item.itemId] || item).baseValue || 0, 0);
                         const profileNameSpan = document.createElement('span');
                         profileNameSpan.textContent = pData.displayName;
                         applyNameStyle(profileNameSpan, pData.nameStyle);
                         if (!pData.nameStyle) profileNameSpan.className = 'font-bold text-2xl text-yellow-300';
-
-                        ui.playerProfileContent.innerHTML = `
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <h3 class="text-3xl font-orbitron mb-2">${profileNameSpan.outerHTML}</h3>
-                                    <p class="text-gray-400">Joined: ${pData.createdAt ? new Date(pData.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</p>
-                                    <p class="text-lg">Net Worth: <span class="font-bold text-yellow-400">${formatCash((pData.cash || 0) + invVal)}</span></p>
-                                </div>
-                                <button id="close-profile-btn" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Close</button>
-                            </div>
-                            <hr class="border-gray-600 my-4">
-                            <h4 class="text-xl font-orbitron text-cyan-300 mb-2">Inventory</h4>
-                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto pr-2">
-                                ${Object.entries(pData.inventory || {}).map(([id, item]) => renderItem(item, id, 'profile', '')).join('') || '<p class="text-gray-500 col-span-full">This player has no items.</p>'}
-                            </div>
-                        `;
+                        ui.playerProfileContent.innerHTML = `<div class="flex justify-between items-start"><div><h3 class="text-3xl font-grunge mb-2">${profileNameSpan.outerHTML}</h3><p class="text-gray-400">Joined: ${pData.createdAt ? new Date(pData.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</p><p class="text-lg">Net Worth: <span class="font-bold text-yellow-400">${formatCash((pData.cash || 0) + invVal)}</span></p></div><button id="close-profile-btn" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Close</button></div><hr class="border-gray-600 my-4"><h4 class="text-xl font-grunge" style="color: var(--accent-color);">Inventory</h4><div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 overflow-y-auto pr-2">${Object.entries(pData.inventory || {}).map(([id, item]) => renderItem(item, id, 'profile', '')).join('') || '<p class="text-gray-500 col-span-full">This player has no items.</p>'}</div>`;
                         ui.playerProfileModal.style.display = 'flex';
                         document.getElementById('close-profile-btn').addEventListener('click', () => ui.playerProfileModal.style.display = 'none');
                     } catch (err) { console.error("Profile load error", err); showMessage("Error loading profile."); }
@@ -946,333 +793,54 @@
         }
 
         function setupAdminEventListeners() {
-            document.getElementById('confirm-admin-login').addEventListener('click', () => {
-                const user = document.getElementById('admin-user').value;
-                const pass = document.getElementById('admin-pass').value;
-                if (user === 'DAVE' && pass === 'CATS') {
-                    isAdmin = true; ui.adminPanel.classList.remove('hidden'); ui.adminLoginModal.style.display = 'none';
-                    logToGame('Admin access granted.'); showMessage('Admin access granted.');
-                } else { showMessage('Invalid admin credentials.'); }
-            });
+            document.getElementById('confirm-admin-login').addEventListener('click', () => { const user = document.getElementById('admin-user').value; const pass = document.getElementById('admin-pass').value; if (user === 'DAVE' && pass === 'CATS') { isAdmin = true; ui.adminPanel.classList.remove('hidden'); ui.adminLoginModal.style.display = 'none'; logToGame('Admin access granted.'); showMessage('Admin access granted.'); } else { showMessage('Invalid admin credentials.'); } });
             ui.adminLoginBtn.addEventListener('click', () => ui.adminLoginModal.style.display = 'flex');
             document.getElementById('cancel-admin-login').addEventListener('click', () => ui.adminLoginModal.style.display = 'none');
 
-            const setupAdminAction = (buttonId, idInputId, valueInputId, action) => {
-                document.getElementById(buttonId).addEventListener('click', async () => {
-                    const targetId = document.getElementById(idInputId).value.trim();
-                    const valueEl = document.getElementById(valueInputId);
-                    const value = valueEl ? (valueEl.type === 'number' ? parseInt(valueEl.value) : valueEl.value) : null;
-                    if (!targetId) { showMessage("Player ID is required."); return; }
-                    await action(targetId, value);
-                });
-            };
+            const setupAdminAction = (buttonId, idInputId, valueInputId, action) => { document.getElementById(buttonId).addEventListener('click', async () => { const targetId = document.getElementById(idInputId).value.trim(); const valueEl = document.getElementById(valueInputId); const value = valueEl ? (valueEl.type === 'number' ? parseInt(valueEl.value) : valueEl.value) : null; if (!targetId) { showMessage("Player ID is required."); return; } await action(targetId, value); }); };
 
-            setupAdminAction('admin-change-name-btn', 'admin-name-id', 'admin-new-name', async (id, newName) => {
-                if (!newName) { showMessage("New name is required."); return; }
-                const message = `Admin changed username to ${newName}.`;
-                await updateDoc(doc(db, `apps/${appId}/players`, id), { displayName: newName });
-                logToPlayerActivity(id, message);
-                showMessage(`Player ${id}'s name changed.`);
-            });
-            setupAdminAction('admin-give-cash-btn', 'admin-cash-id', 'admin-cash-amount', async (id, amount) => {
-                if (isNaN(amount)) { showMessage("Valid amount is required."); return; }
-                const message = `Admin gave ${formatCash(amount)}.`;
-                await updateDoc(doc(db, `apps/${appId}/players`, id), { cash: increment(amount) });
-                logToPlayerActivity(id, message);
-                showMessage(`Gave ${formatCash(amount)} to player ${id}.`);
-            });
-            setupAdminAction('admin-give-item-btn', 'admin-item-id', 'admin-item-select', async (id, itemId) => {
-                const message = `Admin gave item: ${allItems[itemId].name}.`;
-                await updateDoc(doc(db, `apps/${appId}/players`, id), { [`inventory.item_${Date.now()}`]: { itemId } });
-                logToPlayerActivity(id, message);
-                showMessage(`Gave ${allItems[itemId].name} to player ${id}.`);
-            });
+            setupAdminAction('admin-change-name-btn', 'admin-name-id', 'admin-new-name', async (id, newName) => { if (!newName) { showMessage("New name is required."); return; } const message = `Admin changed username to ${newName}.`; await updateDoc(doc(db, `apps/${appId}/players`, id), { displayName: newName }); logToPlayerActivity(id, message); showMessage(`Player ${id}'s name changed.`); });
+            setupAdminAction('admin-give-cash-btn', 'admin-cash-id', 'admin-cash-amount', async (id, amount) => { if (isNaN(amount)) { showMessage("Valid amount is required."); return; } const message = `Admin gave ${formatCash(amount)}.`; await updateDoc(doc(db, `apps/${appId}/players`, id), { cash: increment(amount) }); logToPlayerActivity(id, message); showMessage(`Gave ${formatCash(amount)} to player ${id}.`); });
+            setupAdminAction('admin-give-item-btn', 'admin-item-id', 'admin-item-select', async (id, itemId) => { const message = `Admin gave item: ${allItems[itemId].name}.`; await updateDoc(doc(db, `apps/${appId}/players`, id), { [`inventory.item_${Date.now()}`]: { itemId } }); logToPlayerActivity(id, message); showMessage(`Gave ${allItems[itemId].name} to player ${id}.`); });
 
-            document.getElementById('admin-set-name-style-btn').addEventListener('click', async () => {
-                const targetId = document.getElementById('admin-cosmetic-id').value.trim();
-                if (!targetId) { showMessage("Player ID is required."); return; }
-                const animation = document.getElementById('admin-name-animation').value;
-                const color = document.getElementById('admin-name-color').value.trim();
-                const gradientTo = document.getElementById('admin-gradient-to').value.trim();
-                const nameStyle = { animation: animation || null, color: color || null, gradientTo: gradientTo || null };
-                try {
-                    await updateDoc(doc(db, `apps/${appId}/players`, targetId), { nameStyle });
-                    logToPlayerActivity(targetId, `Admin updated name style.`);
-                    showMessage(`Style updated for player ${targetId}.`);
-                } catch (error) { console.error("Error setting name style:", error); showMessage("Failed to set style."); }
-            });
+            document.getElementById('admin-set-name-style-btn').addEventListener('click', async () => { const targetId = document.getElementById('admin-cosmetic-id').value.trim(); if (!targetId) { showMessage("Player ID is required."); return; } const animation = document.getElementById('admin-name-animation').value; const color = document.getElementById('admin-name-color').value.trim(); const gradientTo = document.getElementById('admin-gradient-to').value.trim(); const nameStyle = { animation: animation || null, color: color || null, gradientTo: gradientTo || null }; try { await updateDoc(doc(db, `apps/${appId}/players`, targetId), { nameStyle }); logToPlayerActivity(targetId, `Admin updated name style.`); showMessage(`Style updated for player ${targetId}.`); } catch (error) { console.error("Error setting name style:", error); showMessage("Failed to set style."); } });
+            document.getElementById('admin-broadcast-image-btn').addEventListener('click', async () => { const imageUrl = document.getElementById('admin-image-url').value.trim(); const duration = parseInt(document.getElementById('admin-image-duration').value); if (!imageUrl || isNaN(duration) || duration <= 0) { showMessage("Valid URL and duration required."); return; } try { await setDoc(doc(db, `apps/${appId}/globalState`, 'main'), { globalImage: { url: imageUrl, expiry: Date.now() + (duration * 1000) } }, { merge: true }); showMessage(`Broadcasting image for ${duration}s.`); } catch (error) { console.error("Error broadcasting image:", error); showMessage("Broadcast failed."); } });
+            document.getElementById('admin-set-bg-effect-btn').addEventListener('click', async () => { const effect = document.getElementById('admin-bg-effect').value; try { await setDoc(doc(db, `apps/${appId}/globalState`, 'main'), { backgroundEffect: effect || null }, { merge: true }); showMessage(`Background effect set to: ${effect || 'None'}.`); } catch (error) { console.error("Error setting BG effect:", error); showMessage("Failed to set effect."); } });
+            document.getElementById('admin-start-event-btn').addEventListener('click', async () => { const eventType = document.getElementById('admin-event-type').value; const durationMinutes = 5; try { await setDoc(doc(db, `apps/${appId}/globalState`, 'main'), { activeEvent: { type: eventType, expiry: Date.now() + (durationMinutes * 60 * 1000) } }, { merge: true }); showMessage(`${eventType} event started for ${durationMinutes} minutes!`); logToGame(`Admin started a ${eventType} event.`); } catch (error) { console.error("Error starting event:", error); showMessage("Failed to start event."); } });
 
-            document.getElementById('admin-broadcast-image-btn').addEventListener('click', async () => {
-                const imageUrl = document.getElementById('admin-image-url').value.trim();
-                const duration = parseInt(document.getElementById('admin-image-duration').value);
-                if (!imageUrl || isNaN(duration) || duration <= 0) { showMessage("Valid URL and duration required."); return; }
-                try {
-                    await setDoc(doc(db, `apps/${appId}/globalState`, 'main'), { globalImage: { url: imageUrl, expiry: Date.now() + (duration * 1000) } }, { merge: true });
-                    showMessage(`Broadcasting image for ${duration}s.`);
-                } catch (error) { console.error("Error broadcasting image:", error); showMessage("Broadcast failed."); }
-            });
+            document.getElementById('admin-load-inventory-btn').addEventListener('click', async () => { const targetId = document.getElementById('admin-fusion-id').value.trim(); if (!targetId) { showMessage("Player ID required."); return; } const fuseBtn = document.getElementById('admin-fuse-items-btn'); const item1Select = document.getElementById('admin-fuse-item1'); const item2Select = document.getElementById('admin-fuse-item2'); item1Select.innerHTML = item2Select.innerHTML = '<option>Loading...</option>'; item1Select.disabled = item2Select.disabled = fuseBtn.disabled = true; try { const playerSnap = await getDoc(doc(db, `apps/${appId}/players`, targetId)); if (!playerSnap.exists()) throw new Error("Player not found."); const inventory = playerSnap.data().inventory || {}; const options = Object.entries(inventory).map(([invId, item]) => { const itemData = allItems[item.itemId] || item; return `<option value="${invId}">${itemData.name}</option>` }).join(''); if (options) { item1Select.innerHTML = item2Select.innerHTML = options; item1Select.disabled = item2Select.disabled = fuseBtn.disabled = false; } else { item1Select.innerHTML = item2Select.innerHTML = '<option>Inventory Empty</option>'; } } catch (error) { console.error("Fusion load error:", error); showMessage(`Load failed: ${error.message}`); } });
+            document.getElementById('admin-fuse-items-btn').addEventListener('click', async () => { const targetId = document.getElementById('admin-fusion-id').value.trim(); const item1Id = document.getElementById('admin-fuse-item1').value; const item2Id = document.getElementById('admin-fuse-item2').value; if (!targetId || !item1Id || !item2Id) { showMessage("Player and two items must be selected."); return; } if (item1Id === item2Id) { showMessage("Cannot fuse an item with itself."); return; } try { let newName = ''; await runTransaction(db, async (transaction) => { const playerRef = doc(db, `apps/${appId}/players`, targetId); const playerDoc = await transaction.get(playerRef); if (!playerDoc.exists()) throw new Error("Player not found."); const inventory = playerDoc.data().inventory; const item1 = inventory[item1Id], item2 = inventory[item2Id]; if (!item1 || !item2) throw new Error("Items not in inventory."); const data1 = allItems[item1.itemId] || item1; const data2 = allItems[item2.itemId] || item2; const name1Parts = data1.name.split(' '), name2Parts = data2.name.split(' '); newName = `${name1Parts[0]} ${name2Parts.slice(1).join(' ')}`; const svg1 = data1.svg.match(/<svg[^>]*>([\s\S]*)<\/svg>/)[1]; const svg2 = data2.svg.match(/<svg[^>]*>([\s\S]*)<\/svg>/)[1]; const newSvg = `<svg viewBox="0 0 100 100" class="item-svg"><g transform="scale(0.9) translate(5 5)">${svg1}</g><g opacity="0.75" transform="scale(0.7) translate(15 15) rotate(10)">${svg2}</g></svg>`; const newValue = Math.floor(((data1.baseValue || 0) + (data2.baseValue || 0)) * 1.5); delete inventory[item1Id]; delete inventory[item2Id]; inventory[`fused_${Date.now()}`] = { name: newName, svg: newSvg, baseValue: newValue, category: 'fused' }; transaction.update(playerRef, { inventory }); }); const message = `Admin fused items to create: ${newName}.`; logToGame(`An admin created a new fused item: ${newName} for player ${targetId}`); logToPlayerActivity(targetId, message); showMessage("Fusion successful!"); } catch (error) { console.error("Fusion Error:", error); showMessage(`Fusion failed: ${error.message}`); } });
             
-            document.getElementById('admin-set-bg-effect-btn').addEventListener('click', async () => {
-                 const effect = document.getElementById('admin-bg-effect').value;
-                 try {
-                    await setDoc(doc(db, `apps/${appId}/globalState`, 'main'), { backgroundEffect: effect || null }, { merge: true });
-                    showMessage(`Background effect set to: ${effect || 'None'}.`);
-                 } catch (error) { console.error("Error setting BG effect:", error); showMessage("Failed to set effect."); }
-            });
+            const setupTrollAction = (buttonId, idInputId, effect) => { document.getElementById(buttonId).addEventListener('click', async () => { const targetId = document.getElementById(idInputId).value.trim(); if (!targetId) { showMessage("Player ID required."); return; } try { await setDoc(doc(db, `apps/${appId}/globalState`, 'main'), { troll: { id: targetId, effect: effect, timestamp: Date.now() } }, { merge: true }); logToPlayerActivity(targetId, `Admin used "${effect}".`); showMessage(`Troll action "${effect}" sent to player ${targetId}!`); } catch (e) { showMessage("Failed to send troll action."); } }); };
+            setupTrollAction('admin-troll-smite-btn', 'admin-troll-smite-id', 'smite');
+            setupTrollAction('admin-troll-shake-btn', 'admin-troll-shake-id', 'shake');
+            setupTrollAction('admin-troll-invert-btn', 'admin-troll-invert-id', 'invert');
+            setupTrollAction('admin-troll-rickroll-btn', 'admin-troll-rickroll-id', 'rickroll');
 
-            document.getElementById('admin-load-inventory-btn').addEventListener('click', async () => {
-                const targetId = document.getElementById('admin-fusion-id').value.trim();
-                if (!targetId) { showMessage("Player ID required."); return; }
-                const fuseBtn = document.getElementById('admin-fuse-items-btn');
-                const item1Select = document.getElementById('admin-fuse-item1');
-                const item2Select = document.getElementById('admin-fuse-item2');
-                item1Select.innerHTML = item2Select.innerHTML = '<option>Loading...</option>';
-                item1Select.disabled = item2Select.disabled = fuseBtn.disabled = true;
+            document.getElementById('admin-troll-curse-btn').addEventListener('click', async () => { const targetId = document.getElementById('admin-troll-curse-id').value.trim(); if(!targetId) { showMessage("Player ID required."); return; } const cursedItem = { name: "Cursed Potato", baseValue: 0, isCursed: true, svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M30 60 Q 50 40 70 60 Q 90 80 50 90 Q 10 80 30 60" fill="#8B4513"/><circle cx="45" cy="70" r="3" fill="black"/><circle cx="55" cy="70" r="3" fill="black"/><path d="M40 80 Q 50 85 60 80" fill="none" stroke="black" stroke-width="2"/></svg>` }; try { await updateDoc(doc(db, `apps/${appId}/players`, targetId), { [`inventory.cursed_${Date.now()}`]: cursedItem }); const message = `Admin gave Cursed Potato.`; logToPlayerActivity(targetId, message); showMessage(`Player ${targetId} has been cursed with a potato!`); logToGame(`An admin cursed ${targetId} with a potato.`); } catch(e) { showMessage("Failed to curse player."); } });
 
-                try {
-                    const playerSnap = await getDoc(doc(db, `apps/${appId}/players`, targetId));
-                    if (!playerSnap.exists()) throw new Error("Player not found.");
-                    
-                    const inventory = playerSnap.data().inventory || {};
-                    const options = Object.entries(inventory).map(([invId, item]) => {
-                        const itemData = allItems[item.itemId] || item;
-                        return `<option value="${invId}">${itemData.name}</option>`
-                    }).join('');
+            document.getElementById('admin-view-activity-btn').addEventListener('click', async () => { const targetId = document.getElementById('admin-activity-id').value.trim(); if (!targetId) { showMessage("Player ID required."); return; } const logContent = ui.activityLogContent; logContent.innerHTML = 'Loading logs...'; ui.activityLogModal.style.display = 'flex'; try { const activityRef = collection(db, `apps/${appId}/players/${targetId}/activityLog`); const q = query(activityRef, orderBy("timestamp", "desc"), limit(100)); const querySnapshot = await getDocs(q); if (querySnapshot.empty) { logContent.innerHTML = 'No activity found for this player.'; return; } let logHTML = ''; querySnapshot.forEach(doc => { const data = doc.data(); const timestamp = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'N/A'; logHTML += `<div class="p-1 border-b border-gray-700"><span class="text-cyan-400">${timestamp}:</span> ${data.message}</div>`; }); logContent.innerHTML = logHTML; } catch (error) { console.error("Error fetching activity log:", error); logContent.innerHTML = 'Error loading logs.'; } });
+            document.getElementById('admin-fetch-ips-btn').addEventListener('click', async () => { const outputDiv = document.getElementById('admin-ip-log-output'); outputDiv.innerHTML = 'Fetching...'; try { const ipLogsRef = collection(db, `apps/${appId}/ipLogs`); const q = query(ipLogsRef, orderBy("lastSeen", "desc")); const querySnapshot = await getDocs(q); if (querySnapshot.empty) { outputDiv.innerHTML = 'No IP logs found.'; return; } let tableHTML = '<table class="w-full text-left"><thead><tr><th class="p-1">IP</th><th class="p-1">Player</th><th class="p-1">Last Seen</th></tr></thead><tbody>'; querySnapshot.forEach(doc => { const data = doc.data(); const lastSeen = data.lastSeen ? new Date(data.lastSeen.seconds * 1000).toLocaleString() : 'N/A'; tableHTML += `<tr class="border-t border-gray-600"><td class="p-1">${data.ip}</td><td class="p-1 truncate">${data.displayName}</td><td class="p-1">${lastSeen}</td></tr>`; }); tableHTML += '</tbody></table>'; outputDiv.innerHTML = tableHTML; } catch (error) { console.error("Error fetching IP logs:", error); outputDiv.innerHTML = 'Error fetching logs.'; } });
 
-                    if (options) {
-                        item1Select.innerHTML = item2Select.innerHTML = options;
-                        item1Select.disabled = item2Select.disabled = fuseBtn.disabled = false;
-                    } else { item1Select.innerHTML = item2Select.innerHTML = '<option>Inventory Empty</option>'; }
-                } catch (error) { console.error("Fusion load error:", error); showMessage(`Load failed: ${error.message}`); }
-            });
-
-            document.getElementById('admin-fuse-items-btn').addEventListener('click', async () => {
-                const targetId = document.getElementById('admin-fusion-id').value.trim();
-                const item1Id = document.getElementById('admin-fuse-item1').value;
-                const item2Id = document.getElementById('admin-fuse-item2').value;
-
-                if (!targetId || !item1Id || !item2Id) { showMessage("Player and two items must be selected."); return; }
-                if (item1Id === item2Id) { showMessage("Cannot fuse an item with itself."); return; }
-                
-                try {
-                    let newName = '';
-                    await runTransaction(db, async (transaction) => {
-                        const playerRef = doc(db, `apps/${appId}/players`, targetId);
-                        const playerDoc = await transaction.get(playerRef);
-                        if (!playerDoc.exists()) throw new Error("Player not found.");
-                        
-                        const inventory = playerDoc.data().inventory;
-                        const item1 = inventory[item1Id], item2 = inventory[item2Id];
-                        if (!item1 || !item2) throw new Error("Items not in inventory.");
-
-                        const data1 = allItems[item1.itemId] || item1;
-                        const data2 = allItems[item2.itemId] || item2;
-
-                        const name1Parts = data1.name.split(' '), name2Parts = data2.name.split(' ');
-                        newName = `${name1Parts[0]} ${name2Parts.slice(1).join(' ')}`;
-                        
-                        const svg1 = data1.svg.match(/<svg[^>]*>([\s\S]*)<\/svg>/)[1];
-                        const svg2 = data2.svg.match(/<svg[^>]*>([\s\S]*)<\/svg>/)[1];
-                        const newSvg = `<svg viewBox="0 0 100 100" class="item-svg"><g transform="scale(0.9) translate(5 5)">${svg1}</g><g opacity="0.75" transform="scale(0.7) translate(15 15) rotate(10)">${svg2}</g></svg>`;
-                        const newValue = Math.floor(((data1.baseValue || 0) + (data2.baseValue || 0)) * 1.5);
-
-                        delete inventory[item1Id]; delete inventory[item2Id];
-                        inventory[`fused_${Date.now()}`] = { name: newName, svg: newSvg, baseValue: newValue, category: 'fused' };
-                        
-                        transaction.update(playerRef, { inventory });
-                    });
-                    const message = `Admin fused items to create: ${newName}.`;
-                    logToGame(`An admin created a new fused item: ${newName} for player ${targetId}`);
-                    logToPlayerActivity(targetId, message);
-                    showMessage("Fusion successful!");
-                } catch (error) { console.error("Fusion Error:", error); showMessage(`Fusion failed: ${error.message}`); }
-            });
-            
-            // Troll menu actions
-            document.getElementById('admin-troll-msg-btn').addEventListener('click', async () => {
-                const targetId = document.getElementById('admin-troll-id').value.trim();
-                const msg = document.getElementById('admin-troll-msg').value.trim();
-                if(!targetId || !msg) { showMessage("Player ID and message required."); return; }
-                
-                await logToPlayerActivity(targetId, `Admin sent a fake message: "${msg}"`);
-                showMessage(`This feature only works on yourself for now, but imagine it worked on ${targetId}!`);
-            });
-
-            document.getElementById('admin-troll-curse-btn').addEventListener('click', async () => {
-                const targetId = document.getElementById('admin-troll-curse-id').value.trim();
-                if(!targetId) { showMessage("Player ID required."); return; }
-                const cursedItem = {
-                    name: "Cursed Potato",
-                    baseValue: 0,
-                    isCursed: true,
-                    svg: `<svg viewBox="0 0 100 100" class="item-svg"><path d="M30 60 Q 50 40 70 60 Q 90 80 50 90 Q 10 80 30 60" fill="#8B4513"/><circle cx="45" cy="70" r="3" fill="black"/><circle cx="55" cy="70" r="3" fill="black"/><path d="M40 80 Q 50 85 60 80" fill="none" stroke="black" stroke-width="2"/></svg>`
-                };
-                try {
-                    await updateDoc(doc(db, `apps/${appId}/players`, targetId), { [`inventory.cursed_${Date.now()}`]: cursedItem });
-                    const message = `Admin gave Cursed Potato.`;
-                    logToPlayerActivity(targetId, message);
-                    showMessage(`Player ${targetId} has been cursed with a potato!`);
-                    logToGame(`An admin cursed ${targetId} with a potato.`);
-                } catch(e) { showMessage("Failed to curse player."); }
-            });
-
-            document.getElementById('admin-troll-smite-btn').addEventListener('click', async () => {
-                const targetId = document.getElementById('admin-troll-smite-id').value.trim();
-                if(!targetId) { showMessage("Player ID required."); return; }
-                try {
-                    await setDoc(doc(db, `apps/${appId}/globalState`, 'main'), { smiteTarget: { id: targetId, timestamp: Date.now() } }, { merge: true });
-                    logToPlayerActivity(targetId, `Admin used "Smite".`);
-                    showMessage(`Player ${targetId} has been smitten!`);
-                } catch(e) { showMessage("Failed to smite player."); }
-            });
-
-            document.getElementById('admin-view-activity-btn').addEventListener('click', async () => {
-                const targetId = document.getElementById('admin-activity-id').value.trim();
-                if (!targetId) { showMessage("Player ID required."); return; }
-
-                const logContent = ui.activityLogContent;
-                logContent.innerHTML = 'Loading logs...';
-                ui.activityLogModal.style.display = 'flex';
-
-                try {
-                    const activityRef = collection(db, `apps/${appId}/players/${targetId}/activityLog`);
-                    const q = query(activityRef, orderBy("timestamp", "desc"), limit(100));
-                    const querySnapshot = await getDocs(q);
-
-                    if (querySnapshot.empty) {
-                        logContent.innerHTML = 'No activity found for this player.';
-                        return;
-                    }
-
-                    let logHTML = '';
-                    querySnapshot.forEach(doc => {
-                        const data = doc.data();
-                        const timestamp = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'N/A';
-                        logHTML += `<div class="p-1 border-b border-gray-700"><span class="text-cyan-400">${timestamp}:</span> ${data.message}</div>`;
-                    });
-                    logContent.innerHTML = logHTML;
-
-                } catch (error) {
-                    console.error("Error fetching activity log:", error);
-                    logContent.innerHTML = 'Error loading logs.';
-                }
-            });
-
-            // IP Logger Button
-            document.getElementById('admin-fetch-ips-btn').addEventListener('click', async () => {
-                const outputDiv = document.getElementById('admin-ip-log-output');
-                outputDiv.innerHTML = 'Fetching...';
-                try {
-                    const ipLogsRef = collection(db, `apps/${appId}/ipLogs`);
-                    const q = query(ipLogsRef, orderBy("lastSeen", "desc"));
-                    const querySnapshot = await getDocs(q);
-                    if (querySnapshot.empty) {
-                        outputDiv.innerHTML = 'No IP logs found.';
-                        return;
-                    }
-                    let tableHTML = '<table class="w-full text-left"><thead><tr><th class="p-1">IP</th><th class="p-1">Player</th><th class="p-1">Last Seen</th></tr></thead><tbody>';
-                    querySnapshot.forEach(doc => {
-                        const data = doc.data();
-                        const lastSeen = data.lastSeen ? new Date(data.lastSeen.seconds * 1000).toLocaleString() : 'N/A';
-                        tableHTML += `<tr class="border-t border-gray-600"><td class="p-1">${data.ip}</td><td class="p-1 truncate">${data.displayName}</td><td class="p-1">${lastSeen}</td></tr>`;
-                    });
-                    tableHTML += '</tbody></table>';
-                    outputDiv.innerHTML = tableHTML;
-                } catch (error) {
-                    console.error("Error fetching IP logs:", error);
-                    outputDiv.innerHTML = 'Error fetching logs.';
-                }
-            });
-
-
-            ui.adminClearChatBtn.addEventListener('click', () => {
-                showConfirmation("Clear Global Chat?", "This will permanently delete all messages.", async () => {
-                    if (!isAdmin) { showMessage("Not authorized."); return; }
-                    const chatCollectionRef = collection(db, `apps/${appId}/globalChat`);
-                    const qSnapshot = await getDocs(chatCollectionRef);
-                    const batch = writeBatch(db);
-                    qSnapshot.forEach((doc) => batch.delete(doc.ref));
-                    await batch.commit();
-                    logToGame("Global chat cleared by an admin.");
-                    showMessage("Global chat cleared.");
-                });
-            });
-
-            ui.adminResetBtn.addEventListener('click', () => {
-                const targetId = document.getElementById('admin-reset-id').value.trim();
-                if (!targetId) { showMessage("Player ID required."); return; }
-                showConfirmation(`RESET Player ${targetId}?`, "This will wipe their data. This cannot be undone.", async () => {
-                     if (!isAdmin) { showMessage("Not authorized."); return; }
-                     const initialData = {
-                         displayName: `Player-${targetId.substring(0, 5)}`, cash: 100, level: 1, hypePoints: 0,
-                         itemsSold: 0, inventory: {}, hasStarterPack: false, nameStyle: null, achievements: {},
-                         createdAt: serverTimestamp(), lastLogin: serverTimestamp()
-                     };
-                     await setDoc(doc(db, `apps/${appId}/players`, targetId), initialData);
-                     logToGame(`Player ${targetId} was reset by an admin.`);
-                     logToPlayerActivity(targetId, "PLAYER RESET BY ADMIN.");
-                     showMessage(`Player ${targetId} was reset.`);
-                });
-            });
+            ui.adminClearChatBtn.addEventListener('click', () => { showConfirmation("Clear Global Chat?", "This will permanently delete all messages.", async () => { if (!isAdmin) { showMessage("Not authorized."); return; } const chatCollectionRef = collection(db, `apps/${appId}/globalChat`); const qSnapshot = await getDocs(chatCollectionRef); const batch = writeBatch(db); qSnapshot.forEach((doc) => batch.delete(doc.ref)); await batch.commit(); logToGame("Global chat cleared by an admin."); showMessage("Global chat cleared."); }); });
+            ui.adminResetBtn.addEventListener('click', () => { const targetId = document.getElementById('admin-reset-id').value.trim(); if (!targetId) { showMessage("Player ID required."); return; } showConfirmation(`RESET Player ${targetId}?`, "This will wipe their data. This cannot be undone.", async () => { if (!isAdmin) { showMessage("Not authorized."); return; } const initialData = { displayName: `Player-${targetId.substring(0, 5)}`, cash: 100, level: 1, hypePoints: 0, itemsSold: 0, inventory: {}, hasStarterPack: false, nameStyle: null, achievements: {}, createdAt: serverTimestamp(), lastLogin: serverTimestamp() }; await setDoc(doc(db, `apps/${appId}/players`, targetId), initialData); logToGame(`Player ${targetId} was reset by an admin.`); logToPlayerActivity(targetId, "PLAYER RESET BY ADMIN."); showMessage(`Player ${targetId} was reset.`); }); });
         }
 
         async function main() {
-            // Populate UI object now that DOM is loaded
             ui = {
-                loadingScreen: document.getElementById('loading-screen'),
-                gameContainer: document.getElementById('game-container'),
-                playerId: document.getElementById('player-id'),
-                playerDisplayName: document.getElementById('player-display-name'),
-                playerLevel: document.getElementById('player-level'),
-                playerCash: document.getElementById('player-cash'),
-                playerHypePoints: document.getElementById('player-hype-points'),
-                netWorth: document.getElementById('net-worth'),
-                joinDate: document.getElementById('join-date'),
-                playerInventory: document.getElementById('player-inventory'),
-                marketplace: document.getElementById('marketplace'),
-                gameLog: document.getElementById('game-log'),
-                getStarterPackBtn: document.getElementById('get-starter-pack'),
-                buyLootBoxBtn: document.getElementById('buy-loot-box'),
-                sellModal: document.getElementById('sell-modal'),
-                sellItemDisplay: document.getElementById('sell-item-display'),
-                sellPriceInput: document.getElementById('sell-price'),
-                cancelSellBtn: document.getElementById('cancel-sell'),
-                confirmSellBtn: document.getElementById('confirm-sell'),
-                sellToAIBtn: document.getElementById('sell-to-ai-btn'),
-                aiSellPrice: document.getElementById('ai-sell-price'),
-                messageModal: document.getElementById('message-modal'),
-                messageText: document.getElementById('message-text'),
-                closeMessageBtn: document.getElementById('close-message'),
-                confirmationModal: document.getElementById('confirmation-modal'),
-                eventBanner: document.getElementById('event-banner'),
-                chatBox: document.getElementById('chat-box'),
-                chatForm: document.getElementById('chat-form'),
-                chatInput: document.getElementById('chat-input'),
-                tabs: { marketplace: document.getElementById('tab-marketplace'), pawnShop: document.getElementById('tab-pawn-shop'), exoticWares: document.getElementById('tab-exotic-wares'), hypeShop: document.getElementById('tab-hype-shop') },
-                containers: { marketplace: document.getElementById('marketplace-container'), pawnShop: document.getElementById('pawn-shop-container'), exoticWares: document.getElementById('exotic-wares-container'), hypeShop: document.getElementById('hype-shop-container') },
-                hypeShop: document.getElementById('hype-shop'),
-                exoticWares: document.getElementById('exotic-wares'),
-                pawnShop: document.getElementById('pawn-shop'),
-                refreshPawnStockBtn: document.getElementById('refresh-pawn-stock-btn'),
-                adminLoginBtn: document.getElementById('admin-login-btn'),
-                adminLoginModal: document.getElementById('admin-login-modal'),
-                adminPanel: document.getElementById('admin-panel'),
-                adminItemSelect: document.getElementById('admin-item-select'),
-                adminClearChatBtn: document.getElementById('admin-clear-chat-btn'),
-                adminResetBtn: document.getElementById('admin-reset-btn'),
-                achievementsList: document.getElementById('achievements-list'),
-                playerProfileModal: document.getElementById('player-profile-modal'),
-                playerProfileContent: document.getElementById('player-profile-content'),
-                smiteOverlay: document.getElementById('smite-overlay'),
-                activityLogModal: document.getElementById('activity-log-modal'),
-                activityLogContent: document.getElementById('activity-log-content'),
+                loadingScreen: document.getElementById('loading-screen'), gameContainer: document.getElementById('game-container'), playerId: document.getElementById('player-id'), playerDisplayName: document.getElementById('player-display-name'), playerLevel: document.getElementById('player-level'), playerCash: document.getElementById('player-cash'), playerHypePoints: document.getElementById('player-hype-points'), netWorth: document.getElementById('net-worth'), joinDate: document.getElementById('join-date'), playerInventory: document.getElementById('player-inventory'), marketplace: document.getElementById('marketplace'), gameLog: document.getElementById('game-log'), getStarterPackBtn: document.getElementById('get-starter-pack'), buyLootBoxBtn: document.getElementById('buy-loot-box'), sellModal: document.getElementById('sell-modal'), sellItemDisplay: document.getElementById('sell-item-display'), sellPriceInput: document.getElementById('sell-price'), cancelSellBtn: document.getElementById('cancel-sell'), confirmSellBtn: document.getElementById('confirm-sell'), sellToAIBtn: document.getElementById('sell-to-ai-btn'), aiSellPrice: document.getElementById('ai-sell-price'), messageModal: document.getElementById('message-modal'), messageText: document.getElementById('message-text'), closeMessageBtn: document.getElementById('close-message'), confirmationModal: document.getElementById('confirmation-modal'), eventBanner: document.getElementById('event-banner'), chatBox: document.getElementById('chat-box'), chatForm: document.getElementById('chat-form'), chatInput: document.getElementById('chat-input'), 
+                tabs: { marketplace: document.getElementById('tab-marketplace'), accessories: document.getElementById('tab-accessories'), pawnShop: document.getElementById('tab-pawn-shop'), exoticWares: document.getElementById('tab-exotic-wares'), hypeShop: document.getElementById('tab-hype-shop') }, 
+                containers: { marketplace: document.getElementById('marketplace-container'), accessories: document.getElementById('accessories-container'), pawnShop: document.getElementById('pawn-shop-container'), exoticWares: document.getElementById('exotic-wares-container'), hypeShop: document.getElementById('hype-shop-container') },
+                accessoriesShop: document.getElementById('accessories-shop'), hypeShop: document.getElementById('hype-shop'), exoticWares: document.getElementById('exotic-wares'), pawnShop: document.getElementById('pawn-shop'), refreshPawnStockBtn: document.getElementById('refresh-pawn-stock-btn'), adminLoginBtn: document.getElementById('admin-login-btn'), adminLoginModal: document.getElementById('admin-login-modal'), adminPanel: document.getElementById('admin-panel'), adminItemSelect: document.getElementById('admin-item-select'), adminClearChatBtn: document.getElementById('admin-clear-chat-btn'), adminResetBtn: document.getElementById('admin-reset-btn'), achievementsList: document.getElementById('achievements-list'), playerProfileModal: document.getElementById('player-profile-modal'), playerProfileContent: document.getElementById('player-profile-content'), smiteOverlay: document.getElementById('smite-overlay'), activityLogModal: document.getElementById('activity-log-modal'), activityLogContent: document.getElementById('activity-log-content'), rickrollModal: document.getElementById('rickroll-modal'),
             };
 
             document.getElementById('close-activity-log-btn').addEventListener('click', () => ui.activityLogModal.style.display = 'none');
+            document.getElementById('close-rickroll-btn').addEventListener('click', () => ui.rickrollModal.style.display = 'none');
 
             const itemOptions = Object.keys(allItems).map(id => `<option value="${id}">${allItems[id].name}</option>`).join('');
             ui.adminItemSelect.innerHTML = itemOptions;
             
+            updateShopUI('accessories-shop', ui.accessoriesShop, accessoryItems, 'buy-accessory-item-btn', 'Buy', 'baseValue');
             updateShopUI('pawn-shop', ui.pawnShop, clothingItems, 'buy-pawn-item-btn', 'Buy', 'baseValue');
             updateShopUI('exotic-wares', ui.exoticWares, exoticItems, 'buy-exotic-item-btn', 'Buy', 'cost');
             updateShopUI('hype-shop', ui.hypeShop, hypeShopItems, 'buy-hype-item-btn', 'Claim', 'points');
@@ -1280,15 +848,9 @@
             setupEventListeners();
             setupAdminEventListeners();
 
-            onSnapshot(query(collection(db, `apps/${appId}/marketplace`), orderBy("price", "asc")), (snapshot) => {
-                const listings = {}; snapshot.forEach(doc => listings[doc.id] = doc.data()); updateMarketplaceUI(listings);
-            });
-            onSnapshot(query(collection(db, `apps/${appId}/globalLog`), orderBy("timestamp", "desc"), limit(50)), (snapshot) => {
-                const logs = snapshot.docs.map(doc => doc.data()).reverse(); updateGameLogUI(logs);
-            });
-            onSnapshot(query(collection(db, `apps/${appId}/globalChat`), orderBy("timestamp", "asc"), limit(100)), (snapshot) => {
-                const messages = snapshot.docs.map(doc => doc.data()); updateChatUI(messages);
-            });
+            onSnapshot(query(collection(db, `apps/${appId}/marketplace`), orderBy("price", "asc")), (snapshot) => { const listings = {}; snapshot.forEach(doc => listings[doc.id] = doc.data()); updateMarketplaceUI(listings); });
+            onSnapshot(query(collection(db, `apps/${appId}/globalLog`), orderBy("timestamp", "desc"), limit(50)), (snapshot) => { const logs = snapshot.docs.map(doc => doc.data()).reverse(); updateGameLogUI(logs); });
+            onSnapshot(query(collection(db, `apps/${appId}/globalChat`), orderBy("timestamp", "asc"), limit(100)), (snapshot) => { const messages = snapshot.docs.map(doc => doc.data()); updateChatUI(messages); });
             
             onSnapshot(doc(db, `apps/${appId}/globalState`, 'main'), (docSnap) => {
                 if (!docSnap.exists()) return;
@@ -1301,36 +863,36 @@
                 const imageContainer = document.getElementById('global-image-container');
                 const imageEl = document.getElementById('global-image-element');
                 if (globalImageTimeout) clearTimeout(globalImageTimeout);
-                if (state.globalImage && state.globalImage.url && state.globalImage.expiry > now) {
-                    imageEl.src = state.globalImage.url;
-                    imageContainer.classList.replace('hidden', 'flex');
-                    globalImageTimeout = setTimeout(() => imageContainer.classList.replace('flex','hidden'), state.globalImage.expiry - now);
-                } else { imageContainer.classList.replace('flex','hidden'); }
+                if (state.globalImage && state.globalImage.url && state.globalImage.expiry > now) { imageEl.src = state.globalImage.url; imageContainer.classList.replace('hidden', 'flex'); globalImageTimeout = setTimeout(() => imageContainer.classList.replace('flex','hidden'), state.globalImage.expiry - now); } 
+                else { imageContainer.classList.replace('flex','hidden'); }
                 
-                if (state.smiteTarget && state.smiteTarget.id === currentUserId && now - state.smiteTarget.timestamp < 1000) {
-                    ui.smiteOverlay.classList.remove('hidden');
-                    sound.smite();
-                    setTimeout(() => ui.smiteOverlay.classList.add('hidden'), 300);
+                if (state.activeEvent && state.activeEvent.expiry > now) {
+                    const event = state.activeEvent;
+                    ui.eventBanner.textContent = `EVENT ACTIVE: ${event.type}!`;
+                    ui.eventBanner.classList.remove('hidden');
+                } else {
+                    ui.eventBanner.classList.add('hidden');
+                }
+
+                if (state.troll && state.troll.id === currentUserId && now - state.troll.timestamp < 3000) {
+                    const effect = state.troll.effect;
+                    const body = document.body;
+                    if (effect === 'smite') { ui.smiteOverlay.classList.remove('hidden'); sound.smite(); setTimeout(() => ui.smiteOverlay.classList.add('hidden'), 300); }
+                    if (effect === 'shake') { body.classList.add('screen-shake'); setTimeout(() => body.classList.remove('screen-shake'), 500); }
+                    if (effect === 'invert') { body.classList.add('invert-colors'); setTimeout(() => body.classList.remove('invert-colors'), 2000); }
+                    if (effect === 'rickroll') { ui.rickrollModal.style.display = 'flex'; }
                 }
             });
             
             try {
                 onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        await initializePlayer(user);
-                        ui.loadingScreen.style.display = 'none';
-                        ui.gameContainer.classList.remove('hidden');
-                    } else { 
-                        await signInAnonymously(auth); 
-                    }
+                    if (user) { await initializePlayer(user); ui.loadingScreen.style.display = 'none'; ui.gameContainer.classList.remove('hidden'); } 
+                    else { await signInAnonymously(auth); }
                 });
             } catch (error) {
                 console.error("Critical error during authentication:", error);
                 const loadingText = document.getElementById("loading-text");
-                if (loadingText) {
-                    loadingText.textContent = "Authentication failed. Please refresh.";
-                    loadingText.classList.add('text-red-500');
-                }
+                if (loadingText) { loadingText.textContent = "Authentication failed. Please refresh."; loadingText.classList.add('text-red-500'); }
             }
         }
 
