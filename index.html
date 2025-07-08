@@ -150,7 +150,7 @@
     <div id="smite-overlay" class="hidden"></div>
     <div id="loading-screen" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex flex-col justify-center items-center z-50">
         <div class="font-orbitron text-4xl text-cyan-400 mb-4 animate-pulse">HYPEBEAST SIMULATOR</div>
-        <div class="text-lg">Connecting to the server...</div>
+        <div id="loading-text" class="text-lg">Connecting to the server...</div>
     </div>
     
     <div id="global-image-container" class="hidden fixed inset-0 bg-black bg-opacity-75 z-[200] flex items-center justify-center p-4">
@@ -498,7 +498,7 @@
             ui.playerLevel.textContent = playerData.level || 0;
             ui.playerCash.textContent = formatCash(playerData.cash || 0);
             ui.playerHypePoints.textContent = (playerData.hypePoints || 0).toLocaleString();
-            ui.joinDate.textContent = playerData.createdAt ? new Date(playerData.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
+            ui.joinDate.textContent = playerData.createdAt?.seconds ? new Date(playerData.createdAt.seconds * 1000).toLocaleDateString() : 'N/A';
             
             const inventoryVal = Object.values(playerData.inventory || {}).reduce((acc, item) => {
                  const itemData = allItems[item.itemId] || item; return acc + (itemData.baseValue || 0);
@@ -517,7 +517,7 @@
                 const achieved = playerData.achievements && playerData.achievements[id];
                 const ach = achievements[id];
                 return `<div class="flex items-center ${achieved ? 'text-green-400' : 'text-gray-500'}">
-                    <span class="mr-2">${achieved ? '🏆' : '🔒'}</span>
+                    <span class="mr-2">${achieved ? '🏆' : '�'}</span>
                     <div>
                         <p class="font-bold">${ach.name}</p>
                         <p class="text-xs">${ach.description}</p>
@@ -584,36 +584,49 @@
         };
 
         async function initializePlayer(user) {
-            currentUserId = user.uid;
-            ui.playerId.textContent = currentUserId;
-            const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
-            let playerSnap = await getDoc(playerRef);
+            try {
+                currentUserId = user.uid;
+                ui.playerId.textContent = currentUserId;
+                const playerRef = doc(db, `apps/${appId}/players`, currentUserId);
+                let playerSnap = await getDoc(playerRef);
 
-            if (!playerSnap.exists()) {
-                const initialData = {
-                    displayName: `Player-${currentUserId.substring(0, 5)}`, cash: 100, level: 1, hypePoints: 0,
-                    itemsSold: 0, inventory: {}, hasStarterPack: false, nameStyle: null, achievements: {},
-                    createdAt: serverTimestamp(), lastLogin: serverTimestamp()
-                };
-                await setDoc(playerRef, initialData);
-                playerSnap = await getDoc(playerRef);
-                logToGame(`A new player has arrived: ${initialData.displayName}`);
-            } else {
-                // Daily Login Bonus Check
-                const now = new Date();
-                const lastLogin = playerSnap.data().lastLogin.toDate();
-                if (now.getDate() !== lastLogin.getDate() || now.getMonth() !== lastLogin.getMonth() || now.getFullYear() !== lastLogin.getFullYear()) {
-                    const cashBonus = 500;
-                    const hypeBonus = 50;
-                    await updateDoc(playerRef, {
-                        lastLogin: serverTimestamp(),
-                        cash: increment(cashBonus),
-                        hypePoints: increment(hypeBonus)
-                    });
-                    showMessage(`Welcome back! You received a daily login bonus of ${formatCash(cashBonus)} and ${hypeBonus} Hype Points!`);
+                if (!playerSnap.exists()) {
+                    const initialData = {
+                        displayName: `Player-${currentUserId.substring(0, 5)}`, cash: 100, level: 1, hypePoints: 0,
+                        itemsSold: 0, inventory: {}, hasStarterPack: false, nameStyle: null, achievements: {},
+                        createdAt: serverTimestamp(), lastLogin: serverTimestamp()
+                    };
+                    await setDoc(playerRef, initialData);
+                    logToGame(`A new player has arrived: ${initialData.displayName}`);
+                } else {
+                    const playerData = playerSnap.data();
+                    if (playerData.lastLogin && typeof playerData.lastLogin.toDate === 'function') {
+                        const now = new Date();
+                        const lastLogin = playerData.lastLogin.toDate();
+                        if (now.getDate() !== lastLogin.getDate() || now.getMonth() !== lastLogin.getMonth() || now.getFullYear() !== lastLogin.getFullYear()) {
+                            const cashBonus = 500;
+                            const hypeBonus = 50;
+                            await updateDoc(playerRef, {
+                                lastLogin: serverTimestamp(),
+                                cash: increment(cashBonus),
+                                hypePoints: increment(hypeBonus)
+                            });
+                            showMessage(`Welcome back! You received a daily login bonus of ${formatCash(cashBonus)} and ${hypeBonus} Hype Points!`);
+                        }
+                    } else {
+                        await updateDoc(playerRef, { lastLogin: serverTimestamp() });
+                    }
+                }
+                
+                onSnapshot(playerRef, (doc) => updatePlayerUI(doc.data()));
+            } catch (error) {
+                console.error("Critical error during player initialization:", error);
+                const loadingText = document.getElementById("loading-text");
+                if (loadingText) {
+                    loadingText.textContent = "Error loading your profile. Please refresh and try again.";
+                    loadingText.classList.add('text-red-500');
                 }
             }
-            onSnapshot(playerRef, (doc) => updatePlayerUI(doc.data()));
         }
         
         function setupEventListeners() {
@@ -1161,13 +1174,24 @@
                 }
             });
             
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    await initializePlayer(user);
-                    ui.loadingScreen.style.display = 'none';
-                    ui.gameContainer.classList.remove('hidden');
-                } else { await signInAnonymously(auth); }
-            });
+            try {
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        await initializePlayer(user);
+                        ui.loadingScreen.style.display = 'none';
+                        ui.gameContainer.classList.remove('hidden');
+                    } else { 
+                        await signInAnonymously(auth); 
+                    }
+                });
+            } catch (error) {
+                console.error("Critical error during authentication:", error);
+                const loadingText = document.getElementById("loading-text");
+                if (loadingText) {
+                    loadingText.textContent = "Authentication failed. Please refresh.";
+                    loadingText.classList.add('text-red-500');
+                }
+            }
         }
 
         window.addEventListener('DOMContentLoaded', main);
@@ -1175,3 +1199,4 @@
     </script>
 </body>
 </html>
+�
