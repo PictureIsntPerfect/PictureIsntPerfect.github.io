@@ -23,6 +23,9 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 0.5rem;
         }
+        .admin-panel-glow {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.6), 0 0 5px rgba(234, 179, 8, 0.8);
+        }
     </style>
 </head>
 <body class="bg-gray-800 text-gray-200 h-full">
@@ -39,6 +42,29 @@
                 </form>
             </div>
         </div>
+        
+        <!-- Admin Panel Modal -->
+        <div id="admin-modal" class="hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50">
+            <div class="bg-gray-900 border-2 border-yellow-500 rounded-lg shadow-lg w-full max-w-2xl p-6 admin-panel-glow">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold text-yellow-400 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><path d="M14.2 2.3c.2-.4.5-.8.9-1.1C16 0 17.3 0 18.2 1s1.3 2.5 1.1 3.5c-.2.9-.8 1.7-1.5 2.2-1.2.9-2.9.8-4-1.1-1.1-1.9-.9-3.9.5-5.3z"></path><path d="M9.8 2.3c-.2-.4-.5-.8-.9-1.1C8 0 6.7 0 5.8 1s-1.3 2.5-1.1 3.5c.2.9.8 1.7 1.5 2.2 1.2.9 2.9.8 4-1.1 1.1-1.9.9-3.9-.5-5.3z"></path><path d="M12 10.5c-1.1 0-2.1.3-3.1.8-1.8.9-3.1 2.4-3.4 4.2-.2 1.1.3 2.3 1.2 3.1 1.1.9 2.6 1.4 4.1 1.4h.2c1.6 0 3.1-.5 4.2-1.4 1-.8 1.5-2 1.3-3.1-.4-1.8-1.7-3.3-3.5-4.2-.9-.5-1.9-.8-3-.8z"></path></svg>
+                        Admin Control Panel
+                    </h2>
+                    <button id="close-admin-modal" class="text-gray-400 hover:text-white">&times;</button>
+                </div>
+                <div id="admin-user-list" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- User list will be populated here -->
+                </div>
+                 <div class="mt-6">
+                    <h3 class="font-bold text-yellow-400 mb-2">Broadcast Message</h3>
+                    <form id="broadcast-form" class="flex items-center space-x-2">
+                        <input id="broadcast-input" type="text" placeholder="Announce to everyone..." class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1 w-full focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                        <button type="submit" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-1 px-3 rounded">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         <!-- Main App -->
         <div id="main-app" class="hidden w-full h-full">
@@ -52,15 +78,16 @@
             <!-- Channels & User Panel -->
             <div class="bg-gray-800 w-64 flex-shrink-0 flex flex-col">
                 <div class="p-4 font-bold text-lg border-b border-gray-700">Voice Channels</div>
-                <div id="channels-list" class="flex-grow overflow-y-auto no-scrollbar p-2 space-y-2">
-                    <!-- Channels will be populated by JS -->
-                </div>
+                <div id="channels-list" class="flex-grow overflow-y-auto no-scrollbar p-2 space-y-2"></div>
                  <div class="p-2 bg-gray-900/70 flex items-center justify-between">
                     <div class="flex items-center space-x-2">
                         <div class="w-8 h-8 bg-green-500 rounded-full"></div>
                         <span id="user-id-display" class="text-sm font-semibold"></span>
                     </div>
                     <div class="flex items-center space-x-2">
+                        <button id="admin-btn" class="hidden text-yellow-400 hover:text-yellow-300">
+                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.2 2.3c.2-.4.5-.8.9-1.1C16 0 17.3 0 18.2 1s1.3 2.5 1.1 3.5c-.2.9-.8 1.7-1.5 2.2-1.2.9-2.9.8-4-1.1-1.1-1.9-.9-3.9.5-5.3z"></path><path d="M9.8 2.3c-.2-.4-.5-.8-.9-1.1C8 0 6.7 0 5.8 1s-1.3 2.5-1.1 3.5c.2.9.8 1.7 1.5 2.2 1.2.9 2.9.8 4-1.1 1.1-1.9.9-3.9-.5-5.3z"></path><path d="M12 10.5c-1.1 0-2.1.3-3.1.8-1.8.9-3.1 2.4-3.4 4.2-.2 1.1.3 2.3 1.2 3.1 1.1.9 2.6 1.4 4.1 1.4h.2c1.6 0 3.1-.5 4.2-1.4 1-.8 1.5-2 1.3-3.1-.4-1.8-1.7-3.3-3.5-4.2-.9-.5-1.9-.8-3-.8z"></path></svg>
+                        </button>
                         <button id="mic-btn" class="text-gray-400 hover:text-white"><i data-lucide="mic-off"></i></button>
                         <button id="camera-btn" class="text-gray-400 hover:text-white"><i data-lucide="video-off"></i></button>
                         <button id="screenshare-btn" class="text-gray-400 hover:text-white"><i data-lucide="screen-share"></i></button>
@@ -78,10 +105,8 @@
                     </div>
                 </div>
                 <div class="flex-grow flex h-full overflow-hidden">
-                    <!-- Messages Area -->
                     <div id="chat-area" class="flex-grow flex flex-col h-full">
-                        <div id="messages-container" class="flex-grow p-4 overflow-y-auto no-scrollbar space-y-4">
-                        </div>
+                        <div id="messages-container" class="flex-grow p-4 overflow-y-auto no-scrollbar space-y-4"></div>
                         <div class="p-4 bg-gray-700">
                             <form id="message-form" class="flex items-center bg-gray-600 rounded-lg px-4 py-2">
                                 <input id="message-input" type="text" placeholder="Message #general" class="bg-transparent w-full text-gray-200 placeholder-gray-400 focus:outline-none">
@@ -89,12 +114,9 @@
                             </form>
                         </div>
                     </div>
-                    <!-- Video/Screenshare Area -->
                     <div id="video-grid-container" class="w-2/3 bg-gray-800 border-l border-gray-900/50 flex-col p-2 hidden">
                         <h2 class="text-lg font-bold p-2">Voice & Video Call</h2>
-                        <div id="video-grid" class="flex-grow">
-                            <!-- Video elements will be added here -->
-                        </div>
+                        <div id="video-grid" class="flex-grow"></div>
                     </div>
                 </div>
             </div>
@@ -103,8 +125,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, doc, setDoc, getDoc, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, doc, setDoc, getDoc, deleteDoc, getDocs, writeBatch, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
         const firebaseConfig = {
@@ -118,12 +139,12 @@
         };
         
         // --- Admin Config ---
-        const ADMIN_USER_ID = "SUPER_SECRET_ADMIN_ID"; // Replace with a real hard-to-guess ID
+        const ADMIN_USERNAME = "admin"; // This is the username to get admin powers
+        let isAdmin = false;
 
         // --- App Initialization ---
-        let app, auth, db, userId, username;
+        let app, db, userId, username;
         app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
         db = getFirestore(app);
         
         // --- DOM Elements ---
@@ -131,6 +152,12 @@
         const usernameForm = document.getElementById('username-form');
         const usernameInput = document.getElementById('username-input');
         const mainApp = document.getElementById('main-app');
+        const adminModal = document.getElementById('admin-modal');
+        const closeAdminModalBtn = document.getElementById('close-admin-modal');
+        const adminUserList = document.getElementById('admin-user-list');
+        const adminBtn = document.getElementById('admin-btn');
+        const broadcastForm = document.getElementById('broadcast-form');
+        const broadcastInput = document.getElementById('broadcast-input');
         const channelsList = document.getElementById('channels-list');
         const channelHeader = document.querySelector('#channel-header span');
         const callActions = document.getElementById('call-actions');
@@ -165,8 +192,11 @@
             e.preventDefault();
             username = usernameInput.value.trim();
             if (username) {
-                userId = `user_${Date.now()}`; // Simple unique ID
-                if (username === 'admin') userId = ADMIN_USER_ID; // Assign admin ID
+                userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+                if (username.toLowerCase() === ADMIN_USERNAME) {
+                    isAdmin = true;
+                    adminBtn.classList.remove('hidden');
+                }
                 
                 usernameModal.classList.add('hidden');
                 mainApp.classList.remove('hidden');
@@ -181,6 +211,8 @@
             loadChannels();
             selectChannel('general');
             setupMediaControls();
+            setupAdminControls();
+            listenForSystemEvents();
             
             window.addEventListener('beforeunload', () => {
                 if(isInCall) hangup();
@@ -204,6 +236,7 @@
         let messagesUnsubscribe = null;
         let signalingUnsubscribe = null;
         let membersUnsubscribe = null;
+        let systemEventsUnsubscribe = null;
 
         async function selectChannel(channelName) {
             if (currentChannel === channelName) return;
@@ -220,103 +253,165 @@
             messagesContainer.innerHTML = '';
             callActions.classList.remove('hidden');
 
-            // Subscribe to new channel messages
             const messagesRef = collection(db, 'channels', currentChannel, 'messages');
             const q = query(messagesRef, orderBy('timestamp'));
             messagesUnsubscribe = onSnapshot(q, (snapshot) => {
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === 'added') {
-                        const data = change.doc.data();
-                        renderMessage(data);
+                        renderMessage(change.doc.data());
                     }
                 });
                 messagesContainer.scrollTop = messagesContainer.scrollHeight;
             });
         }
 
-        function renderMessage({ senderId, senderName, text, timestamp }) {
+        function renderMessage({ senderId, senderName, text, isBroadcast = false }) {
             const messageElement = document.createElement('div');
-            messageElement.className = 'flex items-start space-x-3';
             const senderInitial = senderName ? senderName.substring(0, 1).toUpperCase() : '?';
             const isMe = senderId === userId;
-            const isAdmin = senderId === ADMIN_USER_ID;
+            const isSenderAdmin = senderName === ADMIN_USERNAME;
 
-            messageElement.innerHTML = `
-                <div class="w-10 h-10 ${isAdmin ? 'bg-yellow-500' : 'bg-gray-600'} rounded-full flex items-center justify-center font-bold flex-shrink-0">${senderInitial}</div>
-                <div>
-                    <p class="font-semibold ${isMe ? 'text-indigo-400' : ''} ${isAdmin ? 'text-yellow-400' : ''}">
-                        ${senderName || 'Anonymous'} ${isAdmin ? '<i data-lucide="shield-check" class="inline-block w-4 h-4 ml-1"></i>' : ''}
-                    </p>
-                    <p class="text-gray-300">${text}</p>
-                </div>
-            `;
+            if (isBroadcast) {
+                messageElement.className = 'p-3 bg-yellow-900/50 border-l-4 border-yellow-500 rounded text-center';
+                messageElement.innerHTML = `<p class="font-bold text-yellow-300">${text}</p>`;
+            } else {
+                messageElement.className = 'flex items-start space-x-3';
+                messageElement.innerHTML = `
+                    <div class="w-10 h-10 ${isSenderAdmin ? 'bg-yellow-500' : 'bg-gray-600'} rounded-full flex items-center justify-center font-bold flex-shrink-0">${senderInitial}</div>
+                    <div>
+                        <p class="font-semibold ${isMe ? 'text-indigo-400' : ''} ${isSenderAdmin ? 'text-yellow-400' : ''}">
+                            ${senderName || 'Anonymous'} ${isSenderAdmin ? '<i data-lucide="shield-check" class="inline-block w-4 h-4 ml-1"></i>' : ''}
+                        </p>
+                        <p class="text-gray-300">${text}</p>
+                    </div>
+                `;
+            }
             messagesContainer.appendChild(messageElement);
-            lucide.createIcons();
+            if (!isBroadcast) lucide.createIcons();
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
         messageForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const text = messageInput.value.trim();
             if (text && userId) {
-                // Admin command handling
-                if (userId === ADMIN_USER_ID && text.startsWith('/kick')) {
-                    const [, targetUsername] = text.split(' ');
-                    if (targetUsername) {
-                        kickUser(targetUsername);
-                        messageInput.value = '';
-                        return;
-                    }
-                }
-
                 const messagesRef = collection(db, 'channels', currentChannel, 'messages');
                 await addDoc(messagesRef, { text, senderId: userId, senderName: username, timestamp: serverTimestamp() });
                 messageInput.value = '';
             }
         });
         
-        async function kickUser(targetUsername) {
-             console.log(`Admin: Kicking ${targetUsername}`);
-             // In a real app, you'd implement a server-side mechanism.
-             // Here, we'll add a "kicked" document to Firestore that clients can listen to.
-             const kickRef = doc(db, 'kicks', targetUsername);
-             await setDoc(kickRef, { kickedAt: serverTimestamp() });
-             renderMessage({ text: `Admin kicked ${targetUsername}.`, senderName: 'System', senderId: 'system' });
-        }
-        
-        // Listen for kicks
-        let kickListenerUnsubscribe = null;
-        function listenForKicks() {
-            if (kickListenerUnsubscribe) kickListenerUnsubscribe();
-            const kickRef = doc(db, 'kicks', username);
-            kickListenerUnsubscribe = onSnapshot(kickRef, (doc) => {
-                if (doc.exists()) {
-                    alert("You have been kicked by an admin.");
-                    window.location.reload();
+        // --- Admin Controls ---
+        function setupAdminControls() {
+            if (!isAdmin) return;
+            adminBtn.addEventListener('click', openAdminPanel);
+            closeAdminModalBtn.addEventListener('click', () => adminModal.classList.add('hidden'));
+            broadcastForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const text = broadcastInput.value.trim();
+                if (text) {
+                    broadcastMessage(text);
+                    broadcastInput.value = '';
+                    adminModal.classList.add('hidden');
                 }
             });
         }
 
-        // --- WebRTC Signaling & Group Call ---
-        joinCallBtn.addEventListener('click', async () => {
-            if (!isInCall) {
-                await joinCall();
+        async function openAdminPanel() {
+            adminModal.classList.remove('hidden');
+            const membersRef = collection(db, 'channels', currentChannel, 'members');
+            const snapshot = await getDocs(membersRef);
+            adminUserList.innerHTML = '';
+            snapshot.forEach(doc => {
+                const memberId = doc.id;
+                const memberUsername = doc.data().username;
+                if (memberId === userId) return; // Don't list self
+
+                const userEl = document.createElement('div');
+                userEl.className = 'flex items-center justify-between bg-gray-800 p-2 rounded';
+                userEl.innerHTML = `
+                    <span class="font-semibold">${memberUsername}</span>
+                    <div class="flex items-center space-x-2">
+                        <input type="text" placeholder="New name..." class="new-username-input bg-gray-700 text-sm rounded px-2 py-1 w-28 focus:outline-none focus:ring-1 focus:ring-yellow-500">
+                        <button class="change-name-btn bg-blue-600 hover:bg-blue-700 text-xs px-2 py-1 rounded">Set</button>
+                        <button class="force-mute-btn bg-orange-600 hover:bg-orange-700 text-xs px-2 py-1 rounded">Mute</button>
+                        <button class="kick-btn bg-red-600 hover:bg-red-700 text-xs px-2 py-1 rounded">Kick</button>
+                    </div>
+                `;
+                userEl.querySelector('.kick-btn').onclick = () => sendSystemEvent('kick', { targetUserId: memberId, targetUsername: memberUsername });
+                userEl.querySelector('.force-mute-btn').onclick = () => sendSystemEvent('force-mute', { targetUserId: memberId });
+                userEl.querySelector('.change-name-btn').onclick = () => {
+                    const newName = userEl.querySelector('.new-username-input').value.trim();
+                    if(newName) sendSystemEvent('change-name', { targetUserId: memberId, newName });
+                };
+
+                adminUserList.appendChild(userEl);
+            });
+        }
+
+        async function sendSystemEvent(type, payload) {
+            const eventRef = collection(db, 'channels', currentChannel, 'system-events');
+            await addDoc(eventRef, { type, payload, timestamp: serverTimestamp() });
+        }
+
+        async function broadcastMessage(text) {
+            const messagesRef = collection(db, 'channels', currentChannel, 'messages');
+            await addDoc(messagesRef, { text, senderName: 'ADMIN', senderId: 'SYSTEM', isBroadcast: true, timestamp: serverTimestamp() });
+        }
+        
+        function listenForSystemEvents() {
+            const eventsRef = collection(db, 'channels', currentChannel, 'system-events');
+            const q = query(eventsRef, where("timestamp", ">", new Date()));
+            
+            systemEventsUnsubscribe = onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach(async (change) => {
+                    if (change.type === 'added') {
+                        const { type, payload } = change.doc.data();
+                        handleSystemEvent(type, payload);
+                        // Optional: Delete event doc after processing
+                        await deleteDoc(change.doc.ref);
+                    }
+                });
+            });
+        }
+
+        function handleSystemEvent(type, payload) {
+            if (type === 'kick' && payload.targetUserId === userId) {
+                alert(`You have been kicked by an admin.`);
+                window.location.reload();
             }
-        });
+            if (type === 'force-mute' && payload.targetUserId === userId) {
+                if (localStream && isMicOn) {
+                    isMicOn = false;
+                    localStream.getAudioTracks().forEach(track => track.enabled = false);
+                    micBtn.innerHTML = '<i data-lucide="mic-off"></i>';
+                    lucide.createIcons();
+                    renderMessage({ text: 'An admin has muted you.', senderName: 'System', isBroadcast: true });
+                }
+            }
+            if (type === 'change-name' && payload.targetUserId === userId) {
+                username = payload.newName;
+                userIdDisplay.textContent = username;
+                renderMessage({ text: `An admin changed your name to ${username}.`, senderName: 'System', isBroadcast: true });
+            }
+        }
+
+        // --- WebRTC Signaling & Group Call ---
+        joinCallBtn.addEventListener('click', () => { isInCall ? hangup() : joinCall(); });
         
         async function joinCall() {
             isInCall = true;
             joinCallBtn.textContent = 'Leave Call';
             joinCallBtn.classList.replace('bg-green-600', 'bg-red-600');
-            joinCallBtn.classList.replace('hover:bg-green-700', 'hover:bg-red-700');
-
             videoGridContainer.classList.remove('hidden');
-            videoGridContainer.classList.add('flex');
             chatArea.classList.add('hidden');
 
             await startMedia({ audio: true, video: true });
             if (localStream) {
                 isCameraOn = true;
+                isMicOn = true;
                 cameraBtn.innerHTML = '<i data-lucide="video"></i>';
+                micBtn.innerHTML = '<i data-lucide="mic"></i>';
                 addLocalStream(localStream);
             }
             
@@ -326,62 +421,45 @@
         }
 
         function setupCallListeners() {
-            // Listen for members joining/leaving
             const membersRef = collection(db, 'channels', currentChannel, 'members');
             membersUnsubscribe = onSnapshot(membersRef, snapshot => {
-                const currentMembers = {};
-                snapshot.docs.forEach(doc => currentMembers[doc.id] = doc.data());
-                
-                const memberIds = Object.keys(currentMembers);
-
+                const currentMemberIds = snapshot.docs.map(d => d.id);
                 // New members
-                memberIds.forEach(memberId => {
-                    if (memberId !== userId && !peerConnections[memberId]) {
-                        console.log(`New member joined: ${memberId}, creating peer connection.`);
-                        createAndOfferPeerConnection(memberId);
-                    }
+                currentMemberIds.forEach(memberId => {
+                    if (memberId !== userId && !peerConnections[memberId]) createAndOfferPeerConnection(memberId);
                 });
-
-                // Members who left
+                // Left members
                 Object.keys(peerConnections).forEach(peerId => {
-                    if (!memberIds.includes(peerId)) {
-                        console.log(`Member left: ${peerId}, closing peer connection.`);
-                        closePeerConnection(peerId);
-                    }
+                    if (!currentMemberIds.includes(peerId)) closePeerConnection(peerId);
                 });
             });
 
-            // Listen for signaling messages
             const signalingRef = collection(db, 'channels', currentChannel, 'signaling');
             signalingUnsubscribe = onSnapshot(signalingRef, snapshot => {
                 snapshot.docChanges().forEach(async change => {
                     if (change.type === 'added') {
                         const { senderId, receiverId, offer, answer, iceCandidate } = change.doc.data();
-                        
                         if (receiverId !== userId) return;
-
                         const pc = peerConnections[senderId];
                         if (!pc) return;
-
                         if (offer) {
-                            console.log(`Received offer from ${senderId}`);
                             await pc.setRemoteDescription(new RTCSessionDescription(offer));
                             const answerDesc = await pc.createAnswer();
                             await pc.setLocalDescription(answerDesc);
-                            const answerSignalRef = doc(collection(db, 'channels', currentChannel, 'signaling'));
-                            await setDoc(answerSignalRef, { senderId: userId, receiverId: senderId, answer: pc.localDescription.toJSON() });
+                            await sendSignal({ senderId: userId, receiverId: senderId, answer: pc.localDescription.toJSON() });
                         } else if (answer) {
-                            console.log(`Received answer from ${senderId}`);
                             await pc.setRemoteDescription(new RTCSessionDescription(answer));
                         } else if (iceCandidate) {
                             await pc.addIceCandidate(new RTCIceCandidate(iceCandidate));
                         }
-                        
-                        // Clean up signal doc
                         await deleteDoc(change.doc.ref);
                     }
                 });
             });
+        }
+
+        async function sendSignal(data) {
+            await addDoc(collection(db, 'channels', currentChannel, 'signaling'), data);
         }
         
         function createAndOfferPeerConnection(peerId) {
@@ -390,109 +468,63 @@
                 try {
                     const offer = await pc.createOffer();
                     await pc.setLocalDescription(offer);
-                    const offerSignalRef = doc(collection(db, 'channels', currentChannel, 'signaling'));
-                    await setDoc(offerSignalRef, { senderId: userId, receiverId: peerId, offer: pc.localDescription.toJSON() });
-                } catch (err) {
-                    console.error(`Negotiation error for ${peerId}:`, err);
-                }
+                    await sendSignal({ senderId: userId, receiverId: peerId, offer: pc.localDescription.toJSON() });
+                } catch (err) { console.error(`Negotiation error for ${peerId}:`, err); }
             };
         }
 
         function createPeerConnection(peerId) {
-            console.log(`Creating peer connection to ${peerId}`);
             const pc = new RTCPeerConnection(iceServers);
-            
-            pc.onicecandidate = event => {
-                if (event.candidate) {
-                    const iceCandidateRef = doc(collection(db, 'channels', currentChannel, 'signaling'));
-                    setDoc(iceCandidateRef, { senderId: userId, receiverId: peerId, iceCandidate: event.candidate.toJSON() });
-                }
-            };
-
-            pc.ontrack = event => {
-                console.log(`Track received from ${peerId}`);
-                addRemoteStream(peerId, event.streams[0]);
-            };
-
-            pc.onconnectionstatechange = () => {
-                if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
-                    closePeerConnection(peerId);
-                }
-            };
-
-            if (localStream) {
-                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-            }
-            
+            pc.onicecandidate = e => e.candidate && sendSignal({ senderId: userId, receiverId: peerId, iceCandidate: e.candidate.toJSON() });
+            pc.ontrack = e => addRemoteStream(peerId, e.streams[0]);
+            pc.onconnectionstatechange = () => (pc.connectionState === 'failed' || pc.connectionState === 'closed') && closePeerConnection(peerId);
+            if (localStream) localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
             peerConnections[peerId] = pc;
             return pc;
         }
 
         function closePeerConnection(peerId) {
-            const pc = peerConnections[peerId];
-            if (pc) {
-                pc.close();
+            if (peerConnections[peerId]) {
+                peerConnections[peerId].close();
                 delete peerConnections[peerId];
             }
-            const remoteVideoContainer = document.getElementById(`video-container-${peerId}`);
-            if (remoteVideoContainer) remoteVideoContainer.remove();
+            const remoteVideo = document.getElementById(`video-container-${peerId}`);
+            if (remoteVideo) remoteVideo.remove();
         }
 
         async function hangup() {
             if (!isInCall) return;
-            
-            // Stop listeners
             if (signalingUnsubscribe) signalingUnsubscribe();
             if (membersUnsubscribe) membersUnsubscribe();
-            signalingUnsubscribe = null;
-            membersUnsubscribe = null;
-
-            // Close all peer connections
             Object.keys(peerConnections).forEach(closePeerConnection);
             peerConnections = {};
-
-            // Stop local media
             stopLocalStream();
-            
-            // Remove self from members list
             await deleteDoc(doc(db, 'channels', currentChannel, 'members', userId));
 
-            // Clean up signaling messages for self
-            const signalingRef = collection(db, 'channels', currentChannel, 'signaling');
-            const q = query(signalingRef, where("receiverId", "==", userId));
-            const snapshot = await getDocs(q);
-            const batch = writeBatch(db);
-            snapshot.forEach(doc => batch.delete(doc.ref));
-            await batch.commit();
-
-            // Reset UI
             isInCall = false;
             isCameraOn = false;
             isScreenSharing = false;
             isMicOn = false;
             videoGrid.innerHTML = '';
             videoGridContainer.classList.add('hidden');
-            videoGridContainer.classList.remove('flex');
             chatArea.classList.remove('hidden');
             joinCallBtn.textContent = 'Join Call';
             joinCallBtn.classList.replace('bg-red-600', 'bg-green-600');
-            joinCallBtn.classList.replace('hover:bg-red-700', 'hover:bg-green-700');
             micBtn.innerHTML = '<i data-lucide="mic-off"></i>';
             cameraBtn.innerHTML = '<i data-lucide="video-off"></i>';
             screenshareBtn.innerHTML = '<i data-lucide="screen-share"></i>';
             lucide.createIcons();
         }
         
-        // --- Media Controls & Streams ---
         function setupMediaControls() {
             micBtn.addEventListener('click', toggleMic);
             cameraBtn.addEventListener('click', toggleCamera);
             screenshareBtn.addEventListener('click', toggleScreenShare);
             hangupBtn.addEventListener('click', hangup);
         }
-
+        
         async function toggleMic() {
-            if (!isInCall) return;
+            if (!isInCall || !localStream) return;
             isMicOn = !isMicOn;
             localStream.getAudioTracks().forEach(track => track.enabled = isMicOn);
             micBtn.innerHTML = isMicOn ? '<i data-lucide="mic"></i>' : '<i data-lucide="mic-off"></i>';
@@ -500,24 +532,19 @@
         }
 
         async function toggleCamera() {
-            if (!isInCall) return;
+            if (!isInCall || !localStream) return;
             if (isScreenSharing) await stopScreenShare(true);
-            
             isCameraOn = !isCameraOn;
             localStream.getVideoTracks().forEach(track => track.enabled = isCameraOn);
             cameraBtn.innerHTML = isCameraOn ? '<i data-lucide="video"></i>' : '<i data-lucide="video-off"></i>';
             lucide.createIcons();
         }
-
+        
         async function toggleScreenShare() {
             if (!isInCall) return;
             isScreenSharing = !isScreenSharing;
-
-            if (isScreenSharing) {
-                await startScreenShare();
-            } else {
-                await stopScreenShare(false);
-            }
+            if (isScreenSharing) await startScreenShare();
+            else await stopScreenShare(false);
             screenshareBtn.innerHTML = isScreenSharing ? '<i data-lucide="screen-share-off"></i>' : '<i data-lucide="screen-share"></i>';
             lucide.createIcons();
         }
@@ -526,65 +553,44 @@
             try {
                 stopLocalStream();
                 localStream = await navigator.mediaDevices.getUserMedia(constraints);
-                isMicOn = localStream.getAudioTracks().length > 0;
-                micBtn.innerHTML = isMicOn ? '<i data-lucide="mic"></i>' : '<i data-lucide="mic-off"></i>';
-                lucide.createIcons();
-            } catch (e) {
-                console.error('Could not get user media', e);
-            }
+            } catch (e) { console.error('Could not get user media', e); }
         }
 
         async function startScreenShare() {
             try {
                 const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-                isScreenSharing = true;
-                isCameraOn = false;
+                isScreenSharing = true; isCameraOn = false;
                 cameraBtn.innerHTML = '<i data-lucide="video-off"></i>';
-
                 const screenTrack = screenStream.getVideoTracks()[0];
                 screenTrack.onended = () => toggleScreenShare();
-
-                // Replace video track in all peer connections
                 for (const peerId in peerConnections) {
                     const sender = peerConnections[peerId].getSenders().find(s => s.track && s.track.kind === 'video');
                     if (sender) sender.replaceTrack(screenTrack);
                 }
-                
-                // Also replace local stream for new peers
                 const audioTrack = localStream.getAudioTracks()[0];
                 localStream = new MediaStream([screenTrack, audioTrack]);
-                
-                addLocalStream(localStream); // update local view
+                addLocalStream(localStream);
                 lucide.createIcons();
-            } catch (e) {
-                console.error('Could not get display media', e);
-                isScreenSharing = false;
-            }
+            } catch (e) { console.error('Could not get display media', e); isScreenSharing = false; }
         }
-        
+
         async function stopScreenShare(isSwitchingToCamera) {
             if (!isScreenSharing) return;
             isScreenSharing = false;
-            
-            // Revert to camera stream
             const newStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: isMicOn });
             const newVideoTrack = newStream.getVideoTracks()[0];
-            
             for (const peerId in peerConnections) {
                 const sender = peerConnections[peerId].getSenders().find(s => s.track && s.track.kind === 'video');
                 if (sender) sender.replaceTrack(newVideoTrack);
             }
             localStream = newStream;
             addLocalStream(localStream);
-            
             if(!isSwitchingToCamera) isCameraOn = true;
         }
 
-        function stopLocalStream() {
-            if(localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
+        function stopLocalStream() { 
+            if (localStream) localStream.getTracks().forEach(t => t.stop()); 
+            localStream = null; 
         }
 
         function addLocalStream(stream) {
@@ -593,44 +599,31 @@
                 videoContainer = createVideoElement(userId, username, true);
                 videoGrid.appendChild(videoContainer);
             }
-            const videoEl = videoContainer.querySelector('video');
-            videoEl.srcObject = stream;
+            videoContainer.querySelector('video').srcObject = stream;
         }
 
-        function addRemoteStream(peerId, stream) {
+        async function addRemoteStream(peerId, stream) {
             let videoContainer = document.getElementById(`video-container-${peerId}`);
             if (!videoContainer) {
-                // Get username from members list
-                getDoc(doc(db, 'channels', currentChannel, 'members', peerId)).then(docSnap => {
-                    const peerUsername = docSnap.exists() ? docSnap.data().username : 'Anonymous';
-                    videoContainer = createVideoElement(peerId, peerUsername, false);
-                    videoGrid.appendChild(videoContainer);
-                    const videoEl = videoContainer.querySelector('video');
-                    videoEl.srcObject = stream;
-                });
-            } else {
-                 const videoEl = videoContainer.querySelector('video');
-                 videoEl.srcObject = stream;
+                const docSnap = await getDoc(doc(db, 'channels', currentChannel, 'members', peerId));
+                const peerUsername = docSnap.exists() ? docSnap.data().username : '...';
+                videoContainer = createVideoElement(peerId, peerUsername, false);
+                videoGrid.appendChild(videoContainer);
             }
+            videoContainer.querySelector('video').srcObject = stream;
         }
-        
+
         function createVideoElement(id, name, isMuted) {
             const container = document.createElement('div');
             container.id = `video-container-${id}`;
             container.className = 'relative bg-black rounded-lg overflow-hidden aspect-video';
-            
             const video = document.createElement('video');
-            video.autoplay = true;
-            video.playsInline = true;
-            video.muted = isMuted;
+            video.autoplay = true; video.playsInline = true; video.muted = isMuted;
             video.className = 'w-full h-full object-cover';
-            
             const nameTag = document.createElement('div');
             nameTag.className = 'absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-sm';
             nameTag.textContent = name + (isMuted ? ' (You)' : '');
-            
-            container.appendChild(video);
-            container.appendChild(nameTag);
+            container.append(video, nameTag);
             return container;
         }
 
