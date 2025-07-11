@@ -1,332 +1,640 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hypebeast Simulator</title>
+    <title>Discord Clone</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Roboto+Mono:wght@400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        :root {
-            --bg-color: #111111;
-            --card-bg-color: #1a1a1a;
-            --border-color: #333;
-            --text-color: #e0e0e0;
-            --accent-color: #00ff9d;
-            --accent-glow: rgba(0, 255, 157, 0.5);
-            --accent-hover: #00e68e;
-            --red-color: #ff3b3b;
-            --yellow-color: #ffcc00;
-        }
-
         body {
-            font-family: 'Roboto Mono', monospace;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            transition: background 0.5s ease;
+            font-family: 'Inter', sans-serif;
         }
-        
-        /* THEME STYLES */
-        body.theme-default { background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAMAAAAp4XiDAAAAUVBMVEWFhYWDg4N3d3dtbW17e3t1dXVדההדדההדדההדדההדדההדדההדדההדדההדדההדדההדדההd3d1dXV3d3d2d2d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3d3d3d3d1dXV3-'); }
-        @keyframes vaporwave-scroll { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        body.theme-vaporwave { background: linear-gradient(45deg, #ff71ce, #01cdfe, #05ffa1); background-size: 400% 400%; animation: vaporwave-scroll 15s ease infinite; }
-        body.theme-fallout { background-color: #3E422B; background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.2), rgba(0,0,0,0.2) 1px, transparent 1px, transparent 2px); }
-        body.theme-lofi { background-color: #2a2a44; background-image: url('https://www.transparenttextures.com/patterns/rain.png'); }
-
-        .font-grunge { font-family: 'Permanent Marker', cursive; }
-        .font-orbitron { font-family: 'Orbitron', sans-serif; }
-        .card {
-            background-color: var(--card-bg-color);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 0 15px rgba(0,0,0,0.5), inset 0 0 5px rgba(255,255,255,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 25px var(--accent-glow);
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-        .btn {
-            font-family: 'Orbitron', sans-serif;
-            background-color: var(--accent-color);
-            color: #111;
-            font-weight: bold;
-            border: none;
-            clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
-            transition: all 0.3s ease;
+        #video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
         }
-        .btn:hover {
-            background-color: var(--accent-hover);
-            transform: scale(1.05);
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-        .btn:disabled {
-            background-color: #4a5568;
-            color: #888;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-        .modal-bg {
-            background-color: rgba(0,0,0,0.85);
-            backdrop-filter: blur(5px);
-        }
-        .item-svg {
-            width: 100%;
-            height: 120px;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        .tab-active {
-            background-color: var(--accent-color);
-            color: #111;
-            border-bottom: 2px solid var(--accent-color);
-        }
-        .tab-inactive {
-            background-color: transparent;
-            color: #a0aec0;
-            border-bottom: 2px solid var(--border-color);
-        }
-        #admin-panel {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-            width: 450px;
-        }
-        .chat-message {
-            padding: 4px 8px;
-            border-radius: 8px;
-            margin-bottom: 4px;
-            max-width: 90%;
-        }
-        .chat-name:hover {
-            text-decoration: underline;
-            cursor: pointer;
-        }
-        /* Animated Name Styles */
-        @keyframes rainbow-text { 0% { color: #ff0000; } 15% { color: #ff7f00; } 30% { color: #ffff00; } 45% { color: #00ff00; } 60% { color: #0000ff; } 75% { color: #4b0082; } 90% { color: #9400d3; } 100% { color: #ff0000; } }
-        .animate-rainbow { animation: rainbow-text 4s linear infinite; }
-        @keyframes glow-text { 0%, 100% { text-shadow: 0 0 5px var(--glow-color, #fff), 0 0 10px var(--glow-color, #fff); } 50% { text-shadow: 0 0 10px var(--glow-color, #fff), 0 0 20px var(--glow-color, #fff); } }
-        .animate-glow { animation: glow-text 2s ease-in-out infinite; }
-        @keyframes pulse-text { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .animate-pulse-text { display: inline-block; animation: pulse-text 1.5s ease-in-out infinite; }
-        @keyframes blink-text { 50% { opacity: 0; } }
-        .animate-blink { animation: blink-text 1s linear infinite; }
-        .gradient-text { background-clip: text; -webkit-background-clip: text; color: transparent; }
-        
-        /* Trippy/Troll Effects */
-        @keyframes screen-shake { 0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-2px, -3px); } 20% { transform: translate(3px, 2px); } 30% { transform: translate(-3px, 3px); } 40% { transform: translate(2px, -2px); } 50% { transform: translate(-3px, 2px); } 60% { transform: translate(3px, 3px); } 70% { transform: translate(-2px, -3px); } 80% { transform: translate(3px, -2px); } 90% { transform: translate(-2px, 3px); } }
-        .screen-shake { animation: screen-shake 0.5s linear; }
-        .invert-colors { filter: invert(1); }
-
-        @keyframes smite-effect { 0%, 100% { opacity: 0; } 20%, 80% { opacity: 1; } }
-        #smite-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999; pointer-events: none; animation: smite-effect 0.3s linear; }
-        
-        h1, h2, h3 { font-family: 'Permanent Marker', cursive; text-shadow: 0 0 10px var(--accent-glow); }
-        #game-container > header h1 { font-size: 3.5rem; }
-
     </style>
 </head>
-<body class="text-white theme-default">
-    <!-- Overlays -->
-    <div id="smite-overlay" class="hidden"></div>
-    <div id="jumpscare-overlay" class="hidden fixed inset-0 bg-black z-[9999] flex items-center justify-center">
-        <img id="jumpscare-image" src="https://i.imgflip.com/670q5z.jpg" class="max-w-full max-h-full">
-    </div>
-    <div id="loading-screen" class="fixed inset-0 bg-gray-900 bg-opacity-90 flex flex-col justify-center items-center z-50">
-        <div class="font-grunge text-6xl text-cyan-400 mb-4 animate-pulse">HYPEBEAST SIMULATOR</div>
-        <div id="loading-text" class="text-lg font-mono">Connecting to the server...</div>
-    </div>
-    
-    <div id="global-image-container" class="hidden fixed inset-0 bg-black bg-opacity-75 z-[200] flex items-center justify-center p-4">
-        <img id="global-image-element" src="" alt="Global Broadcast" class="max-w-full max-h-full rounded-lg shadow-2xl border-4" style="border-color: var(--accent-color);">
-    </div>
-    
-    <div id="global-message-banner" class="hidden fixed top-0 left-0 right-0 p-3 text-center font-bold text-xl z-[201]" style="background-color: var(--yellow-color); color: #111; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);"></div>
-
-    <div class="container mx-auto p-4 max-w-screen-xl hidden" id="game-container">
-        <!-- Header -->
-        <header class="mb-6 p-4 rounded-lg bg-transparent border-b-4" style="border-color: var(--accent-color);">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h1 class="text-white">HYPEBEAST SIMULATOR</h1>
-                    <p class="text-lg">Welcome, <span id="player-display-name" class="font-bold" style="color: var(--yellow-color);"></span></p>
-                </div>
-                <div class="text-right">
-                    <button id="admin-login-btn" class="text-xs px-2 py-1 rounded-full mb-2" style="background-color: var(--red-color); color: white;">Admin</button>
-                    <p class="text-sm">Player ID: <span id="player-id" class="font-mono text-gray-400"></span></p>
-                    <p class="text-sm text-gray-400">(Share this ID for admin actions)</p>
-                </div>
+<body class="bg-gray-800 text-gray-200 h-full">
+    <div id="app" class="flex h-full antialiased">
+        <!-- Username Modal -->
+        <div id="username-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-lg text-center">
+                <h1 class="text-3xl font-bold mb-4">Choose your Username</h1>
+                <form id="username-form">
+                    <input id="username-input" type="text" placeholder="Enter your name" class="bg-gray-700 text-white rounded-lg px-4 py-2 w-full mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded w-full">
+                        Join Chat
+                    </button>
+                </form>
             </div>
-        </header>
-        
-        <div id="event-banner" class="hidden mb-4 p-3 rounded-lg font-bold text-center fade-in text-2xl font-grunge" style="background-color: var(--accent-color); color: #111;"></div>
+        </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <!-- Left Column -->
-            <div class="lg:col-span-1 space-y-6">
-                <div class="card p-4 rounded-lg">
-                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">My Empire</h2>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center"><span>Level:</span><span id="player-level" class="text-2xl font-bold" style="color: var(--yellow-color);">0</span></div>
-                        <div class="flex justify-between items-center"><span>Cash:</span><span id="player-cash" class="text-2xl font-bold text-green-400">$0</span></div>
-                        <div class="flex justify-between items-center"><span>Hype Points:</span><span id="player-hype-points" class="text-2xl font-bold text-orange-400">0</span></div>
-                        <div class="flex justify-between items-center"><span>Net Worth:</span><span id="net-worth" class="text-lg font-bold" style="color: var(--yellow-color);">$0</span></div>
-                        <div class="flex justify-between items-center"><span>Joined:</span><span id="join-date" class="text-sm text-gray-400"></span></div>
-                    </div>
-                    <button id="get-starter-pack" class="btn w-full mt-4">Get Starter Pack</button>
-                    <button id="buy-loot-box" class="btn w-full mt-2">Buy Loot Box ($500)</button>
-                </div>
-
-                <div class="card p-4 rounded-lg">
-                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">My Closet</h2>
-                    <div id="player-inventory" class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-h-96 overflow-y-auto pr-2"></div>
-                </div>
-                
-                <div class="card p-4 rounded-lg">
-                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">Achievements</h2>
-                    <div id="achievements-list" class="space-y-2 max-h-48 overflow-y-auto pr-2"></div>
+        <!-- Main App -->
+        <div id="main-app" class="hidden w-full h-full">
+            <!-- Server List -->
+            <div class="bg-gray-900 w-20 flex-shrink-0 flex flex-col items-center py-3 space-y-4">
+                <div class="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-2xl cursor-pointer">
+                    D
                 </div>
             </div>
 
-            <!-- Center Column -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="flex border-b" style="border-color: var(--border-color);">
-                    <button id="tab-marketplace" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-active">Marketplace</button>
-                    <button id="tab-accessories" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Accessories</button>
-                    <button id="tab-pawn-shop" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Pawn Shop</button>
-                    <button id="tab-exotic-wares" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Exotic Wares</button>
-                    <button id="tab-hype-shop" class="tab-btn flex-1 py-2 px-4 font-orbitron tab-inactive">Hype Shop</button>
+            <!-- Channels & User Panel -->
+            <div class="bg-gray-800 w-64 flex-shrink-0 flex flex-col">
+                <div class="p-4 font-bold text-lg border-b border-gray-700">Voice Channels</div>
+                <div id="channels-list" class="flex-grow overflow-y-auto no-scrollbar p-2 space-y-2">
+                    <!-- Channels will be populated by JS -->
                 </div>
-
-                <div id="main-content-area">
-                    <div id="marketplace-container" class="card p-4 rounded-lg"><div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div></div>
-                    <div id="accessories-container" class="card p-4 rounded-lg hidden"><div id="accessories-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div></div>
-                    <div id="pawn-shop-container" class="card p-4 rounded-lg hidden">
-                         <div class="flex justify-between items-center mb-4">
-                              <h3 class="text-xl" style="color: var(--yellow-color);">Second-Hand Goods</h3>
-                              <button id="refresh-pawn-stock-btn" class="btn text-sm py-1 px-3">Refresh Stock</button>
-                         </div>
-                        <div id="pawn-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[650px] overflow-y-auto pr-2"></div>
+                 <div class="p-2 bg-gray-900/70 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-green-500 rounded-full"></div>
+                        <span id="user-id-display" class="text-sm font-semibold"></span>
                     </div>
-                    <div id="exotic-wares-container" class="card p-4 rounded-lg hidden">
-                        <h3 class="text-xl text-green-400 mb-4">The Collector's Corner</h3>
-                        <div id="exotic-wares" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div>
-                    </div>
-                    <div id="hype-shop-container" class="card p-4 rounded-lg hidden">
-                        <h3 class="text-xl text-orange-400 mb-4">Hype Rewards</h3>
-                         <div id="hype-shop" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 max-h-[700px] overflow-y-auto pr-2"></div>
+                    <div class="flex items-center space-x-2">
+                        <button id="mic-btn" class="text-gray-400 hover:text-white"><i data-lucide="mic-off"></i></button>
+                        <button id="camera-btn" class="text-gray-400 hover:text-white"><i data-lucide="video-off"></i></button>
+                        <button id="screenshare-btn" class="text-gray-400 hover:text-white"><i data-lucide="screen-share"></i></button>
+                         <button id="hangup-btn" class="text-red-500 hover:text-red-400"><i data-lucide="phone-off"></i></button>
                     </div>
                 </div>
             </div>
 
-            <!-- Right Column (Chat & Log) -->
-            <div class="lg:col-span-1 space-y-6">
-                <div class="card p-4 rounded-lg">
-                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">Activity Feed</h2>
-                    <div id="game-log" class="text-sm space-y-2 h-64 overflow-y-auto pr-2"></div>
+            <!-- Main Content -->
+            <div class="flex-grow flex flex-col bg-gray-700">
+                <div id="channel-header" class="px-4 py-3 font-bold text-xl border-b border-gray-900/50 shadow-md flex justify-between items-center">
+                    <span>#general</span>
+                    <div id="call-actions" class="hidden">
+                         <button id="join-call-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-1 px-3 rounded text-sm">Join Call</button>
+                    </div>
                 </div>
-                <div class="card p-4 rounded-lg flex flex-col h-[400px]">
-                    <h2 class="text-2xl border-b border-gray-600 pb-2 mb-4" style="color: var(--accent-color);">Global Chat</h2>
-                    <div id="chat-box" class="flex-grow flex flex-col space-y-2 overflow-y-auto pr-2 mb-2"></div>
-                    <form id="chat-form" class="flex gap-2">
-                        <input type="text" id="chat-input" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="Say something...">
-                        <button type="submit" class="btn px-4">Send</button>
-                    </form>
+                <div class="flex-grow flex h-full overflow-hidden">
+                    <!-- Messages Area -->
+                    <div id="chat-area" class="flex-grow flex flex-col h-full">
+                        <div id="messages-container" class="flex-grow p-4 overflow-y-auto no-scrollbar space-y-4">
+                        </div>
+                        <div class="p-4 bg-gray-700">
+                            <form id="message-form" class="flex items-center bg-gray-600 rounded-lg px-4 py-2">
+                                <input id="message-input" type="text" placeholder="Message #general" class="bg-transparent w-full text-gray-200 placeholder-gray-400 focus:outline-none">
+                                <button type="submit" class="ml-2 text-indigo-400 hover:text-indigo-300"><i data-lucide="send"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Video/Screenshare Area -->
+                    <div id="video-grid-container" class="w-2/3 bg-gray-800 border-l border-gray-900/50 flex-col p-2 hidden">
+                        <h2 class="text-lg font-bold p-2">Voice & Video Call</h2>
+                        <div id="video-grid" class="flex-grow">
+                            <!-- Video elements will be added here -->
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modals -->
-    <div id="sell-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20"><h3 class="text-2xl mb-4" style="color: var(--accent-color);">Sell Item</h3><div id="sell-item-display" class="mb-4"></div><div class="bg-gray-700 p-3 rounded-lg mb-4"><p class="font-bold">Option 1: List on Player Market</p><p class="text-sm text-gray-400 mb-2">Set your price and wait for another player to buy. High risk, high reward!</p><input type="number" id="sell-price" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white" placeholder="e.g., 500"><button id="confirm-sell" class="btn w-full mt-2">List on Market</button></div><div class="bg-gray-700 p-3 rounded-lg mb-4"><p class="font-bold">Option 2: Sell to AI Collector</p><p class="text-sm text-gray-400 mb-2">Sell instantly for a guaranteed price. Quick cash, but less profit.</p><button id="sell-to-ai-btn" class="btn w-full">Sell Now for <span id="ai-sell-price"></span></button></div><div class="flex justify-end"><button id="cancel-sell" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Cancel</button></div></div></div>
-    <div id="message-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-lg mx-auto mt-20 text-center"><p id="message-text" class="text-lg mb-4"></p><button id="close-message" class="btn px-6 py-2">OK</button></div></div>
-    <div id="admin-login-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 class="text-2xl mb-4" style="color: var(--red-color);">Admin Login</h3><input type="text" id="admin-user" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-2" placeholder="Username"><input type="password" id="admin-pass" class="w-full bg-gray-800 border border-gray-500 rounded p-2 text-white mb-4" placeholder="Password"><div class="flex justify-end gap-4"><button id="cancel-admin-login" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-admin-login" class="btn" style="background-color: var(--red-color); color: white;">Login</button></div></div></div>
-    <div id="confirmation-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-1/3 max-w-sm mx-auto mt-20"><h3 id="confirmation-title" class="text-xl mb-4" style="color: var(--yellow-color);">Are you sure?</h3><p id="confirmation-text" class="mb-4">This action cannot be undone.</p><div class="flex justify-end gap-4"><button id="cancel-confirmation" class="btn bg-gray-500 hover:bg-gray-600">Cancel</button><button id="confirm-action" class="btn" style="background-color: var(--red-color); color: white;">Confirm</button></div></div></div>
-    <div id="player-profile-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-40"><div id="player-profile-content" class="card p-6 rounded-lg w-11/12 md:w-2/3 max-w-4xl mx-auto mt-20 max-h-[80vh] flex flex-col"></div></div>
-    <div id="activity-log-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-50"><div class="card p-6 rounded-lg w-11/12 md:w-2/3 max-w-4xl mx-auto mt-20 max-h-[80vh] flex flex-col"><div class="flex justify-between items-center mb-4"><h3 class="text-2xl" style="color: var(--accent-color);">Player Activity Log</h3><button id="close-activity-log-btn" class="btn bg-gray-500 hover:bg-gray-600 px-4 py-2">Close</button></div><div id="activity-log-content" class="flex-grow bg-gray-800 p-3 rounded overflow-y-auto font-mono text-sm"></div></div></div>
-    <div id="rickroll-modal" class="fixed inset-0 modal-bg items-center justify-center hidden z-[999]"><div class="card p-4 rounded-lg"><img src="https://media.tenor.com/x8v1oNUOmg4AAAAC/rickroll-roll.gif" class="rounded"><button id="close-rickroll-btn" class="btn w-full mt-2">CLOSE</button></div></div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, doc, setDoc, getDoc, deleteDoc, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="card p-4 rounded-lg hidden overflow-y-auto max-h-[90vh]">
-        <h2 class="text-2xl border-b pb-2 mb-4" style="border-color: var(--red-color); color: var(--red-color);">Admin Controls</h2>
-        <div class="space-y-2">
-            <details class="bg-gray-700 rounded-lg p-2">
-                <summary class="font-orbitron text-lg cursor-pointer text-teal-400">Server Stats</summary>
-                <div id="admin-server-stats" class="space-y-2 mt-2 text-sm"><p>Loading stats...</p></div>
-            </details>
-            <details class="bg-gray-700 rounded-lg p-2">
-                <summary class="font-orbitron text-lg cursor-pointer" style="color: var(--yellow-color);">Player Management</summary>
-                <div class="space-y-3 mt-2">
-                    <div>
-                        <label class="font-bold">Search Player</label>
-                        <div class="flex gap-2">
-                           <input type="text" id="admin-player-search" class="w-full bg-gray-800 p-1 rounded" placeholder="Name or ID">
-                           <button id="admin-player-search-btn" class="btn text-sm px-2">Find</button>
-                        </div>
-                        <div id="admin-player-search-results" class="mt-2 text-xs"></div>
-                        <div id="admin-selected-player-info" class="mt-2 text-xs bg-gray-800 p-2 rounded hidden"></div>
-                    </div>
-                    <hr class="border-gray-600">
-                    <div><label class="font-bold">Set Level</label><div class="flex gap-2"><input type="text" id="admin-level-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-level-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Level"><button id="admin-set-level-btn" class="btn text-sm px-2">Set</button></div></div>
-                    <div><label class="font-bold">Give Cash</label><div class="flex gap-2"><input type="text" id="admin-cash-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-cash-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount"><button id="admin-give-cash-btn" class="btn text-sm px-2">Give</button></div></div>
-                    <div><label class="font-bold">Take Cash</label><div class="flex gap-2"><input type="text" id="admin-take-cash-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-take-cash-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount"><button id="admin-take-cash-btn" class="btn text-sm px-2 bg-red-500">Take</button></div></div>
-                    <div><label class="font-bold">Give Hype Points</label><div class="flex gap-2"><input type="text" id="admin-hype-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><input type="number" id="admin-hype-amount" class="w-32 bg-gray-800 p-1 rounded" placeholder="Amount"><button id="admin-give-hype-btn" class="btn text-sm px-2">Give</button></div></div>
-                    <div><label class="font-bold">Give Item</label><div class="flex gap-2"><input type="text" id="admin-item-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><select id="admin-item-select" class="w-full bg-gray-800 p-1 rounded"></select><button id="admin-give-item-btn" class="btn text-sm px-2">Give</button></div></div>
-                    <hr class="border-gray-600">
-                    <div><label class="font-bold">View Player Activity Log</label><div class="flex gap-2"><input type="text" id="admin-activity-id" class="w-full bg-gray-800 p-1 rounded" placeholder="Player ID"><button id="admin-view-activity-btn" class="btn text-sm px-2">View</button></div></div>
+        // --- Firebase Configuration ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyBcKpDm14W4GZqQncV1LOtS3Hn5t1kK-hw",
+            authDomain: "omegle-c7bdb.firebaseapp.com",
+            projectId: "omegle-c7bdb",
+            storageBucket: "omegle-c7bdb.appspot.com",
+            messagingSenderId: "470349324814",
+            appId: "1:470349324814:web:8271072b8d4cd0de01125f",
+            measurementId: "G-P65WBJMXX3"
+        };
+        
+        // --- Admin Config ---
+        const ADMIN_USER_ID = "SUPER_SECRET_ADMIN_ID"; // Replace with a real hard-to-guess ID
+
+        // --- App Initialization ---
+        let app, auth, db, userId, username;
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        
+        // --- DOM Elements ---
+        const usernameModal = document.getElementById('username-modal');
+        const usernameForm = document.getElementById('username-form');
+        const usernameInput = document.getElementById('username-input');
+        const mainApp = document.getElementById('main-app');
+        const channelsList = document.getElementById('channels-list');
+        const channelHeader = document.querySelector('#channel-header span');
+        const callActions = document.getElementById('call-actions');
+        const joinCallBtn = document.getElementById('join-call-btn');
+        const messagesContainer = document.getElementById('messages-container');
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const videoGridContainer = document.getElementById('video-grid-container');
+        const videoGrid = document.getElementById('video-grid');
+        const micBtn = document.getElementById('mic-btn');
+        const cameraBtn = document.getElementById('camera-btn');
+        const screenshareBtn = document.getElementById('screenshare-btn');
+        const hangupBtn = document.getElementById('hangup-btn');
+        const chatArea = document.getElementById('chat-area');
+
+        // --- App State ---
+        let currentChannel = null;
+        let localStream = null;
+        let peerConnections = {};
+        let isMicOn = false;
+        let isCameraOn = false;
+        let isScreenSharing = false;
+        let isInCall = false;
+        
+        const iceServers = {
+            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }]
+        };
+
+        // --- User Setup ---
+        usernameForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            username = usernameInput.value.trim();
+            if (username) {
+                userId = `user_${Date.now()}`; // Simple unique ID
+                if (username === 'admin') userId = ADMIN_USER_ID; // Assign admin ID
+                
+                usernameModal.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                mainApp.classList.add('flex');
+                userIdDisplay.textContent = username;
+                initializeAppLogic();
+            }
+        });
+
+        // --- Main App Logic ---
+        function initializeAppLogic() {
+            loadChannels();
+            selectChannel('general');
+            setupMediaControls();
+            
+            window.addEventListener('beforeunload', () => {
+                if(isInCall) hangup();
+            });
+        }
+        
+        // --- Chat & Channel Functionality ---
+        function loadChannels() {
+            const channels = ['general', 'lounge', 'gaming-room', 'work-focus'];
+            channelsList.innerHTML = '';
+            channels.forEach(channel => {
+                const channelElement = document.createElement('div');
+                channelElement.className = `px-4 py-2 rounded cursor-pointer hover:bg-gray-700 flex items-center space-x-2 ${channel === currentChannel ? 'bg-gray-900' : ''}`;
+                channelElement.innerHTML = `<i data-lucide="hash" class="w-4 h-4"></i> <span>${channel}</span>`;
+                channelElement.onclick = () => selectChannel(channel);
+                channelsList.appendChild(channelElement);
+            });
+            lucide.createIcons();
+        }
+
+        let messagesUnsubscribe = null;
+        let signalingUnsubscribe = null;
+        let membersUnsubscribe = null;
+
+        async function selectChannel(channelName) {
+            if (currentChannel === channelName) return;
+            if (isInCall) await hangup();
+
+            if (messagesUnsubscribe) messagesUnsubscribe();
+            if (signalingUnsubscribe) signalingUnsubscribe();
+            if (membersUnsubscribe) membersUnsubscribe();
+            
+            currentChannel = channelName;
+            channelHeader.textContent = `# ${channelName}`;
+            messageInput.placeholder = `Message #${channelName}`;
+            loadChannels();
+            messagesContainer.innerHTML = '';
+            callActions.classList.remove('hidden');
+
+            // Subscribe to new channel messages
+            const messagesRef = collection(db, 'channels', currentChannel, 'messages');
+            const q = query(messagesRef, orderBy('timestamp'));
+            messagesUnsubscribe = onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === 'added') {
+                        const data = change.doc.data();
+                        renderMessage(data);
+                    }
+                });
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
+        }
+
+        function renderMessage({ senderId, senderName, text, timestamp }) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'flex items-start space-x-3';
+            const senderInitial = senderName ? senderName.substring(0, 1).toUpperCase() : '?';
+            const isMe = senderId === userId;
+            const isAdmin = senderId === ADMIN_USER_ID;
+
+            messageElement.innerHTML = `
+                <div class="w-10 h-10 ${isAdmin ? 'bg-yellow-500' : 'bg-gray-600'} rounded-full flex items-center justify-center font-bold flex-shrink-0">${senderInitial}</div>
+                <div>
+                    <p class="font-semibold ${isMe ? 'text-indigo-400' : ''} ${isAdmin ? 'text-yellow-400' : ''}">
+                        ${senderName || 'Anonymous'} ${isAdmin ? '<i data-lucide="shield-check" class="inline-block w-4 h-4 ml-1"></i>' : ''}
+                    </p>
+                    <p class="text-gray-300">${text}</p>
                 </div>
-            </details>
-            <details class="bg-gray-700 rounded-lg p-2">
-                <summary class="font-orbitron text-lg text-green-400 cursor-pointer">Cosmetics</summary>
-                <div class="space-y-3 mt-2">
-                    <div>
-                        <label class="font-bold">Set Name Style</label>
-                        <input type="text" id="admin-cosmetic-id" class="w-full bg-gray-800 p-1 rounded mb-1" placeholder="Player ID">
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="admin-name-animation" class="w-full bg-gray-800 p-1 rounded">
-                                <option value="">None</option>
-                                <option value="animate-rainbow">Rainbow</option>
-                                <option value="animate-glow">Glow</option>
-                                <option value="animate-pulse-text">Pulse</option>
-                                <option value="animate-blink">Blink</option>
-                                <option value="gradient-text">Gradient</option>
-                            </select>
-                            <input type="text" id="admin-name-color" class="bg-gray-800 p-1 rounded" placeholder="Color/Gradient From">
-                        </div>
-                         <input type="text" id="admin-gradient-to" class="w-full bg-gray-800 p-1 rounded mt-1" placeholder="Gradient To (optional)">
-                         <button id="admin-set-name-style-btn" class="btn text-sm px-2 w-full mt-1">Set Name Style</button>
-                    </div>
-                </div>
-            </details>
-            <details class="bg-gray-700 rounded-lg p-2">
-                <summary class="font-orbitron text-lg text-cyan-400 cursor-pointer">World & Economy</summary>
-                 <div class="space-y-3 mt-2">
-                    <div>
-                        <label class="font-bold">Global Message Broadcast</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="admin-global-msg" class="w-full bg-gray-800 p-1 rounded" placeholder="Global Message...">
-                            <button id="admin-broadcast-msg-btn" class="btn text-sm px-2">Send</button>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="font-bold">Global Theme</label>
-                         <select id="admin-theme-select" class="w-full bg-gray-800 p-1 rounded">
-                            <option value="theme-default">Default</option>
-                            <option value="theme-vaporwave">Vaporwave</option>
-                            <option value="theme-fallout">Nuclear Fallout</option>
-                            <option value="theme-lofi">Lofi Rain</option>
-                        </select>
-                        <button id="admin-set-theme-btn" class="btn text-sm px-2 w-full mt-1">Set Theme</button>
-                    </div>
-                     <div>
-                        <label class="font-bold">Broadcast Global Image</label>
-                        <
+            `;
+            messagesContainer.appendChild(messageElement);
+            lucide.createIcons();
+        }
+
+        messageForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = messageInput.value.trim();
+            if (text && userId) {
+                // Admin command handling
+                if (userId === ADMIN_USER_ID && text.startsWith('/kick')) {
+                    const [, targetUsername] = text.split(' ');
+                    if (targetUsername) {
+                        kickUser(targetUsername);
+                        messageInput.value = '';
+                        return;
+                    }
+                }
+
+                const messagesRef = collection(db, 'channels', currentChannel, 'messages');
+                await addDoc(messagesRef, { text, senderId: userId, senderName: username, timestamp: serverTimestamp() });
+                messageInput.value = '';
+            }
+        });
+        
+        async function kickUser(targetUsername) {
+             console.log(`Admin: Kicking ${targetUsername}`);
+             // In a real app, you'd implement a server-side mechanism.
+             // Here, we'll add a "kicked" document to Firestore that clients can listen to.
+             const kickRef = doc(db, 'kicks', targetUsername);
+             await setDoc(kickRef, { kickedAt: serverTimestamp() });
+             renderMessage({ text: `Admin kicked ${targetUsername}.`, senderName: 'System', senderId: 'system' });
+        }
+        
+        // Listen for kicks
+        let kickListenerUnsubscribe = null;
+        function listenForKicks() {
+            if (kickListenerUnsubscribe) kickListenerUnsubscribe();
+            const kickRef = doc(db, 'kicks', username);
+            kickListenerUnsubscribe = onSnapshot(kickRef, (doc) => {
+                if (doc.exists()) {
+                    alert("You have been kicked by an admin.");
+                    window.location.reload();
+                }
+            });
+        }
+
+        // --- WebRTC Signaling & Group Call ---
+        joinCallBtn.addEventListener('click', async () => {
+            if (!isInCall) {
+                await joinCall();
+            }
+        });
+        
+        async function joinCall() {
+            isInCall = true;
+            joinCallBtn.textContent = 'Leave Call';
+            joinCallBtn.classList.replace('bg-green-600', 'bg-red-600');
+            joinCallBtn.classList.replace('hover:bg-green-700', 'hover:bg-red-700');
+
+            videoGridContainer.classList.remove('hidden');
+            videoGridContainer.classList.add('flex');
+            chatArea.classList.add('hidden');
+
+            await startMedia({ audio: true, video: true });
+            if (localStream) {
+                isCameraOn = true;
+                cameraBtn.innerHTML = '<i data-lucide="video"></i>';
+                addLocalStream(localStream);
+            }
+            
+            setupCallListeners();
+            await setDoc(doc(db, 'channels', currentChannel, 'members', userId), { username, joinedAt: serverTimestamp() });
+            lucide.createIcons();
+        }
+
+        function setupCallListeners() {
+            // Listen for members joining/leaving
+            const membersRef = collection(db, 'channels', currentChannel, 'members');
+            membersUnsubscribe = onSnapshot(membersRef, snapshot => {
+                const currentMembers = {};
+                snapshot.docs.forEach(doc => currentMembers[doc.id] = doc.data());
+                
+                const memberIds = Object.keys(currentMembers);
+
+                // New members
+                memberIds.forEach(memberId => {
+                    if (memberId !== userId && !peerConnections[memberId]) {
+                        console.log(`New member joined: ${memberId}, creating peer connection.`);
+                        createAndOfferPeerConnection(memberId);
+                    }
+                });
+
+                // Members who left
+                Object.keys(peerConnections).forEach(peerId => {
+                    if (!memberIds.includes(peerId)) {
+                        console.log(`Member left: ${peerId}, closing peer connection.`);
+                        closePeerConnection(peerId);
+                    }
+                });
+            });
+
+            // Listen for signaling messages
+            const signalingRef = collection(db, 'channels', currentChannel, 'signaling');
+            signalingUnsubscribe = onSnapshot(signalingRef, snapshot => {
+                snapshot.docChanges().forEach(async change => {
+                    if (change.type === 'added') {
+                        const { senderId, receiverId, offer, answer, iceCandidate } = change.doc.data();
+                        
+                        if (receiverId !== userId) return;
+
+                        const pc = peerConnections[senderId];
+                        if (!pc) return;
+
+                        if (offer) {
+                            console.log(`Received offer from ${senderId}`);
+                            await pc.setRemoteDescription(new RTCSessionDescription(offer));
+                            const answerDesc = await pc.createAnswer();
+                            await pc.setLocalDescription(answerDesc);
+                            const answerSignalRef = doc(collection(db, 'channels', currentChannel, 'signaling'));
+                            await setDoc(answerSignalRef, { senderId: userId, receiverId: senderId, answer: pc.localDescription.toJSON() });
+                        } else if (answer) {
+                            console.log(`Received answer from ${senderId}`);
+                            await pc.setRemoteDescription(new RTCSessionDescription(answer));
+                        } else if (iceCandidate) {
+                            await pc.addIceCandidate(new RTCIceCandidate(iceCandidate));
+                        }
+                        
+                        // Clean up signal doc
+                        await deleteDoc(change.doc.ref);
+                    }
+                });
+            });
+        }
+        
+        function createAndOfferPeerConnection(peerId) {
+            const pc = createPeerConnection(peerId);
+            pc.onnegotiationneeded = async () => {
+                try {
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    const offerSignalRef = doc(collection(db, 'channels', currentChannel, 'signaling'));
+                    await setDoc(offerSignalRef, { senderId: userId, receiverId: peerId, offer: pc.localDescription.toJSON() });
+                } catch (err) {
+                    console.error(`Negotiation error for ${peerId}:`, err);
+                }
+            };
+        }
+
+        function createPeerConnection(peerId) {
+            console.log(`Creating peer connection to ${peerId}`);
+            const pc = new RTCPeerConnection(iceServers);
+            
+            pc.onicecandidate = event => {
+                if (event.candidate) {
+                    const iceCandidateRef = doc(collection(db, 'channels', currentChannel, 'signaling'));
+                    setDoc(iceCandidateRef, { senderId: userId, receiverId: peerId, iceCandidate: event.candidate.toJSON() });
+                }
+            };
+
+            pc.ontrack = event => {
+                console.log(`Track received from ${peerId}`);
+                addRemoteStream(peerId, event.streams[0]);
+            };
+
+            pc.onconnectionstatechange = () => {
+                if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected' || pc.connectionState === 'closed') {
+                    closePeerConnection(peerId);
+                }
+            };
+
+            if (localStream) {
+                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+            }
+            
+            peerConnections[peerId] = pc;
+            return pc;
+        }
+
+        function closePeerConnection(peerId) {
+            const pc = peerConnections[peerId];
+            if (pc) {
+                pc.close();
+                delete peerConnections[peerId];
+            }
+            const remoteVideoContainer = document.getElementById(`video-container-${peerId}`);
+            if (remoteVideoContainer) remoteVideoContainer.remove();
+        }
+
+        async function hangup() {
+            if (!isInCall) return;
+            
+            // Stop listeners
+            if (signalingUnsubscribe) signalingUnsubscribe();
+            if (membersUnsubscribe) membersUnsubscribe();
+            signalingUnsubscribe = null;
+            membersUnsubscribe = null;
+
+            // Close all peer connections
+            Object.keys(peerConnections).forEach(closePeerConnection);
+            peerConnections = {};
+
+            // Stop local media
+            stopLocalStream();
+            
+            // Remove self from members list
+            await deleteDoc(doc(db, 'channels', currentChannel, 'members', userId));
+
+            // Clean up signaling messages for self
+            const signalingRef = collection(db, 'channels', currentChannel, 'signaling');
+            const q = query(signalingRef, where("receiverId", "==", userId));
+            const snapshot = await getDocs(q);
+            const batch = writeBatch(db);
+            snapshot.forEach(doc => batch.delete(doc.ref));
+            await batch.commit();
+
+            // Reset UI
+            isInCall = false;
+            isCameraOn = false;
+            isScreenSharing = false;
+            isMicOn = false;
+            videoGrid.innerHTML = '';
+            videoGridContainer.classList.add('hidden');
+            videoGridContainer.classList.remove('flex');
+            chatArea.classList.remove('hidden');
+            joinCallBtn.textContent = 'Join Call';
+            joinCallBtn.classList.replace('bg-red-600', 'bg-green-600');
+            joinCallBtn.classList.replace('hover:bg-red-700', 'hover:bg-green-700');
+            micBtn.innerHTML = '<i data-lucide="mic-off"></i>';
+            cameraBtn.innerHTML = '<i data-lucide="video-off"></i>';
+            screenshareBtn.innerHTML = '<i data-lucide="screen-share"></i>';
+            lucide.createIcons();
+        }
+        
+        // --- Media Controls & Streams ---
+        function setupMediaControls() {
+            micBtn.addEventListener('click', toggleMic);
+            cameraBtn.addEventListener('click', toggleCamera);
+            screenshareBtn.addEventListener('click', toggleScreenShare);
+            hangupBtn.addEventListener('click', hangup);
+        }
+
+        async function toggleMic() {
+            if (!isInCall) return;
+            isMicOn = !isMicOn;
+            localStream.getAudioTracks().forEach(track => track.enabled = isMicOn);
+            micBtn.innerHTML = isMicOn ? '<i data-lucide="mic"></i>' : '<i data-lucide="mic-off"></i>';
+            lucide.createIcons();
+        }
+
+        async function toggleCamera() {
+            if (!isInCall) return;
+            if (isScreenSharing) await stopScreenShare(true);
+            
+            isCameraOn = !isCameraOn;
+            localStream.getVideoTracks().forEach(track => track.enabled = isCameraOn);
+            cameraBtn.innerHTML = isCameraOn ? '<i data-lucide="video"></i>' : '<i data-lucide="video-off"></i>';
+            lucide.createIcons();
+        }
+
+        async function toggleScreenShare() {
+            if (!isInCall) return;
+            isScreenSharing = !isScreenSharing;
+
+            if (isScreenSharing) {
+                await startScreenShare();
+            } else {
+                await stopScreenShare(false);
+            }
+            screenshareBtn.innerHTML = isScreenSharing ? '<i data-lucide="screen-share-off"></i>' : '<i data-lucide="screen-share"></i>';
+            lucide.createIcons();
+        }
+
+        async function startMedia(constraints) {
+            try {
+                stopLocalStream();
+                localStream = await navigator.mediaDevices.getUserMedia(constraints);
+                isMicOn = localStream.getAudioTracks().length > 0;
+                micBtn.innerHTML = isMicOn ? '<i data-lucide="mic"></i>' : '<i data-lucide="mic-off"></i>';
+                lucide.createIcons();
+            } catch (e) {
+                console.error('Could not get user media', e);
+            }
+        }
+
+        async function startScreenShare() {
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                isScreenSharing = true;
+                isCameraOn = false;
+                cameraBtn.innerHTML = '<i data-lucide="video-off"></i>';
+
+                const screenTrack = screenStream.getVideoTracks()[0];
+                screenTrack.onended = () => toggleScreenShare();
+
+                // Replace video track in all peer connections
+                for (const peerId in peerConnections) {
+                    const sender = peerConnections[peerId].getSenders().find(s => s.track && s.track.kind === 'video');
+                    if (sender) sender.replaceTrack(screenTrack);
+                }
+                
+                // Also replace local stream for new peers
+                const audioTrack = localStream.getAudioTracks()[0];
+                localStream = new MediaStream([screenTrack, audioTrack]);
+                
+                addLocalStream(localStream); // update local view
+                lucide.createIcons();
+            } catch (e) {
+                console.error('Could not get display media', e);
+                isScreenSharing = false;
+            }
+        }
+        
+        async function stopScreenShare(isSwitchingToCamera) {
+            if (!isScreenSharing) return;
+            isScreenSharing = false;
+            
+            // Revert to camera stream
+            const newStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: isMicOn });
+            const newVideoTrack = newStream.getVideoTracks()[0];
+            
+            for (const peerId in peerConnections) {
+                const sender = peerConnections[peerId].getSenders().find(s => s.track && s.track.kind === 'video');
+                if (sender) sender.replaceTrack(newVideoTrack);
+            }
+            localStream = newStream;
+            addLocalStream(localStream);
+            
+            if(!isSwitchingToCamera) isCameraOn = true;
+        }
+
+        function stopLocalStream() {
+            if(localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+        }
+
+        function addLocalStream(stream) {
+            let videoContainer = document.getElementById(`video-container-${userId}`);
+            if (!videoContainer) {
+                videoContainer = createVideoElement(userId, username, true);
+                videoGrid.appendChild(videoContainer);
+            }
+            const videoEl = videoContainer.querySelector('video');
+            videoEl.srcObject = stream;
+        }
+
+        function addRemoteStream(peerId, stream) {
+            let videoContainer = document.getElementById(`video-container-${peerId}`);
+            if (!videoContainer) {
+                // Get username from members list
+                getDoc(doc(db, 'channels', currentChannel, 'members', peerId)).then(docSnap => {
+                    const peerUsername = docSnap.exists() ? docSnap.data().username : 'Anonymous';
+                    videoContainer = createVideoElement(peerId, peerUsername, false);
+                    videoGrid.appendChild(videoContainer);
+                    const videoEl = videoContainer.querySelector('video');
+                    videoEl.srcObject = stream;
+                });
+            } else {
+                 const videoEl = videoContainer.querySelector('video');
+                 videoEl.srcObject = stream;
+            }
+        }
+        
+        function createVideoElement(id, name, isMuted) {
+            const container = document.createElement('div');
+            container.id = `video-container-${id}`;
+            container.className = 'relative bg-black rounded-lg overflow-hidden aspect-video';
+            
+            const video = document.createElement('video');
+            video.autoplay = true;
+            video.playsInline = true;
+            video.muted = isMuted;
+            video.className = 'w-full h-full object-cover';
+            
+            const nameTag = document.createElement('div');
+            nameTag.className = 'absolute bottom-2 left-2 bg-black/50 px-2 py-1 rounded text-sm';
+            nameTag.textContent = name + (isMuted ? ' (You)' : '');
+            
+            container.appendChild(video);
+            container.appendChild(nameTag);
+            return container;
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
