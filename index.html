@@ -3,662 +3,124 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CypherLink</title>
+    <title>Frequency Friday: Countdown</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        /* Custom CSS for the Y2K/PS2/Graffiti Vibe */
         body {
-            font-family: 'VT323', monospace;
-            background-color: #1a1a2e;
-            color: #e0e0e0;
-            background-image: 
-                radial-gradient(circle at 20% 20%, rgba(255, 0, 255, 0.2), transparent 40%),
-                radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.2), transparent 40%),
-                url('https://www.transparenttextures.com/patterns/lined-paper.png');
-            background-attachment: fixed;
-            overflow-x: hidden;
-            transition: transform 0.5s ease;
+            font-family: 'Inter', sans-serif;
         }
-
-        .cyber-glitch-text {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 2.5rem;
-            color: #f0f;
-            text-shadow: 
-                -2px -2px 0 #0ff, 
-                2px 2px 0 #ff0;
-            animation: glitch 1.5s infinite;
+        /* Style for the countdown text to have a slight glow effect */
+        .glow {
+            text-shadow: 0 0 8px rgba(255, 165, 0, 0.7), 0 0 10px rgba(255, 165, 0, 0.5);
         }
-
-        @keyframes glitch {
-            0%, 100% { text-shadow: -2px -2px 0 #0ff, 2px 2px 0 #ff0; }
-            25% { text-shadow: 2px 2px 0 #0ff, -2px -2px 0 #ff0; }
-            50% { text-shadow: 2px -2px 0 #0ff, -2px 2px 0 #ff0; }
-            75% { text-shadow: -2px 2px 0 #0ff, 2px -2px 0 #ff0; }
-        }
-
-        .video-container {
-            border: 4px solid;
-            border-image: linear-gradient(45deg, #f0f, #0ff) 1;
-            box-shadow: 0 0 15px #f0f, 0 0 15px #0ff inset;
-            background: repeating-linear-gradient(
-                45deg,
-                rgba(0,0,0,0.2),
-                rgba(0,0,0,0.2) 10px,
-                rgba(255,255,255,0.1) 10px,
-                rgba(255,255,255,0.1) 20px
-            );
-            animation: border-flicker 2s infinite alternate;
-        }
-        
-        @keyframes border-flicker {
-            from { box-shadow: 0 0 15px #f0f, 0 0 15px #0ff inset; }
-            to { box-shadow: 0 0 25px #0ff, 0 0 25px #f0f inset; }
-        }
-
-        .video-placeholder {
-            background-image: url('https://placehold.co/600x400/1a1a2e/e0e0e0?text=Awaiting Signal...');
-            background-size: cover;
-            background-position: center;
-        }
-
-        video { transform: scaleX(-1); }
-
-        .control-button {
-            font-family: 'Press Start 2P', cursive;
-            background: linear-gradient(45deg, #4a00e0, #8e2de2);
-            border: 2px solid #0ff;
-            color: white;
-            text-shadow: 1px 1px 2px black;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 4px #0ff;
-        }
-
-        .control-button:hover { transform: translateY(-2px); box-shadow: 0 6px #f0f; }
-        .control-button:active { transform: translateY(2px); box-shadow: 0 2px #f0f; }
-        .control-button:disabled { background: #555; color: #999; border-color: #777; box-shadow: 0 4px #777; cursor: not-allowed; }
-
-        .chat-box { background: rgba(0, 0, 0, 0.5); border: 2px solid #ff0; backdrop-filter: blur(5px); height: 300px; }
-        .chat-input { background: #222; border: 1px solid #ff0; color: #e0e0e0; }
-        .chat-input::placeholder { color: #888; }
-
-        .graffiti-art { position: absolute; width: 300px; height: 200px; background-size: contain; background-repeat: no-repeat; opacity: 0.6; pointer-events: none; }
-        #graffiti1 { background-image: url('https://storage.googleapis.com/gemini-prod-us-west1-assets/generated_images/cypherlink_graffiti_1.png'); top: 10%; left: 5%; transform: rotate(-15deg); }
-        #graffiti2 { background-image: url('https://storage.googleapis.com/gemini-prod-us-west1-assets/generated_images/cypherlink_graffiti_2.png'); bottom: 5%; right: 5%; transform: rotate(10deg); }
-        
-        .status-bar { background: rgba(0,0,0,0.7); border: 1px solid #f0f; padding: 5px 10px; text-shadow: 1px 1px 2px #f0f; }
-        
-        /* Modal Styles */
-        .modal-backdrop { background-color: rgba(0,0,0,0.8); backdrop-filter: blur(10px); }
-        .modal-content { background-color: #1a1a2e; border: 2px solid #f0f; box-shadow: 0 0 20px #f0f; }
-        .modal-input { background: #333; border: 1px solid #0ff; color: #e0e0e0; font-family: 'VT323', monospace; }
-
-        /* Admin Panel Styles */
-        #admin-icon { cursor: pointer; transition: transform 0.3s ease; }
-        #admin-icon:hover { transform: scale(1.1) rotate(15deg); }
-        #admin-panel { background: rgba(10, 0, 20, 0.9); border-top: 4px solid #ff0; backdrop-filter: blur(8px); }
-        .admin-room-card { background: rgba(0,0,0,0.4); border: 1px solid #8e2de2; }
-        .admin-troll-button { background-color: #333; border: 1px solid #ff0; color: #ff0; font-size: 0.7rem; padding: 2px 4px; border-radius: 4px; transition: all 0.2s; }
-        .admin-troll-button:hover { background-color: #ff0; color: #1a1a2e; }
-
-        /* Troll Feature Styles */
-        #jumpscare-overlay {
-            background-image: url('https://i.imgflip.com/1h2k4j.jpg');
-            background-size: cover;
-            background-position: center;
-            animation: flash 0.5s ease-out;
-        }
-        @keyframes flash {
-            0% { opacity: 0; transform: scale(1.2); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        .ghost-message { font-style: italic; color: #aaa; animation: fadein 1s; }
-        @keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
-        #rickroll-overlay {
-            background-image: url('https://media.tenor.com/x8v1oNUOmg4AAAAC/rickroll-roll.gif');
-            background-size: cover;
-        }
-
-        /* Friends Panel */
-        #friends-panel {
-            background: rgba(20, 0, 30, 0.95);
-            border-left: 2px solid #f0f;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease-in-out;
-            transform: translateX(100%);
-        }
-        #friends-panel.open {
-            transform: translateX(0);
-        }
-        .friend-item.active {
-            background-color: #f0f;
-            color: #1a1a2e;
+        /* Styling for the Instagram embed wrapper */
+        .instagram-wrapper {
+            width: 100%;
+            max-width: 380px; /* A good width for Instagram embeds */
+            height: 550px; /* A good height to show the post and some caption */
+            background: #18181b;
+            border-radius: 12px;
+            border: 1px solid #3f3f46;
+            overflow: hidden; /* This will clip the iframe to the rounded corners */
         }
     </style>
 </head>
-<body class="p-4 md:p-8 overflow-hidden">
+<body class="bg-zinc-900 text-white antialiased">
 
-    <!-- TROLL OVERLAYS -->
-    <div id="jumpscare-overlay" class="fixed inset-0 z-50 hidden"></div>
-    <div id="rickroll-overlay" class="fixed inset-0 z-50 hidden"></div>
+    <div class="container mx-auto px-4 py-8 flex flex-col items-center justify-center min-h-screen">
 
-    <!-- Modals -->
-    <div id="nameModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop">
-        <div class="modal-content p-8 rounded-lg text-center w-full max-w-sm">
-            <h2 class="text-2xl text-cyan-300 mb-4 font-bold">ENTER YOUR ALIAS</h2>
-            <form id="nameForm">
-                <input type="text" id="nameInput" class="modal-input w-full p-3 text-lg text-center rounded-md" placeholder="Your Name..." required maxlength="15">
-                <button type="submit" class="control-button w-full py-3 px-6 rounded-lg mt-4">ENTER CYPHER</button>
-            </form>
+        <!-- Instagram Post Embed (using a direct iframe for reliability) -->
+        <div class="instagram-wrapper mb-8">
+            <iframe 
+                src="https://www.instagram.com/p/DL_c_DDRMpa/embed" 
+                width="100%" 
+                height="100%" 
+                frameborder="0" 
+                scrolling="no" 
+                allowtransparency="true"
+                style="border-radius: 12px;">
+            </iframe>
         </div>
-    </div>
-    <div id="adminLoginModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden">
-        <div class="modal-content p-8 rounded-lg text-center w-full max-w-sm">
-            <h2 class="text-2xl text-red-500 mb-4 font-bold">ADMIN ACCESS</h2>
-            <form id="adminLoginForm">
-                <input type="text" id="adminUserInput" class="modal-input w-full p-3 text-lg rounded-md mb-3" placeholder="Username...">
-                <input type="password" id="adminPassInput" class="modal-input w-full p-3 text-lg rounded-md mb-4" placeholder="Password...">
-                <button type="submit" class="control-button w-full py-3 px-6 rounded-lg">LOGIN</button>
-                <p id="adminLoginError" class="text-red-500 mt-2 h-4"></p>
-            </form>
-        </div>
-    </div>
-    <div id="friendRequestModal" class="fixed inset-0 z-50 flex items-center justify-center modal-backdrop hidden">
-        <div class="modal-content p-8 rounded-lg text-center w-full max-w-md">
-            <h2 id="friendRequestText" class="text-2xl text-cyan-300 mb-4 font-bold"></h2>
-            <div class="flex justify-center space-x-4">
-                 <button id="acceptFriendBtn" class="control-button py-2 px-6 rounded-lg">ACCEPT</button>
-                 <button id="declineFriendBtn" class="control-button py-2 px-6 rounded-lg bg-red-500">DECLINE</button>
+
+
+        <!-- Countdown Timer -->
+        <div id="countdown-container" class="text-center">
+            <h2 class="text-2xl md:text-3xl font-bold text-orange-400 uppercase tracking-widest mb-4">The Chaos Begins In</h2>
+            <div id="timer" class="flex justify-center space-x-2 md:space-x-4">
+                <div class="bg-zinc-800 p-4 rounded-lg w-20 md:w-28 text-center border border-zinc-700">
+                    <div id="days" class="text-4xl md:text-6xl font-black text-orange-500 glow">00</div>
+                    <div class="text-xs md:text-sm uppercase text-zinc-400">Days</div>
+                </div>
+                <div class="bg-zinc-800 p-4 rounded-lg w-20 md:w-28 text-center border border-zinc-700">
+                    <div id="hours" class="text-4xl md:text-6xl font-black text-orange-500 glow">00</div>
+                    <div class="text-xs md:text-sm uppercase text-zinc-400">Hours</div>
+                </div>
+                <div class="bg-zinc-800 p-4 rounded-lg w-20 md:w-28 text-center border border-zinc-700">
+                    <div id="minutes" class="text-4xl md:text-6xl font-black text-orange-500 glow">00</div>
+                    <div class="text-xs md:text-sm uppercase text-zinc-400">Minutes</div>
+                </div>
+                <div class="bg-zinc-800 p-4 rounded-lg w-20 md:w-28 text-center border border-zinc-700">
+                    <div id="seconds" class="text-4xl md:text-6xl font-black text-orange-500 glow">00</div>
+                    <div class="text-xs md:text-sm uppercase text-zinc-400">Seconds</div>
+                </div>
             </div>
         </div>
+        
+        <!-- Live Message (hidden by default) -->
+        <div id="live-message" class="hidden text-center">
+             <h2 class="text-4xl md:text-5xl font-black text-orange-500 uppercase tracking-widest glow animate-pulse">The Event Is Live!</h2>
+             <p class="text-zinc-300 mt-2 text-lg">See you in the underground.</p>
+        </div>
+
     </div>
 
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="fixed top-0 left-0 w-full h-full z-40 p-8 overflow-y-auto hidden">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-4xl font-bold text-yellow-300" style="font-family: 'Press Start 2P', cursive;">ADMIN MONITOR</h2>
-            <button id="closeAdminPanel" class="text-4xl text-red-500">&times;</button>
-        </div>
-        <div id="admin-rooms-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </div>
+    <!-- The Instagram script is no longer needed with the iframe method -->
 
-    <!-- Friends Panel -->
-    <div id="friends-panel" class="fixed top-0 right-0 h-full w-full max-w-md z-30 p-4">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-2xl text-fuchsia-400 font-bold">FRIENDS</h2>
-            <button id="closeFriendsPanel" class="text-3xl text-red-500">&times;</button>
-        </div>
-        <div class="grid grid-rows-[auto_1fr_auto] h-[calc(100%-40px)] gap-2">
-            <div id="friends-list" class="bg-black/30 p-2 rounded overflow-y-auto border border-fuchsia-500"></div>
-            <div id="friend-chat-box" class="bg-black/30 p-2 rounded overflow-y-auto border border-fuchsia-500 flex flex-col-reverse"></div>
-            <form id="friend-chat-form" class="flex">
-                <input type="text" id="friend-chat-input" class="chat-input flex-grow p-3 rounded-bl-lg" placeholder="Message friend..." disabled>
-                <button type="submit" id="friend-send-button" class="control-button px-6 rounded-br-lg" disabled>SEND</button>
-            </form>
-        </div>
-    </div>
+    <script>
+        // --- COUNTDOWN LOGIC ---
 
-    <!-- Main App -->
-    <div class="absolute top-4 right-4 z-20 flex space-x-4">
-        <button id="friends-button" class="control-button text-sm p-2 rounded-md">FRIENDS</button>
-        <div id="admin-icon-container">
-            <svg id="admin-icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 256 256"><path fill="#ff0" d="M224.2,160a95.81,95.81,0,0,0-23.33-60.34,96,96,0,0,0-145.74,0A95.81,95.81,0,0,0,31.8,160H16a8,8,0,0,0,0,16H31.8a95.81,95.81,0,0,0,23.33,60.34,96,96,0,0,0,145.74,0A95.81,95.81,0,0,0,224.2,176H240a8,8,0,0,0,0-16ZM128,200a64,64,0,1,1,64-64A64.07,64.07,0,0,1,128,200Z"/><path fill="#1a1a2e" d="M168,128a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,128ZM144,96a12,12,0,1,1-12-12A12,12,0,0,1,144,96ZM100,84a12,12,0,1,0,12,12A12,12,0,0,0,100,84Z"/></svg>
-        </div>
-    </div>
-    
-    <div class="graffiti-art" id="graffiti1"></div>
-    <div class="graffiti-art" id="graffiti2"></div>
+        // Set the date we're counting down to
+        // Note: Months are 0-indexed, so July is 6
+        const countDownDate = new Date("2025-07-18T21:30:00").getTime();
 
-    <div id="main-content" class="transition-transform duration-500">
-        <div class="max-w-7xl mx-auto text-center mb-4">
-            <h1 class="cyber-glitch-text">CypherLink</h1>
-            <p class="text-lg text-gray-400 mt-2">Connecting the underground. Enter the stream.</p>
-        </div>
+        // Get elements to display the countdown
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const countdownContainer = document.getElementById('countdown-container');
+        const liveMessage = document.getElementById('live-message');
 
-        <div class="flex justify-center items-center my-4 space-x-4">
-            <label for="autoNextToggle" class="text-cyan-300">Auto-Next:</label>
-            <input type="checkbox" id="autoNextToggle" class="form-checkbox h-5 w-5 text-fuchsia-500 bg-gray-800 border-cyan-400 rounded focus:ring-fuchsia-500">
-        </div>
+        // Update the count down every 1 second
+        const x = setInterval(function() {
 
-        <div id="status-bar" class="status-bar max-w-4xl mx-auto rounded-lg mb-4 text-center">
-            <p id="status-text">STATUS: OFFLINE // Press START to connect</p>
-            <p class="text-xs text-gray-500 mt-1">Your ID: <span id="user-id-display"></span></p>
-        </div>
+            // Get today's date and time
+            const now = new Date().getTime();
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-6xl mx-auto">
-            <div class="video-container rounded-lg p-2 aspect-video"><video id="localVideo" class="w-full h-full rounded-md object-cover" autoplay muted playsinline></video></div>
-            <div id="remote-video-container" class="video-container rounded-lg p-2 aspect-video video-placeholder relative">
-                <video id="remoteVideo" class="w-full h-full rounded-md object-cover" autoplay playsinline></video>
-                <button id="addFriendBtn" class="absolute top-2 right-2 control-button text-xs p-1 rounded hidden">Add Friend</button>
-            </div>
-        </div>
+            // Find the distance between now and the count down date
+            const distance = countDownDate - now;
 
-        <div class="flex justify-center items-center space-x-4 my-6">
-            <button id="startButton" class="control-button py-3 px-6 rounded-lg" disabled>START</button>
-            <button id="nextButton" class="control-button py-3 px-6 rounded-lg" disabled>NEXT</button>
-            <button id="hangupButton" class="control-button py-3 px-6 rounded-lg" disabled>HANG UP</button>
-        </div>
+            // Time calculations for days, hours, minutes and seconds
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-        <div class="max-w-4xl mx-auto">
-            <div id="chat-messages" class="chat-box rounded-t-lg p-4 overflow-y-auto flex flex-col-reverse"></div>
-            <form id="chat-form" class="flex">
-                <input type="text" id="chat-input" class="chat-input flex-grow p-3 rounded-bl-lg" placeholder="Type message...">
-                <button type="submit" id="send-button" class="control-button px-6 rounded-br-lg" disabled>SEND</button>
-            </form>
-        </div>
-    </div>
+            // Display the result in the corresponding elements, adding a leading zero if needed
+            daysEl.innerHTML = String(days).padStart(2, '0');
+            hoursEl.innerHTML = String(hours).padStart(2, '0');
+            minutesEl.innerHTML = String(minutes).padStart(2, '0');
+            secondsEl.innerHTML = String(seconds).padStart(2, '0');
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getFirestore, collection, doc, addDoc, getDoc, getDocs, onSnapshot, updateDoc, deleteDoc, query, where, limit, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
-
-        // --- Config and Initialization ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyBcKpDm14W4GZqQncV1LOtS3Hn5t1kK-hw",
-            authDomain: "omegle-c7bdb.firebaseapp.com",
-            projectId: "omegle-c7bdb",
-            storageBucket: "omegle-c7bdb.firebasestorage.app",
-            messagingSenderId: "470349324814",
-            appId: "1:470349324814:web:8271072b8d4cd0de01125f",
-            measurementId: "G-P65WBJMXX3"
-        };
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const servers = { iceServers: [{ urls: ['stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302'] }], iceCandidatePoolSize: 10 };
-
-        // --- State Variables ---
-        let pc = new RTCPeerConnection(servers);
-        let localStream = null, remoteStream = null, currentRoomId = null, unsubscribeRoom = null;
-        let userName = 'guest', userId = 'user_' + Math.random().toString(36).substr(2, 9);
-        let remoteUserId = null, autoNextEnabled = false;
-        let friends = {}, selectedFriendId = null, unsubscribeFriendChat = null;
-        let currentFriendRequest = null;
-
-        // --- DOM Elements ---
-        const el = (id) => document.getElementById(id);
-        const startButton = el('startButton'), nextButton = el('nextButton'), hangupButton = el('hangupButton');
-        const localVideo = el('localVideo'), remoteVideo = el('remoteVideo');
-        const chatForm = el('chat-form'), chatInput = el('chat-input'), sendButton = el('send-button'), chatMessages = el('chat-messages');
-        const statusText = el('status-text'), userIdDisplay = el('user-id-display');
-        const nameModal = el('nameModal'), nameForm = el('nameForm'), nameInput = el('nameInput');
-        const adminIcon = el('admin-icon'), adminLoginModal = el('adminLoginModal'), adminLoginForm = el('adminLoginForm');
-        const adminPanel = el('admin-panel'), closeAdminPanel = el('closeAdminPanel'), adminRoomsContainer = el('admin-rooms-container');
-        const jumpscareOverlay = el('jumpscare-overlay'), rickrollOverlay = el('rickroll-overlay'), mainContent = el('main-content');
-        const autoNextToggle = el('autoNextToggle');
-        const friendsButton = el('friends-button'), friendsPanel = el('friends-panel'), closeFriendsPanel = el('closeFriendsPanel');
-        const friendsListEl = el('friends-list'), friendChatBox = el('friend-chat-box'), friendChatForm = el('friend-chat-form'), friendChatInput = el('friend-chat-input'), friendSendButton = el('friend-send-button');
-        const addFriendBtn = el('addFriendBtn');
-        const friendRequestModal = el('friendRequestModal'), friendRequestText = el('friendRequestText'), acceptFriendBtn = el('acceptFriendBtn'), declineFriendBtn = el('declineFriendBtn');
-
-        // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Name modal
-            nameForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                userName = nameInput.value.trim() || 'anon';
-                userId = `${userName}_${Math.random().toString(36).substr(2, 9)}`;
-                userIdDisplay.textContent = userId;
-                nameModal.classList.add('hidden');
-                startButton.disabled = false;
-                initializeUser();
-            });
-
-            // Admin listeners
-            adminIcon.addEventListener('click', () => adminLoginModal.classList.remove('hidden'));
-            adminLoginForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                if (adminLoginForm.elements.adminUserInput.value === 'KHEMIST' && adminLoginForm.elements.adminPassInput.value === 'omegle') {
-                    adminLoginModal.classList.add('hidden');
-                    adminPanel.classList.remove('hidden');
-                    initializeAdminPanel();
-                } else {
-                    // Handle login error
-                }
-            });
-            closeAdminPanel.addEventListener('click', () => adminPanel.classList.add('hidden'));
-
-            // Friends panel listeners
-            friendsButton.addEventListener('click', () => friendsPanel.classList.add('open'));
-            closeFriendsPanel.addEventListener('click', () => friendsPanel.classList.remove('open'));
-            friendChatForm.addEventListener('submit', sendFriendMessage);
-
-            // Other listeners
-            autoNextToggle.addEventListener('change', (e) => autoNextEnabled = e.target.checked);
-            addFriendBtn.addEventListener('click', sendFriendRequest);
-            acceptFriendBtn.addEventListener('click', acceptFriendRequest);
-            declineFriendBtn.addEventListener('click', declineFriendRequest);
-        });
-
-        async function initializeUser() {
-            // Listen for friend requests
-            const requestsRef = collection(db, `users/${userId}/friend_requests`);
-            onSnapshot(requestsRef, snapshot => {
-                if (!snapshot.empty) {
-                    const request = snapshot.docs[0].data();
-                    currentFriendRequest = { id: snapshot.docs[0].id, ...request };
-                    friendRequestText.textContent = `${request.fromName} wants to be your friend!`;
-                    friendRequestModal.classList.remove('hidden');
-                }
-            });
-
-            // Listen for friends list changes
-            const friendsRef = collection(db, `users/${userId}/friends`);
-            onSnapshot(friendsRef, snapshot => {
-                snapshot.docChanges().forEach(change => {
-                    const friendData = change.doc.data();
-                    if (change.type === "added") {
-                        friends[change.doc.id] = friendData;
-                    }
-                    if (change.type === "removed") {
-                        delete friends[change.doc.id];
-                    }
-                });
-                renderFriendsList();
-            });
-        }
-
-        // --- Main WebRTC & Chat Logic ---
-        const start = async () => {
-            updateStatus("INITIALIZING...");
-            startButton.disabled = true;
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                localVideo.srcObject = localStream;
-                localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-                pc.ontrack = event => {
-                    if (!remoteStream) {
-                        remoteStream = new MediaStream();
-                        remoteVideo.srcObject = remoteStream;
-                        el('remote-video-container').classList.remove('video-placeholder');
-                    }
-                    remoteStream.addTrack(event.track);
-                };
-                await findOrCreateRoom();
-            } catch (error) {
-                console.error("Error starting up:", error);
-                updateStatus("ERROR: Could not access camera/mic.");
-                resetState();
+            // If the count down is finished, write some text
+            if (distance < 0) {
+                clearInterval(x);
+                countdownContainer.classList.add('hidden');
+                liveMessage.classList.remove('hidden');
             }
-        };
-
-        const findOrCreateRoom = async () => {
-            updateStatus("SEARCHING for a partner...");
-            const roomsRef = collection(db, 'rooms');
-            const q = query(roomsRef, where('answered', '==', false), limit(1));
-            const snapshot = await getDocs(q);
-            if (snapshot.empty) {
-                await createRoom();
-            } else {
-                const roomDoc = snapshot.docs[0];
-                await joinRoom(roomDoc.id, roomDoc.data());
-            }
-        };
-        
-        const createRoom = async () => {
-            updateStatus("CREATING new room. Waiting...");
-            const roomRef = await addDoc(collection(db, 'rooms'), { 
-                createdAt: serverTimestamp(),
-                messages: [], 
-                participants: { [userId]: { name: userName, joinedAt: serverTimestamp() } },
-                offered: false, 
-                answered: false
-            });
-            currentRoomId = roomRef.id;
-            const offerCandidates = collection(roomRef, 'offerCandidates');
-            pc.onicecandidate = e => e.candidate && addDoc(offerCandidates, e.candidate.toJSON());
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            await updateDoc(roomRef, { offer: { sdp: offer.sdp, type: offer.type }, offered: true });
-            listenForEvents(roomRef);
-        };
-
-        const joinRoom = async (roomId, roomData) => {
-            updateStatus("Found room! CONNECTING...");
-            currentRoomId = roomId;
-            const roomRef = doc(db, 'rooms', roomId);
-            const participants = roomData.participants;
-            participants[userId] = { name: userName, joinedAt: serverTimestamp() };
-            await updateDoc(roomRef, { participants });
-
-            pc.onicecandidate = e => e.candidate && addDoc(collection(roomRef, 'answerCandidates'), e.candidate.toJSON());
-            await pc.setRemoteDescription(new RTCSessionDescription(roomData.offer));
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            await updateDoc(roomRef, { answer: { sdp: answer.sdp, type: answer.type }, answered: true });
-            
-            onSnapshot(collection(roomRef, 'offerCandidates'), s => s.docChanges().forEach(c => c.type === 'added' && pc.addIceCandidate(new RTCIceCandidate(c.doc.data()))));
-            listenForEvents(roomRef);
-        };
-
-        const listenForEvents = (roomRef) => {
-            unsubscribeRoom = onSnapshot(roomRef, async (snapshot) => {
-                if (!snapshot.exists()) {
-                    updateStatus("Partner disconnected.");
-                    if (autoNextEnabled) {
-                        updateStatus("Auto-connecting to next user...");
-                        setTimeout(resetForNext, 2000);
-                    } else {
-                        resetState();
-                        updateStatus("OFFLINE // Press START to connect");
-                    }
-                    return;
-                }
-                
-                const data = snapshot.data();
-                if (data.messages) displayMessages(data.messages);
-
-                if (data.trollEvent && data.trollEvent.targetId === userId) {
-                    handleTrollEvent(data.trollEvent);
-                    await updateDoc(roomRef, { trollEvent: null });
-                }
-                
-                if (!pc.currentRemoteDescription && data?.answer) {
-                    await pc.setRemoteDescription(new RTCSessionDescription(data.answer));
-                }
-
-                if (Object.keys(data.participants).length === 2) {
-                    updateStatus("CONNECTION ESTABLISHED!");
-                    enableChatAndNext();
-                    remoteUserId = Object.keys(data.participants).find(id => id !== userId);
-                    addFriendBtn.classList.remove('hidden');
-                }
-            });
-        };
-        
-        const hangup = async () => {
-            updateStatus("Disconnecting...");
-            if (unsubscribeRoom) unsubscribeRoom();
-            if (currentRoomId) {
-                try { await deleteDoc(doc(db, 'rooms', currentRoomId)); } catch(e) { console.error("Error deleting room", e); }
-            }
-            resetState();
-            updateStatus("OFFLINE // Press START to connect");
-        };
-
-        const next = async () => {
-            updateStatus("Finding next partner...");
-            await hangup();
-            setTimeout(start, 500);
-        };
-        
-        // --- Friends Logic ---
-        async function sendFriendRequest() {
-            if (!remoteUserId) return;
-            const remoteUserDoc = await getDoc(doc(db, 'users', remoteUserId));
-            const remoteUserName = remoteUserDoc.exists() ? remoteUserDoc.data().name : remoteUserId.split('_')[0];
-
-            const requestRef = doc(db, `users/${remoteUserId}/friend_requests`, userId);
-            await setDoc(requestRef, { fromId: userId, fromName: userName });
-            alert('Friend request sent!');
-        }
-
-        async function acceptFriendRequest() {
-            if (!currentFriendRequest) return;
-            const friendId = currentFriendRequest.fromId;
-            const friendName = currentFriendRequest.fromName;
-            
-            // Add to my friends list
-            await setDoc(doc(db, `users/${userId}/friends`, friendId), { name: friendName });
-            // Add me to their friends list
-            await setDoc(doc(db, `users/${friendId}/friends`, userId), { name: userName });
-
-            // Delete request
-            await deleteDoc(doc(db, `users/${userId}/friend_requests`, currentFriendRequest.id));
-            
-            friendRequestModal.classList.add('hidden');
-            currentFriendRequest = null;
-        }
-
-        async function declineFriendRequest() {
-            if (!currentFriendRequest) return;
-            await deleteDoc(doc(db, `users/${userId}/friend_requests`, currentFriendRequest.id));
-            friendRequestModal.classList.add('hidden');
-            currentFriendRequest = null;
-        }
-
-        function renderFriendsList() {
-            friendsListEl.innerHTML = '';
-            for (const friendId in friends) {
-                const friend = friends[friendId];
-                const item = document.createElement('div');
-                item.className = 'p-2 cursor-pointer hover:bg-fuchsia-700 rounded friend-item';
-                item.textContent = friend.name;
-                item.dataset.friendId = friendId;
-                if (friendId === selectedFriendId) {
-                    item.classList.add('active');
-                }
-                item.addEventListener('click', () => selectFriend(friendId));
-                friendsListEl.appendChild(item);
-            }
-        }
-
-        function selectFriend(friendId) {
-            selectedFriendId = friendId;
-            renderFriendsList();
-            friendChatInput.disabled = false;
-            friendSendButton.disabled = false;
-            
-            if (unsubscribeFriendChat) unsubscribeFriendChat();
-            
-            const chatId = [userId, friendId].sort().join('_');
-            const chatRef = collection(db, 'private_chats', chatId, 'messages');
-            const q = query(chatRef, limit(50)); // Add orderBy when available
-            
-            unsubscribeFriendChat = onSnapshot(q, snapshot => {
-                let messages = [];
-                snapshot.forEach(doc => messages.push(doc.data()));
-                // Sort by timestamp client-side if orderBy is not used
-                messages.sort((a,b) => a.timestamp?.toMillis() - b.timestamp?.toMillis());
-                displayFriendMessages(messages);
-            });
-        }
-        
-        async function sendFriendMessage(e) {
-            e.preventDefault();
-            const text = friendChatInput.value.trim();
-            if (!text || !selectedFriendId) return;
-            
-            const chatId = [userId, selectedFriendId].sort().join('_');
-            const chatRef = collection(db, 'private_chats', chatId, 'messages');
-            
-            await addDoc(chatRef, {
-                text: text,
-                senderId: userId,
-                timestamp: serverTimestamp()
-            });
-            friendChatInput.value = '';
-        }
-
-        function displayFriendMessages(messages) {
-            friendChatBox.innerHTML = messages.map(msg => {
-                const isMe = msg.senderId === userId;
-                return `<div class="p-1 my-1 rounded-lg max-w-xs ${isMe ? 'self-end' : 'self-start'}">
-                            <p class="${isMe ? 'bg-fuchsia-600' : 'bg-cyan-600'} p-2 rounded-xl inline-block">${msg.text}</p>
-                        </div>`;
-            }).join('');
-        }
-        
-        // --- Admin Panel Logic ---
-        const initializeAdminPanel = () => {
-            onSnapshot(collection(db, 'rooms'), (snapshot) => {
-                adminRoomsContainer.innerHTML = '';
-                snapshot.forEach(docSnap => {
-                    const room = docSnap.data();
-                    const roomId = docSnap.id;
-                    const card = document.createElement('div');
-                    card.className = 'admin-room-card rounded-lg p-4';
-                    
-                    const participants = room.participants || {};
-                    const participantsHtml = Object.keys(participants).map(pId => {
-                        const pData = participants[pId];
-                        return `
-                        <div class="border-t border-gray-600 mt-2 pt-2">
-                            <p class="text-sm text-gray-300 truncate font-bold">${pData.name}</p>
-                            <p class="text-xs text-gray-400 break-all">ID: ${pId}</p>
-                            <div class="flex space-x-1 mt-1">
-                                <button class="admin-troll-button" data-troll="jumpscare" data-room-id="${roomId}" data-target-id="${pId}">Jumpscare</button>
-                                <button class="admin-troll-button" data-troll="rickroll" data-room-id="${roomId}" data-target-id="${pId}">Rickroll</button>
-                                <button class="admin-troll-button" data-troll="flip" data-room-id="${roomId}" data-target-id="${pId}">Flip</button>
-                            </div>
-                        </div>
-                    `}).join('');
-
-                    card.innerHTML = `
-                        <h3 class="text-lg font-bold text-cyan-300 truncate">Room: ${roomId}</h3>
-                        <div class="my-2">${participantsHtml}</div>
-                        <div class="text-xs h-32 overflow-y-auto bg-black/50 p-1 rounded border border-gray-600">
-                            ${(room.messages || []).map(m => `<p><span class="text-yellow-400">${m.sender.split('_')[0]}:</span> ${m.text}</p>`).join('')}
-                        </div>
-                        <form class="admin-impersonate-form mt-2">
-                            <input type="text" class="chat-input text-xs w-full p-1" placeholder="Impersonate message...">
-                            <select class="chat-input text-xs w-full p-1 mt-1">
-                                ${Object.keys(participants).map(pId => `<option value="${pId}">${participants[pId].name}</option>`).join('')}
-                            </select>
-                            <button type="submit" class="admin-troll-button w-full mt-1">Send as User</button>
-                        </form>
-                        <div class="flex space-x-2 mt-2">
-                            <button class="text-xs bg-red-600 p-1 rounded w-full admin-action-btn" data-action="end-chat" data-room-id="${roomId}">End Chat</button>
-                            <button class="text-xs bg-purple-600 p-1 rounded w-full admin-action-btn" data-action="ghost-msg" data-room-id="${roomId}">Ghost Msg</button>
-                        </div>
-                    `;
-                    card.querySelector('.admin-impersonate-form').addEventListener('submit', (e) => {
-                        e.preventDefault();
-                        const msg = e.target.elements[0].value;
-                        const impersonatedId = e.target.elements[1].value;
-                        if (msg && impersonatedId) {
-                            adminSendMessageAsUser(roomId, msg, impersonatedId);
-                            e.target.elements[0].value = '';
-                        }
-                    });
-                    adminRoomsContainer.appendChild(card);
-                });
-            });
-        };
-
-        async function adminSendMessageAsUser(roomId, text, senderId) {
-            const roomRef = doc(db, 'rooms', roomId);
-            const roomDoc = await getDoc(roomRef);
-            if (roomDoc.exists()) {
-                const newMessages = [...(roomDoc.data().messages || []), { text, sender: senderId, timestamp: new Date() }];
-                await updateDoc(roomRef, { messages: newMessages });
-            }
-        }
-        
-        // --- Helper Functions, Event Listeners, and Initial State ---
-        // (This section contains the rest of the functions and listeners, which are largely unchanged)
-        const resetState = () => { if (pc) pc.close(); pc = new RTCPeerConnection(servers); if (localStream) localStream.getTracks().forEach(t => t.stop()); if (remoteStream) remoteStream.getTracks().forEach(t => t.stop()); localStream = null; remoteStream = null; localVideo.srcObject = null; remoteVideo.srcObject = null; el('remote-video-container').classList.add('video-placeholder'); startButton.disabled = userName === 'guest'; nextButton.disabled = true; hangupButton.disabled = true; sendButton.disabled = true; chatInput.disabled = true; chatMessages.innerHTML = ''; currentRoomId = null; remoteUserId = null; addFriendBtn.classList.add('hidden'); mainContent.style.transform = 'none'; };
-        const resetForNext = () => { if (unsubscribeRoom) unsubscribeRoom(); if (pc) pc.close(); pc = new RTCPeerConnection(servers); remoteVideo.srcObject = null; el('remote-video-container').classList.add('video-placeholder'); nextButton.disabled = true; hangupButton.disabled = true; sendButton.disabled = true; chatInput.disabled = true; chatMessages.innerHTML = ''; currentRoomId = null; remoteUserId = null; addFriendBtn.classList.add('hidden'); mainContent.style.transform = 'none'; findOrCreateRoom(); };
-        const enableChatAndNext = () => { nextButton.disabled = false; hangupButton.disabled = false; sendButton.disabled = false; chatInput.disabled = false; };
-        const updateStatus = (text) => { statusText.textContent = `STATUS: ${text}`; };
-        const displayMessages = (messages) => { chatMessages.innerHTML = messages.slice().reverse().map(msg => { if (msg.sender === 'GHOST') { return `<div class="p-2 my-1 text-center ghost-message"><p class="p-2 rounded-xl inline-block">${msg.text}</p></div>`; } const senderName = msg.sender.split('_')[0]; const senderClass = msg.sender === userId ? 'text-right' : 'text-left'; const bubbleClass = msg.sender === userId ? 'bg-fuchsia-600 ml-auto' : 'bg-cyan-600 mr-auto'; return `<div class="p-2 my-1 rounded-lg max-w-xs ${senderClass}"><p class="text-xs text-gray-400 mb-1">${senderName}</p><p class="${bubbleClass} p-2 rounded-xl inline-block">${msg.text}</p></div>`; }).join(''); };
-        const sendMessage = async (e) => { e.preventDefault(); const text = chatInput.value; if (text.trim() === '' || !currentRoomId) return; const roomRef = doc(db, 'rooms', currentRoomId); const roomDoc = await getDoc(roomRef); if (roomDoc.exists()) { const newMessages = [...(roomDoc.data().messages || []), { text, sender: userId, timestamp: serverTimestamp() }]; await updateDoc(roomRef, { messages: newMessages }); } chatInput.value = ''; };
-        const handleTrollEvent = (event) => { switch(event.type) { case 'jumpscare': jumpscareOverlay.classList.remove('hidden'); const synth = new Tone.NoiseSynth().toDestination(); synth.triggerAttackRelease("8n", Tone.now()); setTimeout(() => jumpscareOverlay.classList.add('hidden'), 500); break; case 'rickroll': rickrollOverlay.classList.remove('hidden'); remoteVideo.classList.add('hidden'); const rickSynth = new Tone.Synth().toDestination(); const now = Tone.now(); ['C4', 'D4', 'F4', 'D4', 'A4', 'A4', 'G4'].forEach((note, i) => { rickSynth.triggerAttackRelease(note, "8n", now + i * 0.2); }); setTimeout(() => { rickrollOverlay.classList.add('hidden'); remoteVideo.classList.remove('hidden'); }, 3000); break; case 'flip': mainContent.style.transform = 'rotate(180deg)'; setTimeout(() => mainContent.style.transform = 'none', 5000); break; } };
-        adminPanel.addEventListener('click', async (e) => { const target = e.target; if (target.matches('[data-troll]')) { const type = target.dataset.troll; const roomId = target.dataset.roomId; const targetId = target.dataset.targetId; await updateDoc(doc(db, 'rooms', roomId), { trollEvent: { type, targetId, timestamp: new Date() } }); } if (target.matches('[data-action]')) { const action = target.dataset.action; const roomId = target.dataset.roomId; if (action === 'end-chat') { await deleteDoc(doc(db, 'rooms', roomId)); } else if (action === 'ghost-msg') { const msg = prompt("Enter ghost message:"); if (msg) { const roomRef = doc(db, 'rooms', roomId); const roomDoc = await getDoc(roomRef); if (roomDoc.exists()) { const newMessages = [...(roomDoc.data().messages || []), { text: msg, sender: 'GHOST', timestamp: new Date() }]; await updateDoc(roomRef, { messages: newMessages }); } } } } });
-        startButton.onclick = start; hangupButton.onclick = hangup; nextButton.onclick = next; chatForm.onsubmit = sendMessage;
-        resetState();
-
+        }, 1000);
     </script>
+
 </body>
 </html>
