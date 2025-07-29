@@ -3,266 +3,477 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real-Time Music Sharing</title>
+    <title>TD Bank</title>
+    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Fira Sans & Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Open Iconic CSS for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" xintegrity="sha512-UyNhw5RNpQaC+DiPOz+kW12ZbA+y/iJ3Hw4NdIT+p/PzIstAbGKCFGuM2+2O5AWtC8AwQGZTjRU9/gG2Y2l53g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
+        /* Custom styles to complement Tailwind, inspired by template.css */
+        :root {
+            --primary-bg-color: #008000; /* TD Green */
+            --secondary-bg-color: #006400; /* Darker TD Green */
         }
-        .modal {
-            display: none;
+        body {
+            font-family: 'Fira Sans', sans-serif;
+            background-color: #ffffff;
+        }
+        h1, h2, h3, h4, h5, nav, nav a, .font-roboto {
+            font-family: 'Roboto', sans-serif;
+        }
+        .card {
+            background-color: #f5f5f5;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+            border-top: 4px solid var(--secondary-bg-color);
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .btn-primary {
+            background-color: var(--primary-bg-color);
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: var(--secondary-bg-color);
+        }
+        .badge-success { color: #166534; }
+        .badge-danger { color: #991b1b; }
+        .custom-header {
+             background-color: var(--primary-bg-color);
+             color: white;
+        }
+         .custom-header a, .custom-header h1 { color: white; }
+         .oi { line-height: 1; }
+        .modal-overlay {
             position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
         }
         .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 500px;
+            background: white;
+            padding: 2rem;
             border-radius: 0.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white">
+<body class="bg-white">
 
-    <div class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-purple-400">Collaborative Music Hub</h1>
-            <p class="text-gray-400 mt-2">Upload and share your MP3 files in real-time.</p>
-        </header>
+    <!-- Main Application Container -->
+    <div id="app">
 
-        <main>
-            <!-- User Info -->
-            <div id="userInfo" class="bg-gray-800 p-4 rounded-lg mb-6 text-center">
-                <p class="text-lg">Your User ID: <span id="userIdDisplay" class="font-mono bg-gray-700 px-2 py-1 rounded"></span></p>
-                <p class="text-sm text-gray-500 mt-2">Share this ID with your friend so they can identify your uploads.</p>
-            </div>
+        <!-- Login Page View -->
+        <div id="login-page">
+            <header class="custom-header shadow-sm">
+                <nav class="container mx-auto px-4 lg:px-8 flex justify-between items-center py-2">
+                    <div class="flex items-center space-x-3">
+                        <svg width="40" height="40" viewBox="0 0 138 138" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M69 0C30.885 0 0 30.885 0 69C0 107.115 30.885 138 69 138C107.115 138 138 107.115 138 69C138 30.885 107.115 0 69 0ZM100.585 43.61L89.835 32.86L69.345 53.35L48.855 32.86L38.105 43.61L58.595 64.1L38.105 84.59L48.855 95.34L69.345 74.85L89.835 95.34L100.585 84.59L80.095 64.1L100.585 43.61Z" fill="white"/></svg>
+                        <h1 class="text-2xl font-bold">TD Bank</h1>
+                    </div>
+                </nav>
+            </header>
 
-            <!-- File Upload Section -->
-            <div class="bg-gray-800 p-6 rounded-lg shadow-lg mb-8">
-                <h2 class="text-2xl font-semibold mb-4 text-purple-300">Upload a Song</h2>
-                <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-                    <input type="file" id="songFile" accept=".mp3" class="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 w-full text-gray-300">
-                    <button id="uploadButton" class="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-full transition duration-300 ease-in-out transform hover:scale-105">
-                        Upload
-                    </button>
+            <main class="container mx-auto px-4 lg:px-8 py-12">
+                 <div class="grid md:grid-cols-3 gap-12 items-center">
+                    <div class="md:col-span-1">
+                        <div class="bg-gray-100 p-8 rounded-lg shadow-md">
+                            <form id="login-form">
+                                <h2 class="text-2xl font-bold text-gray-900 mb-2 font-roboto">Online Banking</h2>
+                                <p class="text-gray-600 mb-6">Securely log in to your account.</p>
+                                <div class="space-y-4">
+                                    <input id="user-login" type="text" placeholder="Username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" required value="khem">
+                                    <input id="user-password" type="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500" required value="ist">
+                                </div>
+                                <button id="login-button" type="submit" class="w-full btn-primary mt-6">Log In</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 text-center md:text-left">
+                        <h2 class="text-4xl md:text-5xl font-bold text-gray-800 leading-tight font-roboto">Welcome to TD Bank</h2>
+                        <p class="mt-4 text-lg text-gray-600">Banking you can count on. Manage your accounts with ease and security.</p>
+                    </div>
                 </div>
-            </div>
+            </main>
+        </div>
 
-            <!-- Shared Music List -->
-            <div>
-                <h2 class="text-2xl font-semibold mb-4 text-purple-300">Shared Playlist</h2>
-                <div id="musicList" class="space-y-4">
-                    <!-- Music items will be dynamically inserted here -->
-                </div>
-            </div>
-        </main>
+        <!-- Account Page View (Initially Hidden) -->
+        <div id="account-page" class="hidden">
+            <header class="custom-header shadow-sm">
+                <nav class="container mx-auto px-4 lg:px-8 flex justify-between items-center py-2">
+                     <div class="flex items-center space-x-3">
+                        <svg width="40" height="40" viewBox="0 0 138 138" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M69 0C30.885 0 0 30.885 0 69C0 107.115 30.885 138 69 138C107.115 138 138 107.115 138 69C138 30.885 107.115 0 69 0ZM100.585 43.61L89.835 32.86L69.345 53.35L48.855 32.86L38.105 43.61L58.595 64.1L38.105 84.59L48.855 95.34L69.345 74.85L89.835 95.34L100.585 84.59L80.095 64.1L100.585 43.61Z" fill="white"/></svg>
+                        <h1 class="text-2xl font-bold">TD Bank</h1>
+                    </div>
+                    <button id="logout-button" class="font-medium text-white hover:underline">Logout</button>
+                </nav>
+            </header>
+
+            <main id="account-main-content" class="container mx-auto px-4 lg:px-8 py-12">
+                <!-- Dynamic Content will be rendered here -->
+            </main>
+        </div>
     </div>
-
-    <!-- Modal for notifications -->
-    <div id="notificationModal" class="modal">
-        <div class="modal-content bg-gray-800 text-white rounded-lg shadow-xl">
-            <h3 id="modalTitle" class="text-xl font-bold mb-4">Notification</h3>
-            <p id="modalMessage"></p>
-            <button id="modalClose" class="mt-6 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full w-full">Close</button>
+    
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4 font-roboto">Admin Login</h2>
+            <form id="admin-login-form">
+                <div class="space-y-4">
+                    <input id="admin-username" type="text" placeholder="Admin Username" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                    <input id="admin-password" type="password" placeholder="Admin Password" class="w-full p-3 border border-gray-300 rounded-lg" required>
+                </div>
+                 <p id="admin-error" class="text-red-500 text-sm mt-2 hidden">Invalid credentials.</p>
+                <div class="flex justify-end space-x-4 mt-6">
+                    <button type="button" id="admin-cancel-button" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300">Cancel</button>
+                    <button type="submit" class="btn-primary">Login</button>
+                </div>
+            </form>
         </div>
     </div>
 
+    <!-- Admin Panel Modal -->
+    <div id="admin-panel-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+             <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-gray-900 font-roboto">Admin Panel</h2>
+                <button id="admin-panel-close" class="text-gray-500 hover:text-gray-800">&times;</button>
+            </div>
+            <div class="space-y-6">
+                <!-- Add/Deduct Funds -->
+                <div class="p-4 border rounded-lg">
+                    <h3 class="font-semibold mb-2">Manage Funds</h3>
+                    <form id="funds-form" class="space-y-3">
+                        <select id="funds-account-select" class="w-full p-2 border rounded"></select>
+                        <input id="funds-amount" type="number" placeholder="Amount" class="w-full p-2 border rounded" required>
+                        <div class="flex space-x-2">
+                            <button type="submit" name="add" class="flex-1 btn-primary">Add Funds</button>
+                            <button type="submit" name="deduct" class="flex-1 bg-red-600 text-white p-2 rounded hover:bg-red-700">Deduct Funds</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- Add Card -->
+                <div class="p-4 border rounded-lg">
+                    <h3 class="font-semibold mb-2">Add New Card</h3>
+                    <form id="add-card-form" class="space-y-3">
+                        <select id="add-card-account-select" class="w-full p-2 border rounded"></select>
+                        <select id="add-card-type" class="w-full p-2 border rounded">
+                            <option value="Debit">Debit</option>
+                            <option value="Credit">Credit</option>
+                        </select>
+                        <button type="submit" class="w-full btn-primary">Add Card</button>
+                    </form>
+                </div>
+                <!-- Remove Card -->
+                <div class="p-4 border rounded-lg">
+                    <h3 class="font-semibold mb-2">Remove Card</h3>
+                    <form id="remove-card-form" class="space-y-3">
+                        <select id="remove-card-select" class="w-full p-2 border rounded"></select>
+                        <button type="submit" class="w-full bg-red-600 text-white p-2 rounded hover:bg-red-700">Remove Selected Card</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+    <!-- Generic Message Modal -->
+    <div id="message-modal" class="modal-overlay hidden">
+        <div class="modal-content text-center">
+            <h2 id="message-title" class="text-2xl font-bold text-gray-900 mb-2 font-roboto"></h2>
+            <p id="message-text" class="text-gray-600 mb-6"></p>
+            <button id="message-ok-button" class="btn-primary">OK</button>
+        </div>
+    </div>
 
-        // --- Firebase Configuration ---
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-        const firebaseConfig = {
-            apiKey: "AIzaSyAD9DB9cUSkgqHgsGaio1yHkmhwi5g-DsI",
-            authDomain: "daxddd-4f331.firebaseapp.com",
-            projectId: "daxddd-4f331",
-            storageBucket: "daxddd-4f331.appspot.com", // Corrected storage bucket format
-            messagingSenderId: "720284617047",
-            appId: "1:720284617047:web:d5f128539186a7e7551612",
-            measurementId: "G-PS88NDM6HZ"
+    <footer class="bg-gray-800 text-gray-400 mt-16">
+        <div class="container mx-auto px-4 lg:px-8 py-8 text-center text-sm">
+            <p>&copy; 2025 TD Bank. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        let state = {
+            currentUser: 'khem',
+            accounts: {
+                'khem': {
+                    fullName: 'Khem Ist',
+                    accounts: [
+                        { id: 1, name: 'Premium Checking', number: '...3198', balance: 15123.21 },
+                        { id: 2, name: 'Joint Savings', number: '...1329', balance: 59141.93 },
+                        { id: 3, name: 'Money Market', number: '...6993', balance: 507277.36 },
+                    ],
+                    cards: [
+                        { id: 1, type: 'Debit', number: '...4242' },
+                        { id: 2, type: 'Credit', number: '...5566' },
+                    ],
+                    transactions: [
+                        { date: 'Jul 27', desc: 'PAYPAL INST XFER', amt: -227.09 },
+                        { date: 'Jul 27', desc: 'Direct Deposit', amt: 846.33 },
+                    ]
+                }
+            }
         };
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'daxddd-4f331';
 
-        // --- Initialize Firebase ---
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        let userId = null;
-
-        // --- UI Elements ---
-        const userIdDisplay = document.getElementById('userIdDisplay');
-        const uploadButton = document.getElementById('uploadButton');
-        const songFileInput = document.getElementById('songFile');
-        const musicList = document.getElementById('musicList');
+        // --- DOM Element References ---
+        const loginPage = document.getElementById('login-page');
+        const accountPage = document.getElementById('account-page');
+        const accountMainContent = document.getElementById('account-main-content');
+        const loginForm = document.getElementById('login-form');
+        const logoutButton = document.getElementById('logout-button');
         
-        // --- Modal Elements ---
-        const modal = document.getElementById('notificationModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const modalClose = document.getElementById('modalClose');
+        // Modals
+        const adminLoginModal = document.getElementById('admin-login-modal');
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const adminCancelButton = document.getElementById('admin-cancel-button');
+        const adminError = document.getElementById('admin-error');
+        const adminPanelModal = document.getElementById('admin-panel-modal');
+        const adminPanelClose = document.getElementById('admin-panel-close');
+        
+        const messageModal = document.getElementById('message-modal');
+        const messageTitle = document.getElementById('message-title');
+        const messageText = document.getElementById('message-text');
+        const messageOkButton = document.getElementById('message-ok-button');
 
-        // --- Modal Logic ---
-        function showModal(title, message) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modal.style.display = 'flex';
+        // Admin Panel Forms
+        const fundsForm = document.getElementById('funds-form');
+        const addCardForm = document.getElementById('add-card-form');
+        const removeCardForm = document.getElementById('remove-card-form');
+
+        // --- RENDER FUNCTIONS ---
+        function renderAccountPage() {
+            const user = state.accounts[state.currentUser];
+            if (!user) return;
+
+            accountMainContent.innerHTML = `
+                <div class="mb-8 p-4 bg-gray-100 rounded-lg">
+                    <h2 class="text-3xl font-bold text-gray-800 font-roboto">Welcome Back, ${user.fullName}!</h2>
+                </div>
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-1 space-y-8">
+                        ${renderCardsSection(user.cards)}
+                    </div>
+                    <div class="lg:col-span-2 space-y-8">
+                        ${renderAccountsSection(user.accounts)}
+                        ${renderTransactionsSection(user.transactions)}
+                    </div>
+                </div>
+            `;
         }
 
-        modalClose.onclick = function() {
-            modal.style.display = 'none';
+        function renderAccountsSection(accounts) {
+            return `
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4 font-roboto">Your Accounts</h3>
+                    <div class="space-y-4">
+                        ${accounts.map(acc => `
+                            <div class="p-4 bg-white rounded-lg flex justify-between items-center">
+                                <div>
+                                    <p class="font-semibold text-gray-700">${acc.name} <span class="text-gray-400">${acc.number}</span></p>
+                                    <p class="text-3xl font-bold text-gray-900 mt-1">$${acc.balance.toFixed(2)}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
         }
-        window.onclick = function(event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
+
+        function renderCardsSection(cards) {
+             return `
+                <div class="card p-6">
+                    <h3 class="font-bold text-lg text-gray-800 mb-4 font-roboto">Your Cards</h3>
+                    <div class="space-y-3">
+                        ${cards.map(card => `
+                            <div class="p-3 bg-white rounded-lg">
+                                <p class="font-semibold">${card.type} Card</p>
+                                <p class="text-gray-600">**** **** **** ${card.number.slice(-4)}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderTransactionsSection(transactions) {
+            return `
+                <div class="card p-6">
+                     <h3 class="font-bold text-lg text-gray-800 mb-4 font-roboto">Recent Transactions</h3>
+                     <div class="overflow-x-auto">
+                         <table class="w-full text-left">
+                             <thead><tr class="border-b-2">
+                                 <th class="p-3 text-sm">Date</th>
+                                 <th class="p-3 text-sm">Description</th>
+                                 <th class="p-3 text-sm text-right">Amount</th>
+                             </tr></thead>
+                             <tbody>
+                                ${transactions.map(t => `
+                                 <tr class="border-b">
+                                     <td class="p-3">${t.date}</td>
+                                     <td class="p-3">${t.desc}</td>
+                                     <td class="p-3 text-right font-bold ${t.amt > 0 ? 'badge-success' : 'badge-danger'}">$${t.amt.toFixed(2)}</td>
+                                 </tr>
+                                `).join('')}
+                             </tbody>
+                         </table>
+                     </div>
+                </div>
+            `;
         }
 
-        // --- Authentication ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                userId = user.uid;
-                userIdDisplay.textContent = userId;
-                console.log("User is signed in with UID:", userId);
-                listenForMusic();
-            } else {
-                console.log("No user signed in. Attempting to sign in.");
-                try {
-                    // In a real app, you might use a different sign-in method
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    console.error("Error during sign-in:", error);
-                    showModal("Authentication Error", "Could not sign in. Please refresh the page.");
-                }
-            }
-        });
+        // --- UTILITY & HELPER FUNCTIONS ---
+        function showMessage(title, text) {
+            messageTitle.textContent = title;
+            messageText.textContent = text;
+            messageModal.classList.remove('hidden');
+        }
 
-        // --- File Upload Logic ---
-        uploadButton.addEventListener('click', async () => {
-            if (!userId) {
-                showModal("Error", "You must be signed in to upload music.");
-                return;
-            }
-            const file = songFileInput.files[0];
-            if (!file) {
-                showModal("No File Selected", "Please select an MP3 file to upload.");
-                return;
-            }
-            if (file.type !== "audio/mpeg") {
-                showModal("Invalid File Type", "Please upload only MP3 files.");
-                return;
-            }
-
-            uploadButton.disabled = true;
-            uploadButton.textContent = 'Uploading...';
-            showModal("Upload In Progress", `Uploading "${file.name}"...`);
-
-            try {
-                // 1. Upload to Firebase Storage
-                const storagePath = `artifacts/${appId}/public/music/${userId}/${file.name}`;
-                const storageRef = ref(storage, storagePath);
-                const snapshot = await uploadBytes(storageRef, file);
-                console.log('Uploaded a blob or file!', snapshot);
-
-                // 2. Get Download URL
-                const downloadURL = await getDownloadURL(snapshot.ref);
-                console.log('File available at', downloadURL);
-
-                // 3. Save metadata to Firestore
-                const musicCollectionRef = collection(db, `artifacts/${appId}/public/data/music`);
-                await addDoc(musicCollectionRef, {
-                    uploaderId: userId,
-                    fileName: file.name,
-                    url: downloadURL,
-                    createdAt: serverTimestamp()
-                });
-
-                showModal("Success!", `"${file.name}" has been uploaded and shared.`);
-                songFileInput.value = ''; // Reset file input
-
-            } catch (error) {
-                console.error("Upload failed:", error);
-                showModal("Upload Failed", "There was an error uploading your file. Please try again.");
-            } finally {
-                uploadButton.disabled = false;
-                uploadButton.textContent = 'Upload';
-            }
-        });
-
-        // --- Real-time Music List Listener ---
-        function listenForMusic() {
-            const musicCollectionRef = collection(db, `artifacts/${appId}/public/data/music`);
+        function populateAdminSelects() {
+            const fundsAccountSelect = document.getElementById('funds-account-select');
+            const addCardAccountSelect = document.getElementById('add-card-account-select');
+            const removeCardSelect = document.getElementById('remove-card-select');
             
-            onSnapshot(musicCollectionRef, (snapshot) => {
-                console.log("Received music list update.");
-                musicList.innerHTML = ''; // Clear current list
-                const docs = snapshot.docs;
-                // Sort documents by creation time, newest first
-                const sortedDocs = docs.sort((a, b) => {
-                    const timeA = a.data().createdAt?.toMillis() || 0;
-                    const timeB = b.data().createdAt?.toMillis() || 0;
-                    return timeB - timeA;
-                });
+            fundsAccountSelect.innerHTML = '';
+            addCardAccountSelect.innerHTML = '';
+            removeCardSelect.innerHTML = '';
 
-                if (sortedDocs.length === 0) {
-                    musicList.innerHTML = '<p class="text-gray-500 text-center">No music has been shared yet. Be the first!</p>';
-                } else {
-                    sortedDocs.forEach(doc => {
-                        renderMusicItem(doc.data());
-                    });
-                }
-            }, (error) => {
-                console.error("Error listening to music collection:", error);
-                showModal("Connection Error", "Could not fetch the shared playlist. Check your connection and refresh.");
+            const user = state.accounts[state.currentUser];
+            user.accounts.forEach(acc => {
+                const option = `<option value="${acc.id}">${acc.name} (${acc.number})</option>`;
+                fundsAccountSelect.innerHTML += option;
+                addCardAccountSelect.innerHTML += option;
+            });
+
+            user.cards.forEach(card => {
+                removeCardSelect.innerHTML += `<option value="${card.id}">${card.type} - ${card.number}</option>`;
             });
         }
 
-        // --- Render a single music item in the UI ---
-        function renderMusicItem(data) {
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'bg-gray-800 p-4 rounded-lg flex flex-col sm:flex-row justify-between items-center shadow-md';
 
-            const infoDiv = document.createElement('div');
-            
-            const fileNameP = document.createElement('p');
-            fileNameP.className = 'font-semibold text-lg text-purple-300';
-            fileNameP.textContent = data.fileName;
-
-            const uploaderP = document.createElement('p');
-            uploaderP.className = 'text-sm text-gray-400 mt-1';
-            uploaderP.innerHTML = `Uploaded by: <span class="font-mono bg-gray-700 px-1.5 py-0.5 rounded">${data.uploaderId}</span>`;
-
-            infoDiv.appendChild(fileNameP);
-            infoDiv.appendChild(uploaderP);
-
-            const downloadLink = document.createElement('a');
-            downloadLink.href = data.url;
-            downloadLink.target = '_blank'; // Open in new tab
-            downloadLink.download = data.fileName;
-            downloadLink.className = 'mt-4 sm:mt-0 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out';
-            downloadLink.textContent = 'Download';
-
-            itemDiv.appendChild(infoDiv);
-            itemDiv.appendChild(downloadLink);
-
-            musicList.appendChild(itemDiv);
+        // --- EVENT HANDLERS ---
+        function handleLogin(e) {
+            e.preventDefault();
+            // In a real app, you'd validate credentials. Here we just log in.
+            loginPage.classList.add('hidden');
+            accountPage.classList.remove('hidden');
+            renderAccountPage();
+            window.scrollTo(0, 0);
         }
 
+        function handleLogout() {
+            accountPage.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            if (adminLoginModal.classList.contains('hidden')) return;
+            
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+
+            if (username === 'khem' && password === 'ist') {
+                adminLoginModal.classList.add('hidden');
+                adminError.classList.add('hidden');
+                adminLoginForm.reset();
+                populateAdminSelects();
+                adminPanelModal.classList.remove('hidden');
+            } else {
+                adminError.classList.remove('hidden');
+            }
+        }
+        
+        function handleFundsForm(e) {
+            e.preventDefault();
+            const accountId = parseInt(document.getElementById('funds-account-select').value);
+            const amount = parseFloat(document.getElementById('funds-amount').value);
+            const action = e.submitter.name;
+
+            const account = state.accounts[state.currentUser].accounts.find(a => a.id === accountId);
+            if(account && amount > 0) {
+                if(action === 'add') {
+                    account.balance += amount;
+                    showMessage('Success', `Added $${amount.toFixed(2)} to ${account.name}.`);
+                } else if (action === 'deduct') {
+                    account.balance -= amount;
+                     showMessage('Success', `Deducted $${amount.toFixed(2)} from ${account.name}.`);
+                }
+                renderAccountPage();
+                fundsForm.reset();
+            }
+        }
+
+        function handleAddCard(e) {
+            e.preventDefault();
+            const cardType = document.getElementById('add-card-type').value;
+            const user = state.accounts[state.currentUser];
+            const newCardId = user.cards.length > 0 ? Math.max(...user.cards.map(c => c.id)) + 1 : 1;
+            const newCardNumber = `...${Math.floor(1000 + Math.random() * 9000)}`;
+            
+            user.cards.push({ id: newCardId, type: cardType, number: newCardNumber });
+            
+            renderAccountPage();
+            populateAdminSelects();
+            showMessage('Success', `New ${cardType} card added.`);
+        }
+
+        function handleRemoveCard(e) {
+            e.preventDefault();
+            const cardIdToRemove = parseInt(document.getElementById('remove-card-select').value);
+            const user = state.accounts[state.currentUser];
+            user.cards = user.cards.filter(c => c.id !== cardIdToRemove);
+
+            renderAccountPage();
+            populateAdminSelects();
+            showMessage('Success', `Card has been removed.`);
+        }
+
+
+        // --- EVENT LISTENERS ---
+        loginForm.addEventListener('submit', handleLogin);
+        logoutButton.addEventListener('click', handleLogout);
+
+        document.addEventListener('keydown', (e) => {
+            // Add a check to ensure e.key is not undefined before calling toLowerCase()
+            if (e && e.key && e.key.toLowerCase() === 'p') {
+                e.preventDefault();
+                adminLoginModal.classList.remove('hidden');
+            }
+        });
+
+        adminLoginForm.addEventListener('submit', handleAdminLogin);
+        adminCancelButton.addEventListener('click', () => {
+            adminLoginModal.classList.add('hidden');
+            adminError.classList.add('hidden');
+            adminLoginForm.reset();
+        });
+        adminPanelClose.addEventListener('click', () => adminPanelModal.classList.add('hidden'));
+
+        messageOkButton.addEventListener('click', () => messageModal.classList.add('hidden'));
+
+        fundsForm.addEventListener('submit', handleFundsForm);
+        addCardForm.addEventListener('submit', handleAddCard);
+        removeCardForm.addEventListener('submit', handleRemoveCard);
+
     </script>
+
 </body>
 </html>
