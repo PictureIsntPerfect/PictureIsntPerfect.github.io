@@ -3,312 +3,552 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web OS '98 - Networked Edition</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <title>Rated-R Blackjack</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* General Styles */
-        body, html {
-            height: 100%; margin: 0; padding: 0; background-color: #000;
-            font-family: 'VT323', monospace; overflow: hidden;
-            cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAADFJREFUOE9jZKAQMFKon2HUAAYsYPgAASsY1jBw4AIwiqA5A/aBGIjTjEwGKgAALMkA+wLhM+MAAAAASUVORK5CYII='), auto;
+        body {
+            font-family: 'Poppins', sans-serif;
+            touch-action: manipulation; /* Prevents double-tap zoom on mobile */
         }
-        .screen { display: none; width: 100%; height: 100%; box-sizing: border-box; }
-        #boot-screen { display: block; background-color: #000080; color: #c0c0c0; padding: 20px; font-size: 18px; line-height: 1.5; white-space: pre-wrap; }
-        #boot-screen .cursor { display: inline-block; background-color: #c0c0c0; width: 10px; height: 18px; animation: blink 1s step-end infinite; }
-        @keyframes blink { 50% { opacity: 0; } }
-        #login-screen { background-color: #008080; display: none; justify-content: center; align-items: center; }
-        .login-box { background-color: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; padding: 20px; width: 300px; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); }
-        .login-box h1 { background-color: #000080; color: #ffffff; padding: 5px; margin: -20px -20px 20px -20px; font-size: 24px; text-align: center; }
-        .login-box label { display: block; margin-bottom: 5px; font-size: 18px; }
-        .login-box input { width: calc(100% - 10px); padding: 5px; border: 2px solid; border-color: #808080 #ffffff #ffffff #808080; font-family: 'VT323', monospace; font-size: 18px; margin-bottom: 15px; }
-        .login-box button { width: 100px; padding: 8px; font-family: 'VT323', monospace; font-size: 18px; background-color: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; box-shadow: 2px 2px 0px rgba(0,0,0,0.5); cursor: pointer; }
-        .login-box button:active { border-color: #808080 #ffffff #ffffff #808080; box-shadow: none; transform: translate(2px, 2px); }
-        #desktop { background-color: #008080; height: 100%; position: relative; display: flex; flex-direction: column; flex-wrap: wrap; align-content: flex-start; transition: background-color 0.5s, filter 0.5s; }
-        .desktop-icon { color: white; text-align: center; width: 100px; padding: 10px; cursor: pointer; }
-        .desktop-icon:hover { background-color: rgba(0, 0, 128, 0.5); border: 1px dotted #fff; }
-        .desktop-icon img { width: 50px; height: 50px; margin-bottom: 5px; }
-        .window { display: none; position: absolute; background-color: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); resize: both; overflow: hidden; min-width: 300px; min-height: 200px; }
-        .window-header { background-color: #000080; color: #ffffff; padding: 5px; font-size: 20px; cursor: move; display: flex; justify-content: space-between; align-items: center; height: 24px; }
-        .window-controls button { width: 20px; height: 20px; font-family: 'VT323', monospace; font-size: 16px; line-height: 10px; background-color: #c0c0c0; border: 1px solid; border-color: #ffffff #808080 #808080 #ffffff; box-shadow: 1px 1px 0px rgba(0,0,0,0.5); cursor: pointer; }
-        .window-controls button:active { border-color: #808080 #ffffff #ffffff #808080; box-shadow: none; transform: translate(1px, 1px); }
-        .window-body { padding: 2px; height: calc(100% - 34px); box-sizing: border-box; overflow: auto; }
-        .taskbar { position: absolute; bottom: 0; left: 0; width: 100%; height: 40px; background-color: #c0c0c0; border-top: 2px solid #ffffff; display: flex; align-items: center; z-index: 10000; }
-        .start-button { font-family: 'VT323', monospace; font-size: 20px; font-weight: bold; padding: 5px 15px; margin: 5px; background-color: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; box-shadow: 2px 2px 0px rgba(0,0,0,0.5); }
-        .clock { margin-left: auto; margin-right: 5px; padding: 5px 10px; border: 2px solid; border-color: #808080 #ffffff #ffffff #808080; font-size: 18px; }
-        #admin-menu { display: none; position: absolute; background: #c0c0c0; border: 2px solid; border-color: #ffffff #808080 #808080 #ffffff; box-shadow: 2px 2px 0px rgba(0,0,0,0.5); padding: 2px; z-index: 20000; }
-        #admin-menu div { padding: 5px 20px; cursor: pointer; }
-        #admin-menu div:hover { background: #000080; color: white; }
-        #bsod, #fake-error-window, #shared-image-container { display: none; position: fixed; z-index: 99999; }
-        #bsod { top: 0; left: 0; width: 100%; height: 100%; background: #0000AA; color: white; font-family: 'VT323', monospace; font-size: 24px; text-align: center; padding-top: 10%; }
-        #bsod p { margin: 20px; } #bsod button { font-family: 'VT323', monospace; font-size: 24px; padding: 10px; }
-        #fake-error-window { top: 50%; left: 50%; transform: translate(-50%, -50%); }
-        #shared-image-container { top: 50%; left: 50%; transform: translate(-50%, -50%); background: #c0c0c0; padding: 15px; border: 2px solid; border-color: #fff #808080 #808080 #fff; box-shadow: 5px 5px 0px rgba(0,0,0,0.5); }
-        #shared-image-container img { max-width: 80vw; max-height: 80vh; display: block; }
-        #shared-image-container .close-button { position: absolute; top: -10px; right: -10px; }
-        .user-id-display { padding: 5px 10px; font-size: 16px; color: #fff; background: #000080; }
+        .card {
+            width: 80px;
+            height: 120px;
+            border-radius: 8px;
+            background-color: white;
+            border: 1px solid #B0B0B0;
+            box-shadow: 3px 3px 7px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 8px;
+            font-size: 24px;
+            font-weight: 600;
+            position: relative;
+            transition: transform 0.3s ease-in-out;
+        }
+        .card.red { color: #D92D20; }
+        .card.black { color: #101828; }
+        .card-back {
+            background: repeating-linear-gradient(
+                45deg,
+                #4B5563,
+                #4B5563 10px,
+                #6B7280 10px,
+                #6B7280 20px
+            );
+        }
+        .card .suit {
+            font-size: 20px;
+            line-height: 1;
+        }
+        .card .rank-bottom {
+            transform: rotate(180deg);
+        }
+        .btn-action {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        .btn-action:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        #dealer-face {
+            transition: transform 0.3s ease;
+        }
     </style>
 </head>
-<body>
+<body class="bg-gray-800 text-white flex items-center justify-center min-h-screen p-4">
 
-    <!-- Screens -->
-    <div id="boot-screen" class="screen"><div id="boot-text"></div><span class="cursor">_</span></div>
-    <div id="login-screen" class="screen"><div class="login-box"><h1>Web OS '98 - Login</h1><label for="username">Username:</label><input type="text" id="username" value="guest"><label for="password">Password:</label><input type="password" id="password"><div style="text-align: center;"><button id="login-button">Login</button></div></div></div>
-    <div id="bsod"><p>A fatal exception 0E has occurred...</p><button onclick="location.reload()">Reboot</button></div>
-
-    <!-- Desktop -->
-    <div id="desktop" class="screen">
-        <!-- Icons -->
-        <div class="desktop-icon" id="browser-icon"><img src="https://placehold.co/50x50/c0c0c0/000080?text=Net" alt="Browser Icon"><div>NetWanderer</div></div>
-        <div class="desktop-icon" id="paul-folder-icon"><img src="https://placehold.co/50x50/FFFF00/000000?text=PAUL" alt="Folder Icon"><div>paul</div></div>
-        <div class="desktop-icon" id="textpad-icon"><img src="https://placehold.co/50x50/FFFFFF/000000?text=TXT" alt="TextPad Icon"><div>TextPad</div></div>
-        <div class="desktop-icon" id="brickbuster-icon"><img src="https://placehold.co/50x50/FF0000/FFFFFF?text=B" alt="BrickBuster Icon"><div>BrickBuster</div></div>
-
-        <!-- All other windows from previous version are omitted for brevity but should be here -->
-        <div id="browser-window" class="window" style="top: 50px; left: 150px; width: 600px; height: 400px;">...</div>
-        <div id="file-explorer-window" class="window" style="top: 100px; left: 200px; width: 500px; height: 400px;">...</div>
-        <div id="textpad-window" class="window" style="top: 150px; left: 250px; width: 600px; height: 450px;">...</div>
-        <div id="brickbuster-window" class="window" style="top: 80px; left: 300px; width: 484px; height: 500px; resize: none;">...</div>
+    <div id="game-container" class="w-full max-w-4xl mx-auto bg-green-800 border-8 border-yellow-700 rounded-3xl shadow-2xl p-4 md:p-8 relative">
         
-        <!-- Troll Windows -->
-        <div id="fake-error-window" class="window" style="width: 400px; height: 200px; resize:none;">
-             <div class="window-header"><span>System Error</span><div class="window-controls"><button class="close-button">X</button></div></div>
-             <div class="window-body" style="display:flex; align-items:center; justify-content:center; text-align:center; font-size:18px;">
-                <p id="fake-error-message">An unspecified error has occurred in a critical system component.</p>
-             </div>
-        </div>
-        
-        <div id="shared-image-container">
-            <img id="shared-image-element" src="" alt="Shared Image">
-            <button class="close-button" id="shared-image-close-button">X</button>
+        <!-- Loading Spinner -->
+        <div id="loading-overlay" class="absolute inset-0 bg-black bg-opacity-75 flex-col items-center justify-center z-50 hidden">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-white"></div>
+            <p class="mt-4 text-xl">Dealer is warming up his insults...</p>
         </div>
 
-
-        <!-- Hidden Admin Menu -->
-        <div id="admin-menu">
-            <div id="admin-colors">Change BG Color</div>
-            <div id="admin-share-image">Share Image</div>
-            <hr>
-            <div id="admin-troll-error">Troll: Fake Error</div>
-            <div id="admin-troll-invert">Troll: Invert Screen</div>
-            <div id="admin-troll-beep">Troll: Annoying Beep</div>
-            <div id="admin-crash">Troll: Crash System</div>
-            <hr>
-            <div id="admin-reset">Reset All Trolls</div>
+        <!-- Dealer Area -->
+        <div class="dealer-area text-center mb-8 min-h-[250px] md:min-h-[280px]">
+            <h2 class="text-2xl font-bold mb-2 text-yellow-300">Dealer's Hand: <span id="dealer-score"></span></h2>
+            <div class="relative flex justify-center items-end h-48">
+                <!-- Dealer Face -->
+                <div class="absolute -top-4 md:-top-8 z-10">
+                    <svg id="dealer-face" width="120" height="120" viewBox="0 0 120 120">
+                        <circle cx="60" cy="60" r="55" fill="#FDE047" stroke="#B45309" stroke-width="4"/>
+                        <circle cx="45" cy="50" r="8" fill="black" id="eye-left"/>
+                        <circle cx="75" cy="50" r="8" fill="black" id="eye-right"/>
+                        <path id="mouth" d="M 40 85 Q 60 95 80 85" stroke="black" stroke-width="5" fill="none" stroke-linecap="round"/>
+                        <path id="eyebrow-left" d="M 35 38 Q 45 32 55 38" stroke="black" stroke-width="5" fill="none" stroke-linecap="round" />
+                        <path id="eyebrow-right" d="M 65 38 Q 75 32 85 38" stroke="black" stroke-width="5" fill="none" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <!-- Dealer Cards -->
+                <div id="dealer-cards" class="flex justify-center items-center space-x-2 relative z-0 mt-20"></div>
+            </div>
         </div>
-        <input type="file" id="image-upload-input" style="display:none;" accept="image/*">
 
-        <div class="taskbar">
-            <button class="start-button">Start</button>
-            <div class="user-id-display" id="user-id-display">Connecting...</div>
-            <div class="clock" id="clock"></div>
+        <!-- Message Area -->
+        <div class="text-center my-4 min-h-[60px]">
+             <p id="message" class="text-xl md:text-2xl font-bold text-yellow-100 h-full flex items-center justify-center"></p>
+        </div>
+
+        <!-- Player Area -->
+        <div class="player-area text-center mt-8">
+            <h2 class="text-2xl font-bold mb-4 text-yellow-300">Your Hand: <span id="player-score"></span></h2>
+            <div id="player-cards" class="flex justify-center items-center space-x-2 min-h-[120px]"></div>
+        </div>
+
+        <!-- Controls -->
+        <div id="controls" class="flex justify-center space-x-4 mt-8">
+            <button id="btn-start" class="btn-action bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl">Start Game</button>
+            <button id="btn-hit" class="btn-action bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl hidden">Hit</button>
+            <button id="btn-stand" class="btn-action bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl hidden">Stand</button>
+            <button id="btn-new-game" class="btn-action bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg text-xl hidden">New Game</button>
         </div>
     </div>
+    <audio id="voice-line-audio" style="display: none;"></audio>
 
-    <script type="module">
-        // Firebase Imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <script>
+        // DOM Elements
+        const dealerCardsEl = document.getElementById('dealer-cards');
+        const playerCardsEl = document.getElementById('player-cards');
+        const dealerScoreEl = document.getElementById('dealer-score');
+        const playerScoreEl = document.getElementById('player-score');
+        const messageEl = document.getElementById('message');
+        const btnStart = document.getElementById('btn-start');
+        const btnHit = document.getElementById('btn-hit');
+        const btnStand = document.getElementById('btn-stand');
+        const btnNewGame = document.getElementById('btn-new-game');
+        const controlsEl = document.getElementById('controls');
+        const audioPlayer = document.getElementById('voice-line-audio');
+        const loadingOverlay = document.getElementById('loading-overlay');
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            // --- GLOBAL ELEMENTS & STATE ---
-            const desktopScreen = document.getElementById('desktop');
-            let maxZIndex = 100;
-            let mouseX = 0, mouseY = 0;
-            let db, auth, userId;
-            let annoyingBeep;
+        // Dealer Face SVG elements
+        const dealerFace = document.getElementById('dealer-face');
+        const dealerMouth = document.getElementById('mouth');
+        const dealerEyebrowLeft = document.getElementById('eyebrow-left');
+        const dealerEyebrowRight = document.getElementById('eyebrow-right');
 
-            // --- FIREBASE SETUP ---
-            async function setupFirebase() {
-                try {
-                    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-                    const firebaseConfig = {
-                      apiKey: "AIzaSyBwgZ8QrjwdLoDbblw2H-ZLKQJL-Xe_C2I",
-                      authDomain: "fir-shit-c2332.firebaseapp.com",
-                      projectId: "fir-shit-c2332",
-                      storageBucket: "fir-shit-c2332.appspot.com",
-                      messagingSenderId: "791874114474",
-                      appId: "1:791874114474:web:a28622c39d446c47b151d3",
-                      measurementId: "G-XSZGX2WZJ3"
+        // Game State
+        let deck = [];
+        let dealerHand = [];
+        let playerHand = [];
+        let dealerScore = 0;
+        let playerScore = 0;
+        let gameOver = false;
+        let isSpeaking = false;
+
+        const voiceLines = {
+            start: [
+                "Alright, let's see how quickly you can donate your lunch money to me.",
+                "Look what the cat dragged in. Ready to lose?",
+                "Oh, it's you. I was hoping for a real challenge. Oh well.",
+                "Let's get this over with. I've got important things to do, like watching paint dry."
+            ],
+            player_hit: [
+                "Feeling lucky, punk? Or just stupid?",
+                "Another card? You've got the decision-making skills of a squirrel in traffic.",
+                "Sure, hit. It's your funeral.",
+                "You really want another card? Bold move. Let's see if it pays off, Cotton."
+            ],
+            player_bust: [
+                "Bust! Shocker. I haven't seen a performance that bad since my nephew's recorder recital.",
+                "And that's a bust. You went over 21. It's not an age competition, genius.",
+                "Wow. You're mathematically gifted... at failing.",
+                "Busted. You flew too close to the sun on wings made of stupid."
+            ],
+            player_stand: [
+                "Standing? Scared money don't make money. But in your case, it won't make a difference.",
+                "Finally made a decision. Let's see how terrible it was.",
+                "Quitting while you're ahead? Or just quitting while you're... you.",
+            ],
+            player_win: [
+                "You won. Great. Don't let it go to your head. It's a big head, but there's not much in it.",
+                "Ugh, you won. Fine. Here. Try not to spend it all in one place, like on another terrible shirt.",
+                "A winner is you. Must be a glitch in the matrix. Enjoy it while it lasts."
+            ],
+            player_blackjack: [
+                "A blackjack? Well, even a blind pig finds an acorn once in a while. Don't get used to it.",
+                "Blackjack. I'm not even mad, I'm just disappointed... in my luck, not you. You're still a loser.",
+            ],
+            dealer_win: [
+                "And I win. Of course, I win. It's what I do. Now scram.",
+                "House wins. Better luck next time... for me, I mean. I love taking your money.",
+                "Was there ever any doubt? I'm a professional, you're... well, you're you.",
+                "And the student fails to become the master. Or even the apprentice. Or even the janitor."
+            ],
+            push: [
+                "A push. You got lucky. I'm letting you keep your money out of pity.",
+                "We tied. It's like kissing your sister... except you're still a loser.",
+                "A push. How boring. Can we get back to me winning now?"
+            ]
+        };
+        
+        // --- TTS and Animation ---
+
+        function setDealerExpression(expression) {
+            // Reset to neutral first
+            dealerMouth.setAttribute('d', 'M 40 85 Q 60 95 80 85');
+            dealerEyebrowLeft.setAttribute('d', 'M 35 38 Q 45 32 55 38');
+            dealerEyebrowRight.setAttribute('d', 'M 65 38 Q 75 32 85 38');
+            dealerFace.style.transform = 'translateY(0) rotate(0deg)';
+
+            switch(expression) {
+                case 'smug':
+                    dealerMouth.setAttribute('d', 'M 40 85 C 50 80, 70 80, 80 85');
+                    dealerEyebrowLeft.setAttribute('d', 'M 35 40 Q 45 35 55 35');
+                    dealerEyebrowRight.setAttribute('d', 'M 65 35 Q 75 30 85 35');
+                    break;
+                case 'angry':
+                    dealerMouth.setAttribute('d', 'M 40 90 Q 60 80 80 90');
+                    dealerEyebrowLeft.setAttribute('d', 'M 35 35 Q 45 42 55 35');
+                    dealerEyebrowRight.setAttribute('d', 'M 65 35 Q 75 42 85 35');
+                    dealerFace.style.transform = 'translateY(5px) rotate(-2deg)';
+                    break;
+                case 'surprised':
+                    dealerMouth.setAttribute('d', 'M 50 85 Q 60 95 70 85');
+                    dealerEyebrowLeft.setAttribute('d', 'M 35 32 Q 45 25 55 32');
+                    dealerEyebrowRight.setAttribute('d', 'M 65 32 Q 75 25 85 32');
+                    dealerFace.style.transform = 'translateY(-5px)';
+                    break;
+                case 'talking':
+                    // Animate mouth while talking
+                    let talking = true;
+                    let up = true;
+                    const talkAnim = () => {
+                        if (!isSpeaking) return;
+                        if (up) {
+                            dealerMouth.setAttribute('d', 'M 45 85 Q 60 100 75 85');
+                        } else {
+                            dealerMouth.setAttribute('d', 'M 40 85 Q 60 90 80 85');
+                        }
+                        up = !up;
+                        setTimeout(talkAnim, 150);
                     };
-                    
-                    const app = initializeApp(firebaseConfig);
-                    db = getFirestore(app);
-                    auth = getAuth(app);
+                    talkAnim();
+                    break;
+            }
+        }
 
-                    await signInAnonymously(auth);
-                    
-                    userId = auth.currentUser.uid;
-                    document.getElementById('user-id-display').textContent = `ID: ${userId}`;
+        async function speak(eventType) {
+            if (isSpeaking) return;
+            isSpeaking = true;
+            
+            const lines = voiceLines[eventType];
+            const textToSpeak = lines[Math.floor(Math.random() * lines.length)];
+            messageEl.textContent = textToSpeak;
 
-                    // This is the core of the real-time functionality
-                    listenForUpdates();
-                } catch (error) {
-                    console.error("Firebase initialization failed:", error);
-                    document.getElementById('user-id-display').textContent = "Connection Failed";
+            setDealerExpression('talking');
+
+            loadingOverlay.style.display = 'flex';
+            
+            try {
+                const payload = {
+                    contents: [{ parts: [{ text: `Say in a gravelly, condescending, casual, and slightly bored voice: ${textToSpeak}` }] }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: "Zubenelgenubi" } } }
+                    },
+                    model: "gemini-2.5-flash-preview-tts"
+                };
+                const apiKey = ""; // API key is handled by the environment
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+                
+                const result = await response.json();
+                const part = result?.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType;
+
+                if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                    const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                    const sampleRate = sampleRateMatch ? parseInt(sampleRateMatch[1], 10) : 24000;
+                    const pcmData = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmData);
+                    const wavBlob = pcmToWav(pcm16, 1, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    audioPlayer.src = audioUrl;
+                    await audioPlayer.play();
+                } else {
+                    throw new Error("No valid audio data received from API.");
+                }
+
+            } catch (error) {
+                console.error("TTS Error:", error);
+                // Fallback to just displaying text if TTS fails
+                isSpeaking = false;
+                setDealerExpression('angry');
+            } finally {
+                loadingOverlay.style.display = 'none';
+            }
+        }
+
+        audioPlayer.onended = () => {
+            isSpeaking = false;
+            // Set expression based on game outcome
+            if (gameOver) {
+                if (playerScore > 21 || (dealerScore <= 21 && dealerScore > playerScore)) {
+                    setDealerExpression('smug');
+                } else {
+                    setDealerExpression('angry');
+                }
+            } else {
+                 setDealerExpression('neutral');
+            }
+        };
+
+        // --- Audio Conversion Helpers ---
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        function pcmToWav(pcmData, numChannels, sampleRate) {
+            const buffer = new ArrayBuffer(44 + pcmData.length * 2);
+            const view = new DataView(buffer);
+
+            function writeString(view, offset, string) {
+                for (let i = 0; i < string.length; i++) {
+                    view.setUint8(offset + i, string.charCodeAt(i));
                 }
             }
-            
-            // --- REAL-TIME LISTENER ---
-            function listenForUpdates() {
-                const stateDocRef = doc(db, "artifacts/retro-os-simulator/public/data/sharedState/global");
-                
-                onSnapshot(stateDocRef, (docSnap) => {
-                    if (!docSnap.exists()) {
-                        console.log("No shared state found. Creating one.");
-                        // Initialize state if it doesn't exist
-                        setDoc(stateDocRef, { backgroundColor: '#008080', crash: false, invert: false, beep: false, fakeError: false, sharedImage: null });
-                        return;
-                    }
 
-                    const state = docSnap.data();
-                    
-                    // Apply state changes to the UI
-                    desktopScreen.style.backgroundColor = state.backgroundColor || '#008080';
-                    
-                    // Check if troll is for other users
-                    const isMyTroll = state.trollInitiator === userId;
-                    
-                    // --- Apply Troll Effects ---
-                    desktopScreen.style.filter = state.invert && !isMyTroll ? 'invert(1)' : 'none';
+            const blockAlign = numChannels * 2;
+            const byteRate = sampleRate * blockAlign;
 
-                    if (state.crash && !isMyTroll) {
-                        document.getElementById('bsod').style.display = 'block';
-                    } else {
-                         document.getElementById('bsod').style.display = 'none';
-                    }
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + pcmData.length * 2, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, pcmData.length * 2, true);
 
-                    if (state.fakeError && !isMyTroll) {
-                        document.getElementById('fake-error-message').textContent = state.errorMessage || "An error occurred.";
-                        openWindow(document.getElementById('fake-error-window'));
-                    } else {
-                        document.getElementById('fake-error-window').style.display = 'none';
-                    }
-
-                    if (state.beep && !isMyTroll) {
-                        if (!annoyingBeep) {
-                            annoyingBeep = new Tone.Synth().toDestination();
-                            new Tone.Loop(time => {
-                                annoyingBeep.triggerAttackRelease("C6", "16n", time);
-                            }, "4n").start(0);
-                            Tone.Transport.start();
-                        }
-                    } else {
-                        if (Tone.Transport.state === 'started') {
-                            Tone.Transport.stop();
-                            Tone.Transport.cancel();
-                            annoyingBeep = null;
-                        }
-                    }
-                    
-                    // --- Shared Image ---
-                    const sharedImageContainer = document.getElementById('shared-image-container');
-                    if(state.sharedImage) {
-                        document.getElementById('shared-image-element').src = state.sharedImage;
-                        sharedImageContainer.style.display = 'block';
-                    } else {
-                         sharedImageContainer.style.display = 'none';
-                    }
-                });
+            for (let i = 0; i < pcmData.length; i++) {
+                view.setInt16(44 + i * 2, pcmData[i], true);
             }
-            
-            // --- ADMIN ACTIONS (Writing to Firestore) ---
-            const stateDocRef = () => doc(db, "artifacts/retro-os-simulator/public/data/sharedState/global");
 
-            document.getElementById('admin-colors').addEventListener('click', () => {
-                const colors = ['#008080', '#5A5A5A', '#000000', '#800000'];
-                const newColor = colors[Math.floor(Math.random() * colors.length)];
-                updateDoc(stateDocRef(), { backgroundColor: newColor });
-            });
-            
-            document.getElementById('admin-crash').addEventListener('click', () => updateDoc(stateDocRef(), { crash: true, trollInitiator: userId }));
-            document.getElementById('admin-troll-invert').addEventListener('click', () => updateDoc(stateDocRef(), { invert: true, trollInitiator: userId }));
-            document.getElementById('admin-troll-beep').addEventListener('click', () => updateDoc(stateDocRef(), { beep: true, trollInitiator: userId }));
-            document.getElementById('admin-troll-error').addEventListener('click', () => {
-                const messages = ["Illegal Operation.", "Kernel Panic: Unable to locate coffee.", "Error 418: I'm a teapot."];
-                updateDoc(stateDocRef(), { fakeError: true, errorMessage: messages[Math.floor(Math.random() * messages.length)], trollInitiator: userId });
-            });
-            
-            document.getElementById('admin-reset').addEventListener('click', () => {
-                setDoc(stateDocRef(), { backgroundColor: '#008080', crash: false, invert: false, beep: false, fakeError: false, sharedImage: null, trollInitiator: null });
-            });
+            return new Blob([view], { type: 'audio/wav' });
+        }
 
-            // --- Image Sharing Logic ---
-            const imageUploadInput = document.getElementById('image-upload-input');
-            document.getElementById('admin-share-image').addEventListener('click', () => imageUploadInput.click());
-            imageUploadInput.addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                // Firestore has a 1MB limit for documents. Warn user for large files.
-                if (file.size > 1048576) {
-                    alert("Image too large! Please choose an image under 1MB.");
+
+        // --- Game Logic ---
+        function createDeck() {
+            const suits = ['♥', '♦', '♣', '♠'];
+            const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            const deck = [];
+            for (const suit of suits) {
+                for (const rank of ranks) {
+                    deck.push({ suit, rank });
+                }
+            }
+            return deck;
+        }
+
+        function shuffleDeck() {
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+        }
+
+        function getCardValue(card) {
+            if (['J', 'Q', 'K'].includes(card.rank)) return 10;
+            if (card.rank === 'A') return 11;
+            return parseInt(card.rank);
+        }
+
+        function calculateScore(hand) {
+            let score = hand.reduce((sum, card) => sum + getCardValue(card), 0);
+            let aceCount = hand.filter(card => card.rank === 'A').length;
+            while (score > 21 && aceCount > 0) {
+                score -= 10;
+                aceCount--;
+            }
+            return score;
+        }
+
+        function createCardElement(card, faceUp = true) {
+            const cardDiv = document.createElement('div');
+            if (faceUp) {
+                const color = ['♥', '♦'].includes(card.suit) ? 'red' : 'black';
+                cardDiv.className = `card ${color}`;
+                cardDiv.innerHTML = `
+                    <div class="rank-top">
+                        <div>${card.rank}</div>
+                        <div class="suit">${card.suit}</div>
+                    </div>
+                    <div class="rank-bottom">
+                        <div>${card.rank}</div>
+                        <div class="suit">${card.suit}</div>
+                    </div>
+                `;
+            } else {
+                cardDiv.className = 'card card-back';
+                cardDiv.dataset.suit = card.suit;
+                cardDiv.dataset.rank = card.rank;
+            }
+            return cardDiv;
+        }
+
+        function updateScores() {
+            dealerScore = calculateScore(dealerHand);
+            playerScore = calculateScore(playerHand);
+            dealerScoreEl.textContent = gameOver || dealerHand.length < 2 ? dealerScore : getCardValue(dealerHand[0]);
+            playerScoreEl.textContent = playerScore;
+        }
+        
+        function renderHands() {
+            dealerCardsEl.innerHTML = '';
+            playerCardsEl.innerHTML = '';
+            dealerHand.forEach((card, index) => {
+                const isFaceUp = gameOver || index === 0;
+                dealerCardsEl.appendChild(createCardElement(card, isFaceUp));
+            });
+            playerHand.forEach(card => {
+                playerCardsEl.appendChild(createCardElement(card));
+            });
+            updateScores();
+        }
+
+        function checkGameOver() {
+            if (playerScore > 21) {
+                gameOver = true;
+                speak('player_bust');
+                endGame();
+            }
+        }
+
+        function dealerTurn() {
+            gameOver = true;
+            renderHands(); // Reveal dealer's hole card
+
+            const dealerPlay = () => {
+                if (dealerScore < 17) {
+                    dealerHand.push(deck.pop());
+                    renderHands();
+                    setTimeout(dealerPlay, 1000);
+                } else {
+                    endGame();
+                }
+            };
+            setTimeout(dealerPlay, 1000);
+        }
+
+        function endGame() {
+            gameOver = true;
+            btnHit.disabled = true;
+            btnStand.disabled = true;
+            btnNewGame.classList.remove('hidden');
+            btnHit.classList.add('hidden');
+            btnStand.classList.add('hidden');
+
+            // Wait for any initial bust/win announcement to finish before the final verdict
+            const finalVerdict = () => {
+                if (isSpeaking) {
+                    setTimeout(finalVerdict, 500);
                     return;
                 }
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    updateDoc(stateDocRef(), { sharedImage: reader.result });
-                };
-                reader.readAsDataURL(file);
-            });
-            document.getElementById('shared-image-close-button').addEventListener('click', () => {
-                 updateDoc(stateDocRef(), { sharedImage: null });
-            });
-
-
-            // --- BOOT & LOGIN (No changes from previous version) ---
-            const bootScreen = document.getElementById('boot-screen');
-            const bootTextEl = document.getElementById('boot-text');
-            const loginScreen = document.getElementById('login-screen');
-            const passwordInput = document.getElementById('password');
-            const bootLog = ['Web OS BIOS v3.0 (Networked)...', 'Initializing hardware...', 'Detecting network card... Realtek 10/100... OK', 'Connecting to global network...', 'Syncing state...', 'Welcome to Web OS \'98!', ''];
-            let bootLineIndex = 0;
-            function typeBootLine() {
-                if (bootLineIndex < bootLog.length) {
-                    bootTextEl.innerHTML += bootLog[bootLineIndex] + '\n';
-                    bootLineIndex++;
-                    setTimeout(typeBootLine, Math.random() * 200 + 100);
+                if (playerScore > 21) {
+                    // Already announced
+                } else if (dealerScore > 21 || playerScore > dealerScore) {
+                    speak('player_win');
+                } else if (dealerScore > playerScore) {
+                    speak('dealer_win');
                 } else {
-                    setTimeout(() => {
-                        bootScreen.style.display = 'none';
-                        loginScreen.style.display = 'flex';
-                        passwordInput.focus();
-                    }, 1000);
+                    speak('push');
                 }
-            }
-            
-            const handleLogin = async () => {
-                loginScreen.style.display = 'none';
-                desktopScreen.style.display = 'flex';
-                startClock();
-                await setupFirebase();
             };
-            document.getElementById('login-button').addEventListener('click', handleLogin);
-            passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') handleLogin(); });
-            typeBootLine();
-
-
-            // --- UI & UTILITIES (Simplified for brevity) ---
-            function startClock() {
-                 const clockEl = document.getElementById('clock');
-                 function updateTime() {
-                    const now = new Date();
-                    clockEl.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-                }
-                updateTime();
-                setInterval(updateTime, 1000);
+            
+            // If the player didn't bust, we need to determine the winner
+            if (playerScore <= 21) {
+                setTimeout(finalVerdict, 1000); // Give a moment to see the cards
             }
-            function openWindow(windowEl) { windowEl.style.display = 'block'; windowEl.style.zIndex = ++maxZIndex; }
-            function makeWindowDraggable(windowEl) { /* ... unchanged ... */ }
-            document.querySelectorAll('.window').forEach(makeWindowDraggable);
-            const adminMenu = document.getElementById('admin-menu');
-            document.addEventListener('keydown', e => { if (e.key === ')') { e.preventDefault(); adminMenu.style.left = `${mouseX}px`; adminMenu.style.top = `${mouseY}px`; adminMenu.style.display = 'block'; } });
-            document.addEventListener('click', (e) => { if (!adminMenu.contains(e.target)) adminMenu.style.display = 'none'; });
-            document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-        });
-    </script>
+        }
 
+        function startGame() {
+            gameOver = false;
+            deck = createDeck();
+            shuffleDeck();
+            dealerHand = [deck.pop(), deck.pop()];
+            playerHand = [deck.pop(), deck.pop()];
+
+            renderHands();
+            
+            btnHit.disabled = false;
+            btnStand.disabled = false;
+            btnNewGame.classList.add('hidden');
+            btnHit.classList.remove('hidden');
+            btnStand.classList.remove('hidden');
+
+            setDealerExpression('neutral');
+            speak('start');
+
+            playerScore = calculateScore(playerHand);
+            if (playerScore === 21) {
+                speak('player_blackjack');
+                dealerTurn();
+            }
+        }
+
+        // Event Listeners
+        btnStart.addEventListener('click', () => {
+            // This first user interaction allows audio to play.
+            btnStart.classList.add('hidden');
+            startGame();
+        });
+
+        btnHit.addEventListener('click', () => {
+            if (gameOver || isSpeaking) return;
+            speak('player_hit');
+            playerHand.push(deck.pop());
+            renderHands();
+            checkGameOver();
+        });
+
+        btnStand.addEventListener('click', () => {
+            if (gameOver || isSpeaking) return;
+            speak('player_stand');
+            btnHit.disabled = true;
+            btnStand.disabled = true;
+            dealerTurn();
+        });
+
+        btnNewGame.addEventListener('click', () => {
+             if (isSpeaking) return;
+             startGame();
+        });
+
+        // Set initial message before game starts
+        messageEl.textContent = "Click 'Start Game' when you're ready to lose.";
+
+    </script>
 </body>
 </html>
